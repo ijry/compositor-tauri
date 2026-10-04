@@ -1,0 +1,1065 @@
+/**
+ * 变换与裁剪工具
+ * ---------------------------------------------------------------
+ * 移动/变换是非破坏性的：只改图层 transform（必要时改 warp 四点），
+ * 因此图层缩放到 5% 仍保持原始分辨率。
+ */
+import { cropDocument } from '@/core/document';
+import { snapPoint } from '@/core/engine/snapping';
+import { defaultTextMeta, renderText } from '@/core/engine/text';
+import { beginInteraction, drawHandles, endInteraction, hitHandle, hitRect, rectFromPoints, snapshotBytes } from '@/tools/helpers';
+import type { EditorApi } from '@/types/editor';
+import type { ToolDefinition, ToolOverlayContext } from '@/tools/types';
+import type { LayerTransform, Point, Rect } from '@/types/document';
+
+interface TransformState {
+  mode: 'idle' | 'move' | 'scale' | 'rotate' | 'warp';
+  handle: number;
+  start: Point;
+  origins: Map<string, LayerTransform>;
+  ids: string[];
+  center: Point;
+  startAngle: number;
+}
+
+const transformState: TransformState = {
+  mode: 'idle', handle: -1, start: { x: 0, y: 0 }, origins: new Map(), ids: [], center: { x: 0, y: 0 }, startAngle: 0,
+};
+
+/** 图层在文档空间的四个角（含旋转与翻转） */
+export function layerCorners(layer: import('@/types/document').Layer): Point[] {
+  const width = layer.transform.size[0];
+  const height = layer.transform.size[1];
+  const origin = layer.transform.origin;
+  const angle = (layer.transform.rotation * Math.PI) / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const flipX = layer.transform.flipX ? -1 : 1;
+  const flipY = layer.transform.flipY ? -1 : 1;
+  return ([[0, 0], [width, 0], [width, height], [0, height]] as [number, number][]).map(([x, y]) => {
+    const dx = (x - width / 2) * flipX;
+    const dy = (y - height / 2) * flipY;
+    return {
+      x: origin[0] + width / 2 + dx * cos - dy * sin,
+      y: origin[1] + height / 2 + dx * sin + dy * cos,
+    };
+  });
+}
+
+/** 由四点得到外接矩形 */
+export function cornersRect(points: Point[]): Rect {
+  const xs = points.map((p) => p.x);
+  const ys = points.map((p) => p.y);
+  return { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) };
+}
+
+/** 文档 -> 图层局部的近似逆变换（扭曲取点用） */
+function invertSimple(transform: LayerTransform): (p: Point) => Point {
+  const angle = (-transform.rotation * Math.PI) / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const center = { x: transform.origin[0] + transform.size[0] / 2, y: transform.origin[1] + transform.size[1] / 2 };
+  const flipX = transform.flipX ? -1 : 1;
+  const flipY = transform.flipY ? -1 : 1;
+  return (p: Point): Point => {
+    const dx = p.x - center.x;
+    const dy = p.y - center.y;
+    return {
+      x: ((dx * cos - dy * sin) * flipX) + transform.size[0] / 2,
+      y: ((dx * sin + dy * cos) * flipY) + transform.size[1] / 2,
+    };
+  };
+}
+
+/** 移动 / 变换工具 */
+export const moveTool: ToolDefinition = {
+  id: 'move',
+  name: '移动 / 变换',
+  shortcut: 'V',
+  group: 'move',
+  icon: '✥',
+  cursor: 'default',
+  defaults: { snap: true, transformAll: false, showControls: true },
+  specs: [
+    { key: 'snap', label: '自动对齐', type: 'boolean' },
+    { key: 'transformAll', label: '变换所有图层', type: 'boolean' },
+    { key: 'showControls', label: '显示变换控件', type: 'boolean' },
+  ],
+  onDown(editor, event) {
+    const layer = editor.activeLayer();
+    if (!layer) return;
+    const ids = editor.option<boolean>('transformAll', false)
+      ? editor.doc.layers.filter((item) => item.isVisible).map((item) => item.id)
+      : [layer.id];
+    const rect = cornersRect(layerCorners(layer));
+    const tolerance = 7 / Math.max(0.05, editor.viewport.zoom);
+    const handle = hitHandle(rect, event.doc, tolerance);
+    transformState.ids = ids;
+    transformState.origins = new Map();
+    for (const id of ids) {
+      const target = editor.findLayer(id);
+      if (target) transformState.origins.set(id, JSON.parse(JSON.stringify(target.transform)) as LayerTransform);
+    }
+    transformState.start = event.doc;
+    transformState.center = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+    transformState.startAngle = Math.atan2(event.doc.y - transformState.center.y, event.doc.x - transformState.center.x) * 180 / Math.PI;
+    if (handle >= 0) {
+      transformState.mode = event.meta ? 'warp' : 'scale';
+      transformState.handle = handle;
+    } else if (hitRect(rect, event.doc)) {
+      transformState.mode = 'move';
+      transformState.handle = -1;
+    } else {
+      transformState.mode = 'rotate';
+      transformState.handle = -1;
+    }
+  },
+  onMove(editor, event) {
+    if (transformState.mode === 'idle') return;
+    const active = editor.activeLayer();
+    if (!active) return;
+    const ids = editor.option<boolean>('transformAll', false) ? transformState.ids : [active.id];
+    if (transformState.mode === 'move') {
+      let delta = { x: event.doc.x - transformState.start.x, y: event.doc.y - transformState.start.y };
+      if (editor.option<boolean>('snap', true) && !event.meta) {
+        const snapped = snapPoint(editor, { x: transformState.start.x + delta.x, y: transformState.start.y + delta.y }, ids);
+        delta = { x: snapped.point.x - transformState.start.x, y: snapped.point.y - transformState.start.y };
+      }
+      if (event.shift) {
+        if (Math.abs(delta.x) > Math.abs(delta.y)) delta.y = 0;
+        else delta.x = 0;
+      }
+      for (const id of ids) {
+        const origin = transformState.origins.get(id);
+        const layer = editor.findLayer(id);
+        if (!origin || !layer) continue;
+        layer.transform.origin = [origin.origin[0] + delta.x, origin.origin[1] + delta.y];
+      }
+      editor.invalidate();
+      return;
+    }
+    if (transformState.mode === 'scale') {
+      const origin = transformState.origins.get(active.id);
+      if (!origin) return;
+      const handle = transformState.handle;
+      const sx = origin.size[0] === 0 ? 1 : Math.max(0.01, (event.doc.x - origin.origin[0]) / origin.size[0]);
+      const sy = origin.size[1] === 0 ? 1 : Math.max(0.01, (event.doc.y - origin.origin[1]) / origin.size[1]);
+      let width = origin.size[0];
+      let height = origin.size[1];
+      if (handle === 0 || handle === 1 || handle === 2) width = origin.size[0] * sx;
+      if (handle >= 3) height = origin.size[1] * sy;
+      if (event.shift) {
+        const ratio = origin.size[0] / Math.max(1, origin.size[1]);
+        if (handle <= 2) height = width / ratio;
+        else width = height * ratio;
+      }
+      active.transform.size = [Math.max(1, width), Math.max(1, height)];
+      editor.invalidate();
+      return;
+    }
+    if (transformState.mode === 'rotate') {
+      const origin = transformState.origins.get(active.id);
+      if (!origin) return;
+      const angle = Math.atan2(event.doc.y - transformState.center.y, event.doc.x - transformState.center.x) * 180 / Math.PI;
+      let next = origin.rotation + (angle - transformState.startAngle);
+      if (event.shift) next = Math.round(next / 15) * 15;
+      else if (editor.option<boolean>('snap', true)) next = Math.round(next);
+      active.transform.rotation = ((next % 360) + 360) % 360;
+      editor.invalidate();
+      return;
+    }
+    // 自由扭曲：拖动角点改变 warp 的分数坐标
+    const origin = transformState.origins.get(active.id);
+    if (!origin || active.kind !== 'pixel' || !active.pixels) return;
+    const warp = origin.warp ?? [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 1 }];
+    const cornerIndex = transformState.handle >= 0 ? [0, 1, 2, 3][Math.floor(transformState.handle / 2)] ?? 0 : 0;
+    const local = invertSimple(origin)(event.doc);
+    const next = [...warp] as [Point, Point, Point, Point];
+    next[cornerIndex] = {
+      x: local.x / Math.max(1, active.pixels.width),
+      y: local.y / Math.max(1, active.pixels.height),
+    };
+    active.transform.warp = next;
+    editor.invalidate();
+  },
+  onUp(editor) {
+    if (transformState.mode === 'idle') return;
+    transformState.mode = 'idle';
+    // 记录历史：提交一次变换
+    const label = '变换图层';
+    const before = new Map<string, LayerTransform>();
+    for (const [id, value] of transformState.origins) before.set(id, value);
+    const after = new Map<string, LayerTransform>();
+    for (const id of before.keys()) {
+      const layer = editor.findLayer(id);
+      if (layer) after.set(id, JSON.parse(JSON.stringify(layer.transform)) as LayerTransform);
+    }
+    let changed = false;
+    for (const [id, value] of before) {
+      const current = after.get(id);
+      if (current && JSON.stringify(current) !== JSON.stringify(value)) {
+        changed = true;
+        break;
+      }
+    }
+    if (!changed) return;
+    editor.pushHistory(
+      label,
+      () => {
+        for (const [id, value] of before) {
+          const layer = editor.findLayer(id);
+          if (layer) layer.transform = JSON.parse(JSON.stringify(value)) as LayerTransform;
+        }
+        editor.invalidate();
+      },
+      () => {
+        for (const [id, value] of after) {
+          const layer = editor.findLayer(id);
+          if (layer) layer.transform = JSON.parse(JSON.stringify(value)) as LayerTransform;
+        }
+        editor.invalidate();
+      },
+      128 * before.size,
+    );
+  },
+  onKeyDown(editor, event) {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return false;
+    const layer = editor.activeLayer();
+    if (!layer) return false;
+    const step = event.shiftKey ? 10 : 1;
+    const snapshot = beginInteraction(editor, [layer.id]);
+    const before = JSON.parse(JSON.stringify(layer.transform)) as LayerTransform;
+    const apply = (dx: number, dy: number): void => {
+      layer.transform.origin = [before.origin[0] + dx, before.origin[1] + dy];
+    };
+    if (event.key === 'ArrowLeft') apply(-step, 0);
+    if (event.key === 'ArrowRight') apply(step, 0);
+    if (event.key === 'ArrowUp') apply(0, -step);
+    if (event.key === 'ArrowDown') apply(0, step);
+    const after = JSON.parse(JSON.stringify(layer.transform)) as LayerTransform;
+    layer.transform = before;
+    endInteraction(editor, '微移��层', snapshot, snapshotBytes(snapshot));
+    layer.transform = after;
+    editor.pushHistory(
+      '微移图层',
+      () => { layer.transform = before; editor.invalidate(); },
+      () => { layer.transform = after; editor.invalidate(); },
+      64,
+    );
+    editor.invalidate();
+    return true;
+  },
+  drawOverlay(context) {
+    drawTransformControls(context);
+  },
+};
+
+/** 绘制变换控件 */
+export function drawTransformControls(context: ToolOverlayContext): void {
+  const { editor } = context;
+  if (!editor.ui.transformControls) return;
+  const ids = editor.option<boolean>('transformAll', false)
+    ? editor.doc.layers.filter((layer) => layer.isVisible).map((layer) => layer.id)
+    : [editor.doc.activeLayerId ?? ''];
+  for (const id of ids) {
+    const layer = editor.findLayer(id);
+    if (!layer) continue;
+    const corners = layerCorners(layer).map((p) => context.toScreen(p));
+    const ctx = context.ctx;
+    ctx.save();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(corners[0]!.x, corners[0]!.y);
+    for (const point of corners.slice(1)) ctx.lineTo(point.x, point.y);
+    ctx.closePath();
+    ctx.stroke();
+    drawHandles(ctx, cornersRect(corners), 6);
+    ctx.restore();
+  }
+}
+
+/** 文档级快照（画布操作使用） */
+export interface DocumentSnapshot {
+  layers: Map<string, import('@/types/editor').LayerSnapshot>;
+  selection: import('@/types/document').SelectionMask | null;
+  width: number;
+  height: number;
+  guides: import('@/types/document').Guide[];
+}
+
+export function snapshotDocument(editor: EditorApi): DocumentSnapshot {
+  const layers = new Map<string, import('@/types/editor').LayerSnapshot>();
+  for (const layer of editor.doc.layers) {
+    const snapshot = editor.snapshotLayer(layer.id);
+    if (snapshot) layers.set(layer.id, snapshot);
+  }
+  return {
+    layers,
+    selection: editor.selectionSnapshot(),
+    width: editor.doc.width,
+    height: editor.doc.height,
+    guides: editor.doc.guides.map((guide) => ({ ...guide })),
+  };
+}
+
+/** 恢复文档快照并记录历史 */
+export function restoreAndRecord(editor: EditorApi, snapshot: DocumentSnapshot, label: string, bytes = 1024): void {
+  const after = snapshotDocument(editor);
+  const restore = (state: DocumentSnapshot): void => {
+    editor.doc.width = state.width;
+    editor.doc.height = state.height;
+    editor.doc.guides = state.guides.map((guide) => ({ ...guide }));
+    for (const [id, value] of state.layers) editor.restoreLayer(id, value);
+    editor.restoreSelection(state.selection);
+    editor.invalidate();
+  };
+  editor.pushHistory(label, () => restore(snapshot), () => restore(after), bytes);
+}
+
+/* ------------------------------ 裁剪 ------------------------------ */
+
+const cropState = { rect: null as Rect | null, dragging: false, start: { x: 0, y: 0 } };
+
+export const cropTool: ToolDefinition = {
+  id: 'crop',
+  name: '裁剪',
+  shortcut: 'C',
+  group: 'crop',
+  icon: '⌗',
+  cursor: 'crosshair',
+  defaults: { ratio: 'free' },
+  specs: [
+    {
+      key: 'ratio',
+      label: '比例',
+      type: 'select',
+      options: [
+        { value: 'free', label: '自由' },
+        { value: '1:1', label: '1:1' },
+        { value: '4:3', label: '4:3' },
+        { value: '3:4', label: '3:4' },
+        { value: '16:9', label: '16:9' },
+        { value: '9:16', label: '9:16' },
+        { value: '3:2', label: '3:2' },
+        { value: '2:3', label: '2:3' },
+      ],
+    },
+  ],
+  activate(editor) {
+    // 有选区时从选区开始裁剪
+    const selection = editor.doc.selection;
+    if (selection) {
+      let minX = selection.width;
+      let minY = selection.height;
+      let maxX = -1;
+      let maxY = -1;
+      for (let y = 0; y < selection.height; y += 1) {
+        for (let x = 0; x < selection.width; x += 1) {
+          if (selection.data[y * selection.width + x]! > 128) {
+            minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+          }
+        }
+      }
+      if (maxX >= 0) {
+        cropState.rect = { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
+        editor.invalidate();
+        return;
+      }
+    }
+    cropState.rect = { x: 0, y: 0, width: editor.doc.width, height: editor.doc.height };
+    editor.invalidate();
+  },
+  deactivate(editor) {
+    cropState.rect = null;
+    editor.invalidate();
+  },
+  onDown(editor, event) {
+    cropState.dragging = true;
+    cropState.start = event.doc;
+    cropState.rect = { x: event.doc.x, y: event.doc.y, width: 0, height: 0 };
+  },
+  onMove(editor, event) {
+    if (!cropState.dragging) return;
+    let rect = rectFromPoints(cropState.start, event.doc);
+    const ratio = editor.option<string>('ratio', 'free');
+    if (ratio !== 'free') {
+      const parts = ratio.split(':').map((value) => Number(value));
+      const w = parts[0] ?? 0;
+      const h = parts[1] ?? 0;
+      if (w > 0 && h > 0) {
+        const target = w / h;
+        if (rect.width / Math.max(1, rect.height) > target) rect.height = rect.width / target;
+        else rect.width = rect.height * target;
+      }
+    }
+    cropState.rect = rect;
+    editor.invalidate();
+  },
+  onUp(editor) {
+    cropState.dragging = false;
+    editor.invalidate();
+  },
+  onKeyDown(editor, event) {
+    if (event.key === 'Enter') {
+      applyCrop(editor);
+      return true;
+    }
+    if (event.key === 'Escape') {
+      cropState.rect = null;
+      editor.invalidate();
+      return true;
+    }
+    return false;
+  },
+  onDblClick(editor) {
+    applyCrop(editor);
+  },
+  drawOverlay(context) {
+    const rect = cropState.rect;
+    if (!rect) return;
+    const { ctx, toScreen } = context;
+    const a = toScreen({ x: rect.x, y: rect.y });
+    const b = toScreen({ x: rect.x + rect.width, y: rect.y + rect.height });
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.beginPath();
+    ctx.rect(0, 0, context.width, context.height);
+    ctx.rect(a.x, a.y, b.x - a.x, b.y - a.y);
+    ctx.fill('evenodd');
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath();
+    for (let i = 1; i <= 2; i += 1) {
+      ctx.moveTo(a.x + ((b.x - a.x) * i) / 3, a.y);
+      ctx.lineTo(a.x + ((b.x - a.x) * i) / 3, b.y);
+      ctx.moveTo(a.x, a.y + ((b.y - a.y) * i) / 3);
+      ctx.lineTo(b.x, a.y + ((b.y - a.y) * i) / 3);
+    }
+    ctx.stroke();
+    drawHandles(ctx, { x: a.x, y: a.y, width: b.x - a.x, height: b.y - a.y }, 6);
+    ctx.restore();
+  },
+};
+
+/** 执行裁剪 */
+export function applyCrop(editor: EditorApi): void {
+  const rect = cropState.rect;
+  if (!rect || rect.width < 1 || rect.height < 1) return;
+  const snapshot = snapshotDocument(editor);
+  cropDocument(editor.doc, rect);
+  cropState.rect = null;
+  restoreAndRecord(editor, snapshot, '裁剪');
+  editor.invalidate();
+}
+
+/* ------------------------------ 渐变 ------------------------------ */
+
+const gradientState = { start: null as Point | null, end: null as Point | null };
+
+export interface GradientSettings {
+  type: 'linear' | 'radial' | 'angle' | 'reflected' | 'diamond';
+  opacity: number;
+  reverse: boolean;
+  dither: boolean;
+  from: [number, number, number];
+  to: [number, number, number];
+}
+
+export const gradientTool: ToolDefinition = {
+  id: 'gradient',
+  name: '渐变',
+  shortcut: 'G',
+  group: 'paint',
+  icon: '▤',
+  cursor: 'crosshair',
+  defaults: {
+    type: 'linear', opacity: 100, reverse: false, dither: true,
+    from: [255, 255, 255] as [number, number, number], to: [0, 0, 0] as [number, number, number],
+  },
+  specs: [
+    {
+      key: 'type',
+      label: '类型',
+      type: 'select',
+      options: [
+        { value: 'linear', label: '线性' }, { value: 'radial', label: '径向' },
+        { value: 'angle', label: '角度' }, { value: 'reflected', label: '对称' }, { value: 'diamond', label: '菱形' },
+      ],
+    },
+    { key: 'opacity', label: '不透明度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+    { key: 'reverse', label: '反向', type: 'boolean' },
+    { key: 'dither', label: '抖动', type: 'boolean' },
+  ],
+  onDown(editor, event) {
+    gradientState.start = event.doc;
+    gradientState.end = event.doc;
+  },
+  onMove(editor, event) {
+    if (!gradientState.start) return;
+    gradientState.end = event.doc;
+    editor.invalidate();
+  },
+  onUp(editor, event) {
+    const start = gradientState.start;
+    const end = event.doc;
+    gradientState.start = null;
+    gradientState.end = null;
+    if (!start) return;
+    if (Math.hypot(end.x - start.x, end.y - start.y) < 1) return;
+    const layer = editor.activeLayer();
+    if (!layer || layer.kind !== 'pixel') return;
+    const snapshot = beginInteraction(editor, [layer.id]);
+    const settings: GradientSettings = {
+      type: editor.option<GradientSettings['type']>('type', 'linear'),
+      opacity: editor.option<number>('opacity', 100) / 100,
+      reverse: editor.option<boolean>('reverse', false),
+      dither: editor.option<boolean>('dither', true),
+      from: editor.option<[number, number, number]>('from', [255, 255, 255]),
+      to: editor.option<[number, number, number]>('to', [0, 0, 0]),
+    };
+    paintGradient(editor, layer, start, end, settings);
+    editor.markLayerDirty(layer.id);
+    endInteraction(editor, '渐变', snapshot, snapshotBytes(snapshot));
+    editor.invalidate();
+  },
+  drawOverlay(context) {
+    if (!gradientState.start || !gradientState.end) return;
+    const a = context.toScreen(gradientState.start);
+    const b = context.toScreen(gradientState.end);
+    context.ctx.save();
+    context.ctx.strokeStyle = '#38bdf8';
+    context.ctx.lineWidth = 1;
+    context.ctx.beginPath();
+    context.ctx.moveTo(a.x, a.y);
+    context.ctx.lineTo(b.x, b.y);
+    context.ctx.stroke();
+    context.ctx.restore();
+  },
+};
+
+/** 把渐变画进图层像素（文档坐标先转成图层局部坐标） */
+function paintGradient(
+  editor: EditorApi,
+  layer: import('@/types/document').PixelLayer,
+  start: Point,
+  end: Point,
+  options: GradientSettings,
+): void {
+  const pixels = layer.pixels;
+  if (!pixels) return;
+  const origin = layer.transform.origin;
+  const angle = (-layer.transform.rotation * Math.PI) / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const scaleX = pixels.width / Math.max(1, layer.transform.size[0]);
+  const scaleY = pixels.height / Math.max(1, layer.transform.size[1]);
+  const toLocal = (p: Point): Point => {
+    const dx = p.x - origin[0];
+    const dy = p.y - origin[1];
+    return { x: (dx * cos - dy * sin) * scaleX, y: (dx * sin + dy * cos) * scaleY };
+  };
+  const localStart = toLocal(start);
+  const localEnd = toLocal(end);
+  const length = Math.max(1e-6, Math.hypot(localEnd.x - localStart.x, localEnd.y - localStart.y));
+  const dx = localEnd.x - localStart.x;
+  const dy = localEnd.y - localStart.y;
+  const selection = editor.doc.selection;
+  for (let y = 0; y < pixels.height; y += 1) {
+    for (let x = 0; x < pixels.width; x += 1) {
+      const px = x - localStart.x;
+      const py = y - localStart.y;
+      let t: number;
+      if (options.type === 'radial') t = Math.hypot(px, py) / length;
+      else if (options.type === 'angle') t = (Math.atan2(py, px) + Math.PI) / (Math.PI * 2);
+      else if (options.type === 'reflected') t = Math.abs(((px * dx + py * dy) / (length * length)) * 2 - 1);
+      else if (options.type === 'diamond') t = (Math.abs(px) + Math.abs(py)) / length;
+      else t = (px * dx + py * dy) / (length * length);
+      if (options.reverse) t = 1 - t;
+      if (options.dither) t += (Math.random() - 0.5) * 0.004;
+      t = Math.max(0, Math.min(1, t));
+      const color: [number, number, number] = [
+        options.from[0] + (options.to[0] - options.from[0]) * t,
+        options.from[1] + (options.to[1] - options.from[1]) * t,
+        options.from[2] + (options.to[2] - options.from[2]) * t,
+      ];
+      let coverage = options.opacity;
+      if (selection) {
+        const doc = editor.toDoc({ x: x / scaleX, y: y / scaleY });
+        const sx = Math.floor(doc.x);
+        const sy = Math.floor(doc.y);
+        coverage *= sx < 0 || sy < 0 || sx >= selection.width || sy >= selection.height ? 0 : selection.data[sy * selection.width + sx]! / 255;
+      }
+      if (coverage <= 0) continue;
+      const i = (y * pixels.width + x) * 4;
+      pixels.data[i] = pixels.data[i]! * (1 - coverage) + color[0] * coverage;
+      pixels.data[i + 1] = pixels.data[i + 1]! * (1 - coverage) + color[1] * coverage;
+      pixels.data[i + 2] = pixels.data[i + 2]! * (1 - coverage) + color[2] * coverage;
+      pixels.data[i + 3] = Math.min(255, pixels.data[i + 3]! + coverage * 255);
+    }
+  }
+  layer.contentKey += 1;
+}
+
+/* ------------------------------ 形状 ------------------------------ */
+
+const shapeState = { start: null as Point | null, end: null as Point | null };
+
+export const shapeTool: ToolDefinition = {
+  id: 'shape',
+  name: '形状',
+  shortcut: 'U',
+  group: 'draw',
+  icon: '◱',
+  cursor: 'crosshair',
+  defaults: { kind: 'rectangle', fill: true, cornerRadius: 0, strokeWidth: 0 },
+  specs: [
+    {
+      key: 'kind',
+      label: '形状',
+      type: 'select',
+      options: [
+        { value: 'rectangle', label: '矩形' },
+        { value: 'roundedRectangle', label: '圆角矩形' },
+        { value: 'ellipse', label: '椭圆' },
+        { value: 'line', label: '直线' },
+      ],
+    },
+    { key: 'fill', label: '填充', type: 'boolean' },
+    { key: 'cornerRadius', label: '圆角', type: 'number', min: 0, max: 500, step: 1, unit: 'px' },
+    { key: 'strokeWidth', label: '描边宽度', type: 'number', min: 0, max: 100, step: 1, unit: 'px' },
+  ],
+  onDown(editor, event) {
+    shapeState.start = event.doc;
+    shapeState.end = event.doc;
+  },
+  onMove(editor, event) {
+    if (!shapeState.start) return;
+    shapeState.end = event.doc;
+    editor.invalidate();
+  },
+  onUp(editor, event) {
+    const start = shapeState.start;
+    const end = event.doc;
+    shapeState.start = null;
+    shapeState.end = null;
+    if (!start) return;
+    const rect = rectFromPoints(start, end);
+    if (rect.width < 1 || rect.height < 1) return;
+    const kind = editor.option<'rectangle' | 'roundedRectangle' | 'ellipse' | 'line'>('kind', 'rectangle');
+    const shape = {
+      kind,
+      color: [...editor.foreground] as [number, number, number],
+      cornerRadius: editor.option<number>('cornerRadius', 0),
+      fillEnabled: editor.option<boolean>('fill', true),
+      strokeWidth: editor.option<number>('strokeWidth', 0),
+      strokeColor: [255, 255, 255] as [number, number, number],
+      start: [0, 0] as [number, number],
+      end: [1, 1] as [number, number],
+    };
+    const buffer = renderShape(rect, shape);
+    const layer = createShapeLayer(kind === 'line' ? '直线' : '形状', buffer, shape);
+    layer.transform.origin = [rect.x, rect.y];
+    const layerId = layer.id;
+    editor.doc.layers.push(layer);
+    editor.doc.activeLayerId = layerId;
+    editor.pushHistory(
+      '绘制形状',
+      () => {
+        const index = editor.doc.layers.findIndex((item) => item.id === layerId);
+        if (index >= 0) editor.doc.layers.splice(index, 1);
+        editor.doc.activeLayerId = editor.doc.layers[editor.doc.layers.length - 1]?.id ?? null;
+        editor.invalidate();
+      },
+      () => {
+        editor.doc.layers.push(layer);
+        editor.doc.activeLayerId = layerId;
+        editor.invalidate();
+      },
+      buffer.data.length * 2,
+    );
+    editor.invalidate();
+  },
+  drawOverlay(context) {
+    if (!shapeState.start || !shapeState.end) return;
+    const rect = rectFromPoints(shapeState.start, shapeState.end);
+    const a = context.toScreen({ x: rect.x, y: rect.y });
+    const b = context.toScreen({ x: rect.x + rect.width, y: rect.y + rect.height });
+    context.ctx.save();
+    context.ctx.strokeStyle = '#38bdf8';
+    context.ctx.setLineDash([4, 3]);
+    context.ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+    context.ctx.restore();
+  },
+};
+
+/** 创建带形状元数据的图层 */
+function createShapeLayer(name: string, buffer: import('@/types/document').PixelBuffer, shape: import('@/types/document').ShapeMeta): import('@/types/document').Layer {
+  const layer = {
+    id: createShapeLayerId(),
+    kind: 'pixel' as const,
+    name,
+    isVisible: true,
+    opacity: 1,
+    blendMode: 'Normal' as const,
+    transform: {
+      origin: [0, 0] as [number, number],
+      size: [buffer.width, buffer.height] as [number, number],
+      rotation: 0,
+      flipX: false,
+      flipY: false,
+      sampling: 'High quality' as const,
+      warp: null,
+    },
+    parentId: null,
+    clipping: false,
+    mask: null,
+    effects: null,
+    expanded: true,
+    locked: false,
+    contentKey: 0,
+    pixels: buffer,
+    text: null,
+    shape,
+    adjustment: null,
+  };
+  return layer;
+}
+
+function createShapeLayerId(): string {
+  return `shape-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/** 按形状元数据渲染像素（形状图层保持可编辑：元数据 + 像素并存） */
+export function renderShape(
+  rect: Rect,
+  shape: import('@/types/document').ShapeMeta,
+): import('@/types/document').PixelBuffer {
+  const width = Math.max(1, Math.round(rect.width));
+  const height = Math.max(1, Math.round(rect.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  ctx.beginPath();
+  if (shape.kind === 'ellipse') {
+    ctx.ellipse(width / 2, height / 2, width / 2, height / 2, 0, 0, Math.PI * 2);
+  } else if (shape.kind === 'roundedRectangle') {
+    const radius = Math.min(shape.cornerRadius, width / 2, height / 2);
+    ctx.roundRect(0, 0, width, height, radius);
+  } else if (shape.kind === 'line') {
+    ctx.moveTo(0, 0);
+    ctx.lineTo(width, height);
+  } else {
+    ctx.rect(0, 0, width, height);
+  }
+  if (shape.fillEnabled) {
+    ctx.fillStyle = `rgb(${shape.color[0]}, ${shape.color[1]}, ${shape.color[2]})`;
+    ctx.fill();
+  }
+  if (shape.strokeWidth > 0) {
+    ctx.strokeStyle = `rgb(${shape.strokeColor[0]}, ${shape.strokeColor[1]}, ${shape.strokeColor[2]})`;
+    ctx.lineWidth = shape.strokeWidth;
+    ctx.stroke();
+  }
+  const image = ctx.getImageData(0, 0, width, height);
+  return { width, height, data: image.data };
+}
+
+/* ------------------------------ 文字 ------------------------------ */
+
+/** 文字工具的编辑状态（供画布与工具选项头共享） */
+export const textToolState = { box: null as Rect | null, layerId: null as string | null };
+
+export const typeTool: ToolDefinition = {
+  id: 'type',
+  name: '文字',
+  shortcut: 'T',
+  group: 'draw',
+  icon: 'T',
+  cursor: 'text',
+  defaults: {
+    content: '文字',
+    fontName: 'PingFang SC',
+    fontSize: 72,
+    color: [255, 255, 255] as [number, number, number],
+    align: 'left',
+    tracking: 0,
+    lineSpacing: 0,
+    bold: false,
+    italic: false,
+  },
+  specs: [
+    { key: 'content', label: '内容', type: 'select', options: [] },
+    { key: 'fontName', label: '字体', type: 'select', options: [] },
+    { key: 'fontSize', label: '字号', type: 'number', min: 6, max: 800, step: 1, unit: 'px' },
+    { key: 'align', label: '对齐', type: 'select', options: [{ value: 'left', label: '左' }, { value: 'center', label: '中' }, { value: 'right', label: '右' }] },
+    { key: 'tracking', label: '字距', type: 'number', min: -100, max: 500, step: 1 },
+    { key: 'lineSpacing', label: '行距', type: 'number', min: 0, max: 800, step: 1, unit: 'px' },
+    { key: 'bold', label: '加粗', type: 'boolean' },
+    { key: 'italic', label: '倾斜', type: 'boolean' },
+  ],
+  onDown(editor, event) {
+    textToolState.box = { x: event.doc.x, y: event.doc.y, width: 8, height: 8 };
+  },
+  onMove(editor, event) {
+    if (!textToolState.box) return;
+    textToolState.box = rectFromPoints({ x: textToolState.box.x, y: textToolState.box.y }, event.doc);
+    editor.invalidate();
+  },
+  onUp(editor, event) {
+    if (!textToolState.box) return;
+    const box = textToolState.box;
+    textToolState.box = null;
+    commitText(editor, box);
+  },
+  onDblClick(editor, event) {
+    commitText(editor, { x: event.doc.x, y: event.doc.y, width: 8, height: 8 });
+  },
+  onKeyDown(editor, event) {
+    if (event.key === 'Escape') {
+      textToolState.box = null;
+      editor.invalidate();
+      return true;
+    }
+    if (event.key === 'Enter' && textToolState.box) {
+      const box = textToolState.box;
+      textToolState.box = null;
+      commitText(editor, box);
+      return true;
+    }
+    return false;
+  },
+  drawOverlay(context) {
+    const box = textToolState.box;
+    if (!box) return;
+    const a = context.toScreen({ x: box.x, y: box.y });
+    const b = context.toScreen({ x: box.x + box.width, y: box.y + box.height });
+    context.ctx.save();
+    context.ctx.strokeStyle = '#38bdf8';
+    context.ctx.setLineDash([4, 3]);
+    context.ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+    context.ctx.restore();
+  },
+};
+
+/** 创建或更新文字图层（内容取自工具选项） */
+export function commitText(editor: EditorApi, box: Rect): void {
+  const meta = defaultTextMeta(String(editor.option<string>('content', '文字')));
+  meta.fontName = editor.option<string>('fontName', meta.fontName);
+  meta.fontSize = editor.option<number>('fontSize', meta.fontSize);
+  meta.color = editor.option<[number, number, number]>('color', meta.color);
+  meta.align = editor.option<'left' | 'center' | 'right'>('align', 'left');
+  meta.tracking = editor.option<number>('tracking', 0);
+  meta.lineSpacing = editor.option<number>('lineSpacing', 0);
+  meta.bold = editor.option<boolean>('bold', false);
+  meta.italic = editor.option<boolean>('italic', false);
+  meta.boxSize = [Math.max(24, box.width), Math.max(24, box.height)];
+  const buffer = renderText(meta, meta.boxSize[0], meta.boxSize[1]);
+  const existing = textToolState.layerId ? editor.findLayer(textToolState.layerId) : null;
+  if (existing && existing.kind === 'pixel') {
+    const snapshot = beginInteraction(editor, [existing.id]);
+    existing.pixels = buffer;
+    existing.text = meta;
+    existing.transform.size = [buffer.width, buffer.height];
+    existing.contentKey += 1;
+    editor.markLayerDirty(existing.id);
+    endInteraction(editor, '修改文字', snapshot, snapshotBytes(snapshot));
+    return;
+  }
+  const layer = {
+    id: `text-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    kind: 'pixel' as const,
+    name: '文字',
+    isVisible: true,
+    opacity: 1,
+    blendMode: 'Normal' as const,
+    transform: {
+      origin: [Math.round(box.x), Math.round(box.y)] as [number, number],
+      size: [buffer.width, buffer.height] as [number, number],
+      rotation: 0,
+      flipX: false,
+      flipY: false,
+      sampling: 'High quality' as const,
+      warp: null,
+    },
+    parentId: null,
+    clipping: false,
+    mask: null,
+    effects: null,
+    expanded: true,
+    locked: false,
+    contentKey: 0,
+    pixels: buffer,
+    text: meta,
+    shape: null,
+    adjustment: null,
+  };
+  const layerId = layer.id;
+  editor.doc.layers.push(layer);
+  editor.doc.activeLayerId = layerId;
+  textToolState.layerId = layerId;
+  editor.pushHistory(
+    '添加文字',
+    () => {
+      const index = editor.doc.layers.findIndex((item) => item.id === layerId);
+      if (index >= 0) editor.doc.layers.splice(index, 1);
+      editor.invalidate();
+    },
+    () => {
+      editor.doc.layers.push(layer);
+      editor.doc.activeLayerId = layerId;
+      editor.invalidate();
+    },
+    buffer.data.length * 2,
+  );
+  editor.invalidate();
+}
+
+/** 修改已有文字图层（面板里改字号/颜色等） */
+export function updateTextLayer(editor: EditorApi, layerId: string, patch: Partial<import('@/types/document').TextMeta>): void {
+  const layer = editor.findLayer(layerId);
+  if (!layer || layer.kind !== 'pixel' || !layer.text) return;
+  const snapshot = beginInteraction(editor, [layerId]);
+  const meta = { ...layer.text, ...patch };
+  layer.text = meta;
+  const box = meta.boxSize;
+  layer.pixels = box ? renderText(meta, box[0], box[1]) : renderText(meta);
+  layer.transform.size = [layer.pixels.width, layer.pixels.height];
+  layer.contentKey += 1;
+  editor.markLayerDirty(layerId);
+  endInteraction(editor, '修改文字', snapshot, snapshotBytes(snapshot));
+  editor.invalidate();
+}
+
+/* ------------------------------ 吸管 ------------------------------ */
+
+export const eyedropperTool: ToolDefinition = {
+  id: 'eyedropper',
+  name: '吸管',
+  shortcut: 'I',
+  group: 'sample',
+  icon: '⌾',
+  cursor: 'crosshair',
+  defaults: { sample: 'composite', size: 1 },
+  specs: [
+    { key: 'sample', label: '取样', type: 'select', options: [{ value: 'composite', label: '所有图层' }, { value: 'layer', label: '当前图层' }] },
+    { key: 'size', label: '取样大小', type: 'number', min: 1, max: 51, step: 2, unit: 'px' },
+  ],
+  onDown(editor, event) {
+    pickColor(editor, event.doc);
+  },
+  onMove(editor, event) {
+    pickColor(editor, event.doc);
+  },
+  onKeyDown(editor, event) {
+    if (event.key === 'x') {
+      const temp = editor.foreground;
+      editor.setForeground(editor.background);
+      editor.setBackground(temp);
+      return true;
+    }
+    if (event.key === 'd') {
+      editor.setForeground([0, 0, 0]);
+      editor.setBackground([255, 255, 255]);
+      return true;
+    }
+    return false;
+  },
+};
+
+/** 取色（可带取样范围） */
+function pickColor(editor: EditorApi, point: Point): void {
+  const size = Math.max(1, Math.round(editor.option<number>('size', 1)));
+  const half = Math.floor(size / 2);
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let count = 0;
+  if (editor.option<string>('sample', 'composite') === 'composite') {
+    const composite = editor.composite();
+    for (let dy = -half; dy <= half; dy += 1) {
+      for (let dx = -half; dx <= half; dx += 1) {
+        const x = Math.round(point.x) + dx;
+        const y = Math.round(point.y) + dy;
+        if (x < 0 || y < 0 || x >= composite.width || y >= composite.height) continue;
+        const i = (y * composite.width + x) * 4;
+        r += composite.data[i]!;
+        g += composite.data[i + 1]!;
+        b += composite.data[i + 2]!;
+        count += 1;
+      }
+    }
+  } else {
+    const layer = editor.activeLayer();
+    if (layer?.kind === 'pixel' && layer.pixels) {
+      const x = Math.round(point.x - layer.transform.origin[0]);
+      const y = Math.round(point.y - layer.transform.origin[1]);
+      if (x >= 0 && y >= 0 && x < layer.pixels.width && y < layer.pixels.height) {
+        const i = (y * layer.pixels.width + x) * 4;
+        r = layer.pixels.data[i]!;
+        g = layer.pixels.data[i + 1]!;
+        b = layer.pixels.data[i + 2]!;
+        count = 1;
+      }
+    }
+  }
+  if (count === 0) return;
+  const color: [number, number, number] = [Math.round(r / count), Math.round(g / count), Math.round(b / count)];
+  editor.setForeground(color);
+  editor.status(`前景色 rgb(${color.join(', ')})`);
+}
+
+/* ------------------------------ 手形 / 缩放 ------------------------------ */
+
+const panState = { active: false, start: { x: 0, y: 0 }, center: { x: 0, y: 0 } };
+
+export const handTool: ToolDefinition = {
+  id: 'hand',
+  name: '抓手',
+  shortcut: 'H',
+  group: 'view',
+  icon: '✋',
+  cursor: 'grab',
+  defaults: {},
+  specs: [],
+  onDown(editor, event) {
+    panState.active = true;
+    panState.start = event.screen;
+    panState.center = { x: editor.viewport.centerX, y: editor.viewport.centerY };
+  },
+  onMove(editor, event) {
+    if (!panState.active) return;
+    const zoom = editor.viewport.zoom;
+    editor.setViewport({
+      centerX: panState.center.x - (event.screen.x - panState.start.x) / zoom,
+      centerY: panState.center.y - (event.screen.y - panState.start.y) / zoom,
+    });
+  },
+  onUp() {
+    panState.active = false;
+  },
+};
+
+export const zoomTool: ToolDefinition = {
+  id: 'zoom',
+  name: '缩放',
+  shortcut: 'Z',
+  group: 'view',
+  icon: '🔍',
+  cursor: 'zoom-in',
+  defaults: {},
+  specs: [],
+  onDown(editor, event) {
+    const factor = event.alt ? 1 / 1.5 : 1.5;
+    editor.setViewport({ zoom: Math.max(0.0033, Math.min(32, editor.viewport.zoom * factor)) });
+  },
+};
+
+/** 以某点为中心缩放（⌘ + 滚轮 / 缩放工具使用） */
+export function zoomAt(editor: EditorApi, factor: number): void {
+  editor.setViewport({ zoom: Math.max(0.0033, Math.min(32, editor.viewport.zoom * factor)) });
+}

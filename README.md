@@ -1,2 +1,80 @@
-# compositor-tauri
-compositor跨平台版本
+# 合成器专业版（otools-compositor）
+
+跨平台专业图像编辑器，参考 [robbietilton/Compositor](https://github.com/robbietilton/Compositor) 复刻实现，
+以 **Vue 3 + TypeScript 组件化** 的 otools 插件形态交付，Windows / macOS / Linux 通用。
+
+## 开发与构建
+
+```bash
+pnpm install
+pnpm dev        # 独立开发调试（127.0.0.1:5191）
+pnpm typecheck  # vue-tsc 类型检查
+pnpm build      # 产出 dist/index.html
+```
+
+## 部署到 otools
+
+```powershell
+pwsh -File scripts/deploy-to-otools.ps1 -OtoolsRoot D:\Repos\xyito\otools\otools
+# 之后在 otools 仓库中：
+pnpm --dir plugins/otools-compositor install
+pnpm --dir plugins/otools-compositor build
+```
+
+插件被放到 `otools/otools/plugins/otools-compositor` 后，`vite.config.ts` 会自动改用 otools 仓库自带的
+`createOtoolsPluginSdkViteConfig`，从而获得 quickDev、SDK 别名与依赖兜底能力；独立仓库里则使用等价配置。
+
+## 目录结构
+
+```
+src/
+  platform/      宿主适配层（otools / Tauri / 浏览器三级回退：对话框、读写文件、目录列举、本地状态）
+  types/         文档模型与编辑器接口
+  core/          像素、色彩、混合模式、几何、选区
+    engine/      合成器、图层效果、渲染器、绘制、历史、文字、吸附
+    filters/     12 种调整算法 + 模糊 / 创意滤镜 / 内容感知填充
+    ops/         选区运算（魔棒、色彩范围、选择主体等）
+  io/            图片、TIFF、PSD/PSB、相机 RAW、.comp 工���包���写
+  tools/         19 个工具（工具框架 + 选区 / 绘画 / 变换三类实现）
+  composables/   编辑器状态中枢、命令层、文件命令层
+  components/    画布舞台、工具栏、工具选项头、图层面板、属性面板、历史/颜色/信息面板、对话框
+docs/复刻计划.md 复刻计划进度表
+```
+
+## 已实现功能（对应上游 README）
+
+- **图层**：图层与组、不透明度、Photoshop 全套 24 种混合模式（顺序一致）、图层蒙版（可绘制/反相/应用）、
+  剪贴蒙版、调整层（12 种）、图层效果（描边/投影/颜色叠加/内阴影/外发光/内发光）、向下合并、合并图层、合并组、
+  合并全部、复制、重命名（双击）、上移/下移、编组/取消编组、右键菜单。
+- **变换**：非破坏性移动 / 缩放 / 旋转 / 翻转，⌘ 拖拽手柄自由扭曲（单应矩阵）、方向键 1px / 10px 微移、
+  自动对齐（参考线 / 网格 / 图层边缘与中心 / 文档边界）。
+- **选区**：矩形、椭圆、自由与多边形套索、魔棒（容差 / 连续 / 全图层取样）、对象选择、色彩范围、
+  全选 / 取消 / 反选、扩展、收缩、羽化、边界、由图层像素或蒙版建立选区、加选 / 减选 / 交叉。
+- **绘画与修复**：画笔（大小 / 硬度 / 不透明度 / 平滑）、橡皮擦、污点修复（补丁搜索）、仿制图章（对齐 / 单层）、
+  模糊工具、涂抹、液化（推 / 旋转 / 膨胀）、渐变（线性 / 径向 / 角度 / 对称 / 菱形 + 抖动 + 反向）、
+  形状工具（矩形 / 圆角矩形 / 椭圆 / 直线，保持可编辑）、文字工具（多行换行、字距、行距、对齐、加粗/倾斜）、
+  吸管与前景/背景色（X 交换、D 复位）。
+- **调整与滤镜**：色相/饱和度（含着色）、色阶、曲线、曝光度、渐变映射、颗粒、黑白、色彩平衡、反相、
+  高斯模糊、动感模糊、添加杂色（可复现种子）；破坏性滤镜：添加杂色、渐晕、辉光、色调反差、镜头校正、
+  移除背景、USM 锐化、降噪、抖动。
+- **画布与文件**：多文档标签页、标尺、参考线（可拖拽生成）、网格、Snap To、画布大小（九宫格定位）、
+  图像大小、修边、旋转/翻转画布、导入 PNG/JPEG/WebP/BMP/GIF/SVG/TIFF、PSD/PSB（带转换报告）、
+  相机 RAW（DNG/CR2/NEF/ARW 等 TIFF 容器解码 + 显影面板）、导出 PNG/JPEG/WebP、导出 PSD、复制合并。
+- **工程包**：`.comp` manifest v11 + `images/*.png` 图层与蒙版资源，保存时先写图片再写清单；
+  打开中的工程支持约 1/3 秒轮询热重载，重载保留缩放与滚动、清空历史。
+- **界面**：顶部菜单、工具栏（分组 + 快捷键角标）、随工具切换的选项头（数值标签可拖拽擦洗）、
+  图层面板、属性面板、历史/颜色/信息面板、对话框集合、全套 Photoshop 风格快捷键（含 0-9 输入不透明度）。
+
+## 与上游的差异（已在 `docs/复刻计划.md` 中标注）
+
+1. 渲染为 Canvas 2D 像素合成（上游为 Metal / GPU），大图预览按 1/2、1/4、1/8 降采样。
+2. 图层排序提供按钮方式（上移 / 下移 / 编组 / 解组），未实现拖拽排序与嵌套拖拽。
+3. 浮动面板未实现拖拽与停靠，右侧面板为固定布局。
+4. 快捷键表可查看（帮助 → 键盘快捷键），未提供快捷键重映射界面。
+5. 相机 RAW 仅支持 TIFF 容器格式（DNG / CR2 / NEF / ARW / ORF / PEF / SRW / RW2）；
+   CR3（ISO-BMFF）与 RAF（Fujifilm 私有格式）会给出明确提示而非静默失败。
+6. PSD 导入保留图层、组、蒙版、混合模式与简单横排文字元数据；效果只近似保留投影与内投影。
+
+## 许可
+
+MIT（沿用上游 Compositor 的许可）。

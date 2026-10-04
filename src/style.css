@@ -1,0 +1,30 @@
+/* 全局基础样式：暗色主题与排版 */
+:root {
+  color-scheme: dark;
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Avenir Next", sans-serif;
+  --cmp-bg: #1e1e1e;
+  --cmp-panel: #252526;
+  --cmp-border: #3a3a3a;
+  --cmp-text: #dcdcdc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--cmp-bg);
+  color: var(--cmp-text);
+}
+
+#app {
+  height: 100%;
+}
+
+.app-root {
+  height: 100%;
+}

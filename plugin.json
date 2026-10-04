@@ -1,0 +1,26 @@
+{
+  "devUrl": "http://127.0.0.1:5191",
+  "developerName": "jry",
+  "displayName": "合成器专业版",
+  "displayNameCN": "合成器",
+  "entry": "dist/index.html",
+  "quickDev": true,
+  "hasAd": false,
+  "icon": "🎛️",
+  "inPluginPurchase": false,
+  "key": [
+    "合成器",
+    "compositor",
+    "修图",
+    "图像编辑",
+    "ps",
+    "图片合成",
+    "仿制"
+  ],
+  "openInBrowser": false,
+  "packid": "otools-compositor",
+  "screenshots": [],
+  "summary": "跨平台专业图像编辑器：多图层、图层蒙版与剪贴蒙版、调整层与图层效果、选区与绘画修复工具组、曲线/色阶/相机 RAW、PSD 与 .comp 工程、PNG/JPEG 导出。",
+  "uuid": "otools-compositor",
+  "version": "0.1.0"
+}
