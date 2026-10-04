@@ -169,14 +169,20 @@ export class CanvasRenderer {
     }
   }
 
-  /** 选择合成比例：只按 1/2、1/4、1/8 降采样，保证缓存稳定 */
+  /**
+   * 选择合成比例
+   * ---------------------------------------------------------------
+   * 缩小时按 2 的幂降采样，同时受像素预算约束：
+   * 预算内最多合成 16 megapixels，否则浏览器会分配不出缓冲。
+   */
   private resolveRenderScale(doc: CompDocument, zoom: number): number {
-    const totalPixels = doc.width * doc.height;
+    const budget = 16_000_000;
+    const totalPixels = Math.max(1, doc.width * doc.height);
     let scale = 1;
-    if (zoom < 1) scale = Math.pow(2, Math.ceil(Math.log2(1 / zoom)));
-    // 超出像素预算时进一步降采样
-    while (totalPixels * scale * scale > 16_000_000 && scale < 64) scale *= 2;
-    return Math.min(scale, 64);
+    if (zoom < 1) scale = Math.min(64, Math.pow(2, Math.ceil(Math.log2(1 / zoom))));
+    // 超出预算继续减半，保证缓冲一定分配得出来
+    while (totalPixels * scale * scale > budget && scale > 0.02) scale /= 2;
+    return Math.max(0.02, scale);
   }
 
   /** 缓存键：文档内容摘要 + 比例 */

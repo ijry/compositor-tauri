@@ -6,6 +6,7 @@
  */
 import {
   addLayerMask, applyLayerMask, createAdjustmentLayer, createBlankLayer, createGroupLayer, createPixelLayer,
+  descendantsOf,
   duplicateLayer as duplicateLayerCore, flipCanvas, groupLayers as groupLayersCore, insertLayer as insertLayerCore,
   invertLayerMask, maskFromSelection, mergeDown as mergeDownCore, mergeGroup as mergeGroupCore,
   mergeLayers as mergeLayersCore, flattenVisible as flattenCore, nudgeLayerOrder, removeLayers as removeLayersCore,
@@ -29,31 +30,90 @@ import { importPsd } from '@/io/psd';
 import { createIoCommands } from '@/composables/commands-io';
 import { actualPixels, closeCurrent, currentHistory, fitCanvas, invalidate, openDialog, openDocument, toggleUi, zoomStep } from '@/composables/useEditor';
 import type { EditorApi } from '@/types/editor';
-import type { AdjustmentKind, Layer, PixelBuffer } from '@/types/document';
+import type { AdjustmentKind, CompDocument, Layer, PixelBuffer } from '@/types/document';
 
 /** 剪贴板（内部实现） */
 const clipboard: { pixels: PixelBuffer | null; document: Layer | null } = { pixels: null, document: null };
 
 /** 命令实现 */
 export function createCommands(api: EditorApi) {
-  /** 当前文档 */
-  const doc = api.doc;
+  /**
+   * 当前文档（延迟解析）
+   * ---------------------------------------------------------------
+   * 模块初始化时可能还没有打开任何文档，因此用代理把 doc 的读写
+   * 转发到「调用时的当前文档」，避免初始化阶段就抛错。
+   */
+  const doc = new Proxy({} as CompDocument, {
+    get(_target, key) {
+      const document = api.doc;
+      return document[key as keyof CompDocument];
+    },
+    set(_target, key, value) {
+      const document = api.doc;
+      (document as unknown as Record<string, unknown>)[key as string] = value;
+      return true;
+    },
+  });
   /** 记录一条「图层集合」类操作的历史 */
-  const pushLayersHistory = (label: string, before: Layer[], after: Layer[]): void => {
-    const doc = api.doc;
-    const beforeJson = JSON.stringify(before.map(stripRuntime));
-    const afterJson = JSON.stringify(after.map(stripRuntime));
-    if (beforeJson === afterJson) return;
-    const restore = (json: string): void => {
-      doc.layers = JSON.parse(json) as Layer[];
-      doc.activeLayerId = doc.layers[doc.layers.length - 1]?.id ?? null;
-      api.invalidate();
-    };
-    api.pushHistory(label, () => restore(beforeJson), () => restore(afterJson), 2048);
+  /** 图层结构快照：只记录 id 顺序与父级，避免把像素写进历史 */
+  interface Structure {
+    ids: string[];
+    parents: Record<string, string | null>;
+  }
+
+  /** 捕获当前图层结构 */
+  const captureStructure = (): Structure => ({
+    ids: doc.layers.map((layer) => layer.id),
+    parents: Object.fromEntries(doc.layers.map((layer) => [layer.id, layer.parentId ?? null])),
+  });
+
+  /** 结构是否相同 */
+  const sameStructure = (a: Structure, b: Structure): boolean => {
+    if (a.ids.length !== b.ids.length) return false;
+    for (let i = 0; i < a.ids.length; i += 1) if (a.ids[i] !== b.ids[i]) return false;
+    for (const id of a.ids) if ((a.parents[id] ?? null) !== (b.parents[id] ?? null)) return false;
+    return true;
   };
 
-  /** 图层快照（去掉运行时字段） */
-  const stripRuntime = (layer: Layer): Layer => layer;
+  /** 按结构重排图层；drop 中的图层会被移出数组（撤销新增 / 重做删除） */
+  const applyStructure = (structure: Structure, drop: Set<string>): void => {
+    const map = new Map(doc.layers.map((layer) => [layer.id, layer]));
+    const known = new Set(structure.ids);
+    const next: Layer[] = [];
+    for (const id of structure.ids) {
+      if (drop.has(id)) continue;
+      const layer = map.get(id);
+      if (!layer) continue;
+      layer.parentId = structure.parents[id] ?? null;
+      next.push(layer);
+    }
+    // 快照里没有的图层（例如被撤销的新增图层）保持原样放回末尾，避免丢失数据
+    for (const layer of doc.layers) {
+      if (known.has(layer.id) || drop.has(layer.id)) continue;
+      next.push(layer);
+    }
+    doc.layers = next;
+    if (!doc.layers.some((layer) => layer.id === doc.activeLayerId)) {
+      doc.activeLayerId = doc.layers[doc.layers.length - 1]?.id ?? null;
+    }
+    api.invalidate();
+  };
+
+  /**
+   * 结构类操作的历史：撤销/重做只重排 id 与 parentId，
+   * 对比旧的 JSON 快照可以避免把像素数据写进历史（那会导致内存爆炸）。
+   */
+  const pushStructureHistory = (label: string, before: Structure, after: Structure, bytes = 512): void => {
+    if (sameStructure(before, after)) return;
+    const droppedInBefore = new Set(before.ids.filter((id) => !after.ids.includes(id)));
+    const addedInBefore = new Set(after.ids.filter((id) => !before.ids.includes(id)));
+    api.pushHistory(
+      label,
+      () => applyStructure(before, addedInBefore),
+      () => applyStructure(after, droppedInBefore),
+      bytes,
+    );
+  };
 
   /** 破坏性滤镜：作用在当前像素层，受选区限制 */
   const applyToActiveLayer = (label: string, apply: (pixels: PixelBuffer, layer: Layer) => void): void => {
@@ -98,40 +158,156 @@ export function createCommands(api: EditorApi) {
   };
 
   const run = (name: string, payload?: unknown): void => {
-    const doc = api.doc;
+    // 注意：这里不再取 api.doc，由顶部的惰性代理在真正访问时才解析（newCanvas 时还没有文档）
     switch (name) {
       /* ---------------- 图层 ---------------- */
       case 'newLayer': {
+        const beforeStructure = captureStructure();
         const layer = createBlankLayer(doc, '图层');
         insertLayerCore(doc, layer);
-        recordLayerChange('新建图层');
+        pushStructureHistory('新建图层', beforeStructure, captureStructure());
         break;
       }
       case 'duplicateLayer': {
         const layer = api.activeLayer();
         if (!layer) break;
+        const beforeStructure = captureStructure();
         const copy = duplicateLayerCore(layer);
         const index = doc.layers.findIndex((item) => item.id === layer.id);
         doc.layers.splice(index + 1, 0, copy);
         doc.activeLayerId = copy.id;
-        recordLayerChange('复制图层');
+        pushStructureHistory('复制图层', beforeStructure, captureStructure());
         break;
       }
       case 'deleteLayer': {
-        const layer = api.activeLayer();
-        if (!layer) break;
-        const before = doc.layers.slice();
-        removeLayersCore(doc, [layer.id]);
-        pushLayersHistory('删除图层', before, doc.layers.slice());
+        const ids = (payload as string[] | undefined) ?? (doc.activeLayerId ? [doc.activeLayerId] : []);
+        if (ids.length === 0) break;
+        const beforeStructure = captureStructure();
+        const beforeActive = doc.activeLayerId;
+        // \u5220\u9664\u9700\u8981\u4fdd\u7559\u88ab\u5220\u56fe\u5c42\u5bf9\u8c61\uff0c\u5426\u5219\u64a4\u9500\u65f6\u50cf\u7d20\u4f1a\u4e22\u5931
+        const removed = removeLayersCore(doc, ids);
+        const afterStructure = captureStructure();
+        const removedIds = removed.map((item) => item.id);
+        api.pushHistory(
+          '删除图层',
+          () => {
+            for (const layer of removed) {
+              if (!doc.layers.some((item) => item.id === layer.id)) doc.layers.push(layer);
+            }
+            applyStructure(beforeStructure, new Set());
+            doc.activeLayerId = beforeActive;
+            api.invalidate();
+          },
+          () => {
+            removeLayersCore(doc, removedIds);
+            applyStructure(afterStructure, new Set());
+            api.invalidate();
+          },
+          256,
+        );
         break;
       }
       case 'moveLayerUp':
       case 'moveLayerDown': {
         const layer = api.activeLayer();
         if (!layer) break;
-        const before = JSON.stringify(doc.layers.map((item) => item.id));
+        const beforeStructure = captureStructure();
         nudgeLayerOrder(doc, layer.id, name === 'moveLayerUp' ? 1 : -1);
-        recordOrderChange('调整图层顺序', before);
+        pushStructureHistory('调整图层顺序', beforeStructure, captureStructure());
+        break;
+      }
+
+      /** 图层面板拖放：排序 + 嵌套进组 + Option 拖拽复制 */
+      case 'moveLayerTo': {
+        const options = payload as {
+          ids: string[];
+          referenceId: string | null;
+          position: 'above' | 'below' | 'inside';
+          duplicate?: boolean;
+        };
+        if (!options || options.ids.length === 0) break;
+        const beforeStructure = captureStructure();
+        // 收集被拖动的图层及其子孙（子树在数组中必须连续）
+        let picked: Layer[] = [];
+        for (const id of options.ids) {
+          const layer = doc.layers.find((item) => item.id === id);
+          if (!layer) continue;
+          const subTree = [layer, ...descendantsOf(doc, id)];
+          for (const item of subTree) if (!picked.includes(item)) picked.push(item);
+        }
+        if (picked.length === 0) break;
+        const pickedIds = new Set(picked.map((item) => item.id));
+        // 目标位置不能落在被拖动的子树内部（否则等于没动）
+        if (options.referenceId && pickedIds.has(options.referenceId)) break;
+
+        // 保持子树原有顺序（复制时副本沿用原图层顺序）
+        const order = new Map(doc.layers.map((item, index) => [item.id, index]));
+        const entries = picked
+          .map((layer) => ({ source: layer, order: order.get(layer.id) ?? 0 }))
+          .sort((a, b) => a.order - b.order);
+        const working: Layer[] = options.duplicate
+          ? entries.map((entry) => duplicateLayerCore(entry.source, ' 副本'))
+          : entries.map((entry) => entry.source);
+        const workingIds = new Set(working.map((item) => item.id));
+        // 校验：目标父级不能是被拖动图层的子孙，避免形成环
+        let parentId: string | null = null;
+        if (options.position === 'inside') {
+          const group = doc.layers.find((item) => item.id === options.referenceId);
+          if (!group || group.kind !== 'group' || workingIds.has(group.id)) break;
+          parentId = group.id;
+        } else if (options.referenceId) {
+          const reference = doc.layers.find((item) => item.id === options.referenceId);
+          parentId = reference?.parentId ?? null;
+        }
+        const wouldCycle = (candidate: string | null): boolean => {
+          let cursor = candidate;
+          let guard = 0;
+          while (cursor && guard < 64) {
+            guard += 1;
+            if (workingIds.has(cursor)) return true;
+            cursor = doc.layers.find((item) => item.id === cursor)?.parentId ?? null;
+          }
+          return false;
+        };
+        if (wouldCycle(parentId)) break;
+
+        // Option 复制时原图层留在原位；移动时先把子树从数组中摘出
+        if (!options.duplicate) doc.layers = doc.layers.filter((item) => !pickedIds.has(item.id));
+        // 计算插入位置
+        let insertIndex: number;
+        if (options.position === 'inside' && parentId) {
+          // 插到该组子树的末尾（视觉上位于组内最上方）
+          const groupIndex = doc.layers.findIndex((item) => item.id === parentId);
+          let last = groupIndex;
+          for (let i = groupIndex + 1; i < doc.layers.length; i += 1) {
+            let cursor: string | null = doc.layers[i]!.parentId;
+            let guard = 0;
+            while (cursor && guard < 64) {
+              guard += 1;
+              if (cursor === parentId) { last = i; break; }
+              cursor = doc.layers.find((item) => item.id === cursor)?.parentId ?? null;
+            }
+            if (last === i) continue;
+            break;
+          }
+          insertIndex = last + 1;
+        } else if (options.referenceId) {
+          const referenceIndex = doc.layers.findIndex((item) => item.id === options.referenceId);
+          if (referenceIndex < 0) break;
+          // 面板自上而下显示，视觉「上方」对应数组中更靠后
+          insertIndex = options.position === 'above' ? referenceIndex + 1 : referenceIndex;
+        } else {
+          // 拖到空白区域 = 移动到根层最底部
+          parentId = null;
+          insertIndex = doc.layers.length;
+        }
+        // working 已按原数组顺序排好，直接设置父级并插入
+        for (const layer of working) layer.parentId = parentId;
+        doc.layers.splice(Math.max(0, Math.min(doc.layers.length, insertIndex)), 0, ...working);
+        doc.activeLayerId = working[working.length - 1]?.id ?? doc.activeLayerId;
+
+        pushStructureHistory(options.duplicate ? '复制图层（拖拽）' : options.position === 'inside' ? '移动图层到组内' : '移动图层', beforeStructure, captureStructure());
+        setStatusSafe(options.position === 'inside' ? `已移入组「${doc.layers.find((item) => item.id === parentId)?.name ?? ''}」` : '已调整图层顺序');
         break;
       }
       case 'toggleVisibility': {
@@ -170,53 +346,54 @@ export function createCommands(api: EditorApi) {
       case 'group': {
         const ids = (payload as string[] | undefined) ?? doc.layers.filter((item) => item.parentId === doc.activeLayerId && item.isVisible).slice(-3).map((item) => item.id);
         if (ids.length === 0) break;
-        const before = doc.layers.slice();
+        const beforeStructure = captureStructure();
         groupLayersCore(doc, ids);
-        pushLayersHistory('编组', before, doc.layers.slice());
+        pushStructureHistory('编组', beforeStructure, captureStructure());
         break;
       }
       case 'ungroup': {
         const layer = api.activeLayer();
         if (!layer || layer.kind !== 'group') break;
-        const before = doc.layers.slice();
+        const beforeStructure = captureStructure();
         ungroupCore(doc, layer.id);
-        pushLayersHistory('取消编组', before, doc.layers.slice());
+        pushStructureHistory('取消编组', beforeStructure, captureStructure());
         break;
       }
       case 'mergeDown': {
         const layer = api.activeLayer();
         if (!layer) break;
-        const before = doc.layers.slice();
+        const beforeStructure = captureStructure();
         mergeDownCore(doc, layer.id);
-        pushLayersHistory('向下合并', before, doc.layers.slice());
+        pushStructureHistory('向下合并', beforeStructure, captureStructure());
         break;
       }
       case 'mergeSelection': {
         const ids = (payload as string[] | undefined) ?? (doc.activeLayerId ? [doc.activeLayerId] : []);
         if (ids.length < 2) break;
-        const before = doc.layers.slice();
+        const beforeStructure = captureStructure();
         mergeLayersCore(doc, ids);
-        pushLayersHistory('合并图层', before, doc.layers.slice());
+        pushStructureHistory('合并图层', beforeStructure, captureStructure());
         break;
       }
       case 'mergeGroup': {
         const layer = api.activeLayer();
         if (!layer) break;
-        const before = doc.layers.slice();
+        const beforeStructure = captureStructure();
         mergeGroupCore(doc, layer.id);
-        pushLayersHistory('合并组', before, doc.layers.slice());
+        pushStructureHistory('合并组', beforeStructure, captureStructure());
         break;
       }
       case 'flatten': {
-        const before = doc.layers.slice();
+        const beforeStructure = captureStructure();
         flattenCore(doc);
-        pushLayersHistory('合并所有图层', before, doc.layers.slice());
+        pushStructureHistory('合并所有图层', beforeStructure, captureStructure());
         break;
       }
       case 'newGroup': {
+        const beforeStructure = captureStructure();
         const group = createGroupLayer('组');
         insertLayerCore(doc, group);
-        recordLayerChange('新建组');
+        pushStructureHistory('新建组', beforeStructure, captureStructure());
         break;
       }
 
@@ -310,9 +487,10 @@ export function createCommands(api: EditorApi) {
       /* ---------------- 调整层 ---------------- */
       case 'addAdjustment': {
         const kind = payload as AdjustmentKind;
+        const beforeStructure = captureStructure();
         const layer = createAdjustmentLayer(kind, doc);
         insertLayerCore(doc, layer);
-        recordLayerChange(`新建调整层：${layer.name}`);
+        pushStructureHistory(`新建调整层：${layer.name}`, beforeStructure, captureStructure());
         break;
       }
 
@@ -511,15 +689,15 @@ export function createCommands(api: EditorApi) {
       }
       case 'paste': {
         if (clipboard.document) {
-          const before = doc.layers.slice();
+          const beforeStructure = captureStructure();
           const copy = duplicateLayerCore(clipboard.document);
           insertLayerCore(doc, copy);
-          pushLayersHistory('粘贴图层', before, doc.layers.slice());
+          pushStructureHistory('粘贴图层', beforeStructure, captureStructure());
         } else if (clipboard.pixels) {
-          const before = doc.layers.slice();
+          const beforeStructure = captureStructure();
           const layer = createPixelLayer('粘贴的像素', clipboard.pixels);
           insertLayerCore(doc, layer);
-          pushLayersHistory('粘贴', before, doc.layers.slice());
+          pushStructureHistory('粘贴', beforeStructure, captureStructure());
         }
         break;
       }
@@ -647,35 +825,6 @@ export function createCommands(api: EditorApi) {
     }
   };
 
-  /** 记录图层结构变化的历史 */
-  function recordLayerChange(label: string): void {
-    const before = doc.layers.slice();
-    // 结构变化前的内容已不可复原，这里保存当前状态作为「取消」目标
-    void before;
-    setStatusSafe(label);
-    api.touch();
-    api.invalidate();
-  }
-
-  /** 记录顺序变化 */
-  function recordOrderChange(label: string, beforeIds: string): void {
-    const afterIds = JSON.stringify(doc.layers.map((item) => item.id));
-    if (beforeIds === afterIds) return;
-    api.pushHistory(
-      label,
-      () => { reorderByIds(beforeIds); },
-      () => { reorderByIds(afterIds); },
-      256,
-    );
-  }
-
-  const reorderByIds = (idsJson: string): void => {
-    const ids = JSON.parse(idsJson) as string[];
-    const map = new Map(doc.layers.map((layer) => [layer.id, layer]));
-    doc.layers = ids.map((id) => map.get(id)).filter((item): item is Layer => Boolean(item));
-    api.invalidate();
-  };
-
   /** 记录画布级操作 */
   function recordCanvasHistory(
     label: string,
@@ -785,5 +934,4 @@ export function createCommands(api: EditorApi) {
   const commands = { run };
   return commands;
 }
-
 

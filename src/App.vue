@@ -4,12 +4,12 @@
  * ---------------------------------------------------------------
  * 顶部菜单栏 + 工程标签页 + 工具栏 + 工具选项头 + 画布 + 右侧面板 + 状态栏。
  */
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { computed, onMounted, onBeforeUnmount } from 'vue';
 import CanvasStage from '@/components/CanvasStage.vue';
 import ToolBar from '@/components/ToolBar.vue';
 import ToolHeader from '@/components/ToolHeader.vue';
-import LayersPanel from '@/components/panels/LayersPanel.vue';
-import PropertiesPanel from '@/components/panels/PropertiesPanel.vue';
+import DockLayout from '@/components/DockLayout.vue';
+import { loadPanelLayout } from '@/composables/usePanels';
 import DialogHost from '@/components/dialogs/DialogHost.vue';
 import { api, closeDocument, commands, currentDocument, documents, handleKeyDown, initialize, selectDocument, statusMessage } from '@/composables/useEditor';
 import { toHex } from '@/core/color';
@@ -152,17 +152,18 @@ const menus = [
   },
 ];
 
-/** 缩放比例显示 */
-const zoomLabel = ref('100%');
+/** 缩放比例显示（跟随视口实时更新） */
+const zoomLabel = computed(() => Math.round(api.viewport.zoom * 100) + '%');
 
 /** 键盘事件 */
 function onKeyDown(event: KeyboardEvent): void {
   handleKeyDown(event);
-  zoomLabel.value = `${Math.round(api.viewport.zoom * 100)}%`;
+
 }
 
 onMounted(() => {
   initialize();
+  void loadPanelLayout();
   window.addEventListener('keydown', onKeyDown);
 });
 
@@ -218,24 +219,11 @@ function foregroundHex(): string {
     </nav>
 
     <!-- 主体 -->
-    <div class="body">
+    <DockLayout>
       <ToolBar />
-      <main class="center">
-        <ToolHeader />
-        <CanvasStage />
-      </main>
-      <aside class="side">
-        <PropertiesPanel />
-        <el-collapse class="panel-block">
-          <el-collapse-item title="图层" name="layers">
-            <LayersPanel />
-          </el-collapse-item>
-          <el-collapse-item title="历史 / 颜色 / 信息" name="info">
-            <HistoryPanel />
-          </el-collapse-item>
-        </el-collapse>
-      </aside>
-    </div>
+      <ToolHeader />
+      <CanvasStage />
+    </DockLayout>
 
     <!-- 状态栏 -->
     <footer class="status-bar">
@@ -251,8 +239,6 @@ function foregroundHex(): string {
 </template>
 
 <script lang="ts">
-import HistoryPanel from '@/components/panels/HistoryPanel.vue';
-export default { components: { HistoryPanel } };
 </script>
 
 <style>
@@ -349,32 +335,9 @@ export default { components: { HistoryPanel } };
   font-size: 14px;
 }
 
-.body {
-  flex: 1;
-  display: flex;
-  min-height: 0;
-}
 
-.center {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
 
-.side {
-  width: 288px;
-  background: #252526;
-  border-left: 1px solid #3a3a3a;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
 
-.panel-block {
-  flex: 1;
-  overflow-y: auto;
-}
 
 .status-bar {
   display: flex;

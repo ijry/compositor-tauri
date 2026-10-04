@@ -85,8 +85,11 @@ function viewportOf(document: CompDocument): Viewport {
 /** 适配画布的缩放 */
 export function fitZoom(document: CompDocument): number {
   const padding = 64;
-  const zoom = Math.min((stageSize.width - padding) / Math.max(1, document.width), (stageSize.height - padding) / Math.max(1, document.height));
-  return Math.max(0.01, Math.min(16, zoom));
+  // 画布还没完成布局时 clientWidth/clientHeight 可能为 0，这里退回默认尺寸
+  const width = Math.max(320, stageSize.width || 1200);
+  const height = Math.max(240, stageSize.height || 800);
+  const zoom = Math.min((width - padding) / Math.max(1, document.width), (height - padding) / Math.max(1, document.height));
+  return Math.max(0.02, Math.min(16, zoom));
 }
 
 /** 工具定义 */
@@ -265,7 +268,10 @@ export const api: EditorApi = {
     return toolOptions[currentToolId.value] ?? {};
   },
   get viewport(): Viewport {
-    return viewportOf(currentDocument.value!);
+    // 还没有打开的文档时（例如首帧渲染）返回一个安全的默认视口
+    const document = currentDocument.value;
+    if (!document) return { zoom: 1, centerX: 0, centerY: 0 };
+    return viewportOf(document);
   },
   get ui(): typeof ui {
     return ui;

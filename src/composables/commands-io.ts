@@ -49,8 +49,25 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
   /** 打开最近工程列表 */
   const recentProjects = (): Promise<string[]> => loadState<string[]>(RECENT_KEY, []);
 
+  /**
+   * 当前文档（延迟解析）
+   * ---------------------------------------------------------------
+   * newCanvas 在还没有文档时就会被调用，因此这里用代理把 doc
+   * 的读写转发到「调用时的当前文档」。
+   */
+  const doc = new Proxy({} as CompDocument, {
+    get(_target, key) {
+      const document = api.doc;
+      return document[key as keyof CompDocument];
+    },
+    set(_target, key, value) {
+      const document = api.doc;
+      (document as unknown as Record<string, unknown>)[key as string] = value;
+      return true;
+    },
+  });
+
   const run = async (name: string, payload?: unknown): Promise<void> => {
-    const doc = api.doc;
     switch (name) {
       /* ---------------- 新建 ---------------- */
       case 'newCanvas': {
