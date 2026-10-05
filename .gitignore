@@ -8,3 +8,4 @@ dist-ssr
 
 # vue-tsc -b 的类型产物
 src/**/*.js
+dist-pack

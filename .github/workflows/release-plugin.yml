@@ -1,0 +1,218 @@
+name: release-plugin
+run-name: "release-plugin • v${{ inputs.display_version || github.ref_name }} • ${{ github.event_name }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      display_version:
+        description: "发布版本号，例如 0.1.0（留空则取 plugin.json）"
+        required: false
+        default: ""
+      publish_market:
+        description: "是否同步到 otools 插件市场"
+        type: boolean
+        required: false
+        default: false
+      dry_run:
+        description: "只构建与打包，不创建 Release、不推送市场"
+        type: boolean
+        required: false
+        default: true
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  build:
+    name: 构建与打包
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      packid: ${{ steps.meta.outputs.packid }}
+      release_tag: ${{ steps.meta.outputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 类型检查
+        run: pnpm typecheck
+
+      - name: 构建
+        run: pnpm build
+
+      - name: 读取插件元信息
+        id: meta
+        shell: bash
+        run: |
+          version="${{ inputs.display_version }}"
+          if [ -z "$version" ]; then
+            version="$(node -p "require('./plugin.json').version")"
+          fi
+          packid="$(node -p "require('./plugin.json').packid")"
+          echo "version=$version"      >> "$GITHUB_OUTPUT"
+          echo "packid=$packid"        >> "$GITHUB_OUTPUT"
+          echo "release_tag=plugin-${packid}-v${version}" >> "$GITHUB_OUTPUT"
+
+      - name: 校验 logo
+        run: |
+          test -f logo.svg || { echo "插件市场要求根目录提供 logo.svg" >&2; exit 1; }
+
+      - name: 打包 .oplg
+        shell: bash
+        run: node scripts/pack-plugin.mjs --out dist-pack --version "${{ steps.meta.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oplg
+          path: dist-pack/*.oplg
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------
+  # 认证：OIDC 工作负载身份联合
+  # ---------------------------------------------------------------------
+  # 不在仓库里保存任何长期凭证：CI 用 GitHub OIDC 身份向 xycloud 换一个
+  # 短期（分钟级）访问令牌，令牌带 audience / 仓库 / 工作流 / 过期时间声明，
+  # 由 xycloud 校验后签发；日志中一律屏蔽。
+  workload-token:
+    name: 换取短期访问令牌
+    needs: build
+    if: ${{ inputs.publish_market == true && inputs.dry_run == false }}
+    runs-on: ubuntu-latest
+    outputs:
+      token: ${{ steps.exchange.outputs.token }}
+      git_token: ${{ steps.exchange.outputs.git_token }}
+    steps:
+      - name: OIDC 换取短期令牌
+        id: exchange
+        env:
+          ISSUER: ${{ vars.XYCLOUD_OIDC_ISSUER }}
+          AUDIENCE: ${{ vars.XYCLOUD_OIDC_AUDIENCE || 'otools-ci' }}
+          LEGACY_TOKEN: ${{ secrets.OTOOLS_MARKET_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$ISSUER" ]; then
+            if [ -n "$LEGACY_TOKEN" ]; then
+              echo "::warning::未配置 XYCLOUD_OIDC_ISSUER，回退到旧的长期 PAT（该方式即将下线）"
+              echo "token=$LEGACY_TOKEN"   >> "$GITHUB_OUTPUT"
+              echo "git_token="           >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "未配置 XYCLOUD_OIDC_ISSUER，且没有备用 PAT，跳过市场同步" >&2
+            echo "token="    >> "$GITHUB_OUTPUT"
+            echo "git_token=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # 1) 取 GitHub OIDC JWT
+          oidc_jwt="$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${AUDIENCE}")"
+          echo "::add-mask::$oidc_jwt"
+
+          # 2) 用它向 xycloud 换短期访问令牌
+          response="$(curl -sS -w '\n%{http_code}' -X POST "$ISSUER" \
+            -H "Authorization: Bearer $oidc_jwt" \
+            -H "Content-Type: application/json" \
+            -H "X-Repository: ${{ github.repository }}" \
+            -H "X-Workflow: ${{ github.workflow }}" \
+            -H "X-Run-Id: ${{ github.run_id }}" \
+            -d "{\"audience\":\"${AUDIENCE}\",\"scope\":\"otools:plugin:publish\"}")"
+          body="$(printf '%s' "$response" | sed '$d')"
+          code="$(printf '%s' "$response" | tail -n1)"
+          if [ "$code" != "200" ]; then
+            echo "换取短期令牌失败(HTTP $code): $body" >&2
+            exit 1
+          fi
+
+          token="$(printf '%s' "$body" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).access_token")"
+          git_token="$(printf '%s' "$body" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).git_token ?? ''")"
+          echo "::add-mask::$token"
+          echo "token=$token"     >> "$GITHUB_OUTPUT"
+          echo "git_token=$git_token" >> "$GITHUB_OUTPUT"
+          echo "已在 $ISSUER 换取短期令牌（有效期以服务端返回为准）"
+
+  publish:
+    name: 发布
+    needs: [build, workload-token]
+    if: ${{ inputs.dry_run == false || github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: oplg
+
+      - name: 创建 GitHub Release
+        if: ${{ inputs.dry_run == false || github.event_name == 'push' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.release_tag }}
+          VERSION: ${{ needs.build.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          notes="$(printf 'otools-compositor v%s\n\n由 release-plugin 工作流自动构建。' "$VERSION")"
+          gh release view "$TAG" >/dev/null 2>&1 && gh release upload "$TAG" ./*.oplg --clobber || \
+            gh release create "$TAG" ./*.oplg --title "$TAG" --notes "$notes"
+
+      - name: 提交插件元信息到市场
+        if: ${{ needs.workload-token.outputs.token != '' }}
+        env:
+          MARKET_TOKEN: ${{ needs.workload-token.outputs.token }}
+          MARKET_API: ${{ vars.OTOOLS_MARKET_API || 'https://otools-api.lingyun.net/api/v1/otools/plugin/publish' }}
+          WEBSITE_BASE: ${{ vars.OTOOLS_WEBSITE_BASE_URL || 'https://otools.lingyun.net' }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ needs.build.outputs.release_tag }}
+          PACKID: ${{ needs.build.outputs.packid }}
+          VERSION: ${{ needs.build.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload="$(node - <<'NODE'
+          const manifest = require('./plugin.json');
+          const [repo, tag, packid, version] = [
+            process.env.REPO, process.env.TAG, process.env.PACKID, process.env.VERSION,
+          ];
+          const base = process.env.WEBSITE_BASE.replace(/\/$/, '');
+          process.stdout.write(JSON.stringify({
+            uuid: manifest.uuid,
+            packid,
+            version,
+            name: manifest.displayNameCN || manifest.displayName,
+            summary: manifest.summary,
+            icon: manifest.icon,
+            keywords: manifest.key,
+            entry: manifest.entry,
+            devUrl: manifest.devUrl,
+            downloadUrl: `https://github.com/${repo}/releases/download/${tag}/${packid}-${version}.oplg`,
+            homepage: `${base}/plugins/${packid}`,
+            repo,
+            tag,
+          }));
+          NODE
+          )"
+          curl -sS -w '\n%{http_code}' -X POST "$MARKET_API" \
+            -H "Authorization: Bearer $MARKET_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
+          echo
+          echo "已提交插件元信息"
