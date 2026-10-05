@@ -2,7 +2,7 @@
 /** 属性面板：变换精确数值、外观、蒙版、图层效果、调整层参数 */
 import { computed } from 'vue';
 import { api, commands, currentDocument, thumbnailTick } from '@/composables/useEditor';
-import { BLEND_MODES, type Layer } from '@/types/document';
+import { BLEND_MODE_LABELS, BLEND_MODES, SAMPLING_LABELS, type Layer } from '@/types/document';
 
 const layer = computed<Layer | null>(() => {
   void thumbnailTick();
@@ -10,6 +10,9 @@ const layer = computed<Layer | null>(() => {
   if (!document) return null;
   return document.layers.find((item) => item.id === document.activeLayerId) ?? null;
 });
+
+/** 采样方式选项（中文显示） */
+const samplingOptions = (Object.keys(SAMPLING_LABELS) as (keyof typeof SAMPLING_LABELS)[]).map((value) => ({ value, label: SAMPLING_LABELS[value] }));
 
 /** 更新图层属性并记录历史 */
 function update(label: string, apply: (target: Layer) => void): void {
@@ -76,9 +79,7 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
           <label>角度 <input type="number" :value="layer.transform.rotation" @change="update('旋转图层', (l) => { l.transform.rotation = Number(($event.target as HTMLInputElement).value); })" /></label>
           <label>采样
             <select :value="layer.transform.sampling" @change="update('采样方式', (l) => { l.transform.sampling = ($event.target as HTMLSelectElement).value as never; })">
-              <option value="High quality">高质量</option>
-              <option value="Smooth">平滑</option>
-              <option value="Nearest">邻近</option>
+              <option v-for="item in samplingOptions" :key="item.value" :value="item.value">{{ item.label }}</option>
             </select>
           </label>
         </div>
@@ -99,7 +100,7 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
         </div>
         <label class="row">混合模式
           <select :value="layer.blendMode" @change="update('混合模式', (l) => { l.blendMode = ($event.target as HTMLSelectElement).value as never; })">
-            <option v-for="mode in BLEND_MODES" :key="mode" :value="mode">{{ mode }}</option>
+            <option v-for="mode in BLEND_MODES" :key="mode" :value="mode">{{ BLEND_MODE_LABELS[mode] }}</option>
           </select>
         </label>
         <label class="row"><input type="checkbox" :checked="layer.clipping" @change="commands.run('toggleClipping')" /> 剪贴蒙版</label>
@@ -176,7 +177,7 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
   padding: 6px 8px;
   overflow-y: auto;
   max-height: 46%;
-  border-bottom: 1px solid #3a3a3a;
+  border-bottom: 1px solid var(--cmp-border);
 }
 
 section {
@@ -206,9 +207,9 @@ h4 {
 input[type='number'],
 select {
   width: 74px;
-  background: #1e1e1e;
-  border: 1px solid #444;
-  color: #e5e5e5;
+  background: var(--cmp-bg);
+  border: 1px solid var(--cmp-border);
+  color: var(--cmp-text);
   padding: 1px 4px;
   border-radius: 3px;
 }
@@ -223,7 +224,7 @@ input[type='range'] {
 
 .empty,
 .hint {
-  color: #888;
+  color: var(--cmp-text-faint);
   font-size: 11px;
 }
 </style>

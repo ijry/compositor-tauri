@@ -329,7 +329,7 @@ void getStageSize;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #1b1b1b;
+  background: var(--cmp-canvas);
   touch-action: none;
 }
 
@@ -346,8 +346,8 @@ void getStageSize;
 
 .ruler {
   position: absolute;
-  background: #252526;
-  border: 1px solid #3a3a3a;
+  background: var(--cmp-panel);
+  border: 1px solid var(--cmp-border);
 }
 
 .ruler-top {
@@ -375,8 +375,8 @@ void getStageSize;
   top: 0;
   width: 18px;
   height: 18px;
-  background: #252526;
-  border: 1px solid #3a3a3a;
+  background: var(--cmp-panel);
+  border: 1px solid var(--cmp-border);
   z-index: 2;
 }
 </style>

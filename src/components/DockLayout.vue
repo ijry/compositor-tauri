@@ -236,20 +236,20 @@ function cycleDock(id: PanelId): void {
 
 .dock {
   display: flex;
-  background: #252526;
+  background: var(--cmp-panel);
 }
 
 .dock-left {
-  border-right: 1px solid #3a3a3a;
+  border-right: 1px solid var(--cmp-border);
 }
 
 .dock-right {
-  border-left: 1px solid #3a3a3a;
+  border-left: 1px solid var(--cmp-border);
 }
 
 .dock-bottom {
   width: 100%;
-  border-top: 1px solid #3a3a3a;
+  border-top: 1px solid var(--cmp-border);
   max-height: 60%;
 }
 
@@ -290,10 +290,10 @@ function cycleDock(id: PanelId): void {
   gap: 4px;
   height: 26px;
   padding: 0 4px;
-  background: #2f2f30;
-  border-bottom: 1px solid #3a3a3a;
+  background: var(--cmp-header);
+  border-bottom: 1px solid var(--cmp-border);
   font-size: 11px;
-  color: #bbb;
+  color: var(--cmp-text-dim);
   user-select: none;
   flex: none;
 }
@@ -305,7 +305,7 @@ function cycleDock(id: PanelId): void {
 
 .dock-header .title,
 .float-header .title {
-  color: #d4d4d4;
+  color: var(--cmp-text);
 }
 
 .spacer {
@@ -316,7 +316,7 @@ function cycleDock(id: PanelId): void {
 .hbtn {
   background: transparent;
   border: none;
-  color: #aaa;
+  color: var(--cmp-text-dim);
   cursor: pointer;
   padding: 0 4px;
   font-size: 11px;
@@ -375,7 +375,7 @@ function cycleDock(id: PanelId): void {
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-  background: #252526;
+  background: var(--cmp-panel);
   border: 1px solid #4a4a4a;
   border-radius: 4px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);

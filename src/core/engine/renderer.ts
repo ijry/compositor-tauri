@@ -22,7 +22,7 @@ export interface RenderOptions {
   /** 画布 CSS 尺寸 */
   width: number;
   height: number;
-  /** ���备像素比 */
+  /** 设备像素比 */
   devicePixelRatio: number;
   /** 棋盘格大小（屏幕像素） */
   checkerSize?: number;

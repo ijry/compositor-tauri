@@ -60,7 +60,7 @@ export function rotation(degrees: number): Matrix {
   return [cos, -sin, 0, sin, cos, 0, 0, 0, 1];
 }
 
-/** 由四点对应关系求单应���阵（src -> dst） */
+/** 由四点对应关系求单应矩阵（src -> dst） */
 export function homography(src: [Point, Point, Point, Point], dst: [Point, Point, Point, Point]): Matrix {
   // 解 8 元线性方程组（A x = b），x 为 [a,b,c,d,e,f,g,h]，i 固定为 1
   const A: number[][] = [];

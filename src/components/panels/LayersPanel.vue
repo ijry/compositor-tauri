@@ -284,14 +284,14 @@ function isDragging(layer: Layer): boolean {
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: #252526;
+  background: var(--cmp-panel);
 }
 
 .panel-bar {
   display: flex;
   gap: 2px;
   padding: 4px;
-  border-bottom: 1px solid #3a3a3a;
+  border-bottom: 1px solid var(--cmp-border);
 }
 
 .layer-list {
@@ -312,12 +312,12 @@ function isDragging(layer: Layer): boolean {
   height: 44px;
   padding-right: 6px;
   cursor: default;
-  border-bottom: 1px solid #303030;
+  border-bottom: 1px solid var(--cmp-border-soft);
   user-select: none;
 }
 
 .layer-row.active {
-  background: #0f4c81;
+  background: var(--cmp-active);
 }
 
 .layer-row.selected {
@@ -363,7 +363,7 @@ function isDragging(layer: Layer): boolean {
 .thumb {
   width: 34px;
   height: 34px;
-  border: 1px solid #444;
+  border: 1px solid var(--cmp-border);
   background: repeating-conic-gradient(#555 0% 25%, #777 0% 50%) 0 0 / 8px 8px;
   object-fit: contain;
 }
@@ -396,14 +396,14 @@ function isDragging(layer: Layer): boolean {
 .icon-btn {
   background: transparent;
   border: none;
-  color: #bbb;
+  color: var(--cmp-text-dim);
   cursor: pointer;
   font-size: 12px;
   width: 18px;
 }
 
 .more {
-  color: #999;
+  color: var(--cmp-text-dim);
   cursor: pointer;
   padding: 0 4px;
 }
@@ -417,7 +417,7 @@ function isDragging(layer: Layer): boolean {
 
 .empty {
   padding: 12px;
-  color: #777;
+  color: var(--cmp-text-faint);
   font-size: 12px;
 }
 </style>

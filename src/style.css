@@ -1,11 +1,49 @@
-/* 全局基础样式：暗色主题与排版 */
+/**
+ * 全局样式与主题变量
+ * ---------------------------------------------------------------
+ * 组件统一使用这里的 CSS 变量，切换 <html> 上的 light / dark 类即可整体换肤。
+ */
 :root {
-  color-scheme: dark;
   font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Avenir Next", sans-serif;
+
+  /* 界面色板 */
   --cmp-bg: #1e1e1e;
   --cmp-panel: #252526;
+  --cmp-panel-2: #2b2b2c;
+  --cmp-header: #2f2f30;
+  --cmp-tabs: #202020;
+  --cmp-input: #1e1e1e;
   --cmp-border: #3a3a3a;
+  --cmp-border-soft: #333333;
   --cmp-text: #dcdcdc;
+  --cmp-text-dim: #9d9d9d;
+  --cmp-text-faint: #777777;
+  --cmp-hover: #3a3a3a;
+  --cmp-active: #0f4c81;
+  --cmp-accent: #38bdf8;
+  --cmp-canvas: #1b1b1b;
+  --cmp-checker-light: #ffffff;
+  --cmp-checker-dark: #cccccc;
+}
+
+:root.light {
+  --cmp-bg: #f3f3f3;
+  --cmp-panel: #fafafa;
+  --cmp-panel-2: #ffffff;
+  --cmp-header: #ececec;
+  --cmp-tabs: #e8e8e8;
+  --cmp-input: #ffffff;
+  --cmp-border: #d0d0d0;
+  --cmp-border-soft: #e2e2e2;
+  --cmp-text: #262626;
+  --cmp-text-dim: #595959;
+  --cmp-text-faint: #8c8c8c;
+  --cmp-hover: #e6e6e6;
+  --cmp-active: #cfe6ff;
+  --cmp-accent: #0284c7;
+  --cmp-canvas: #9a9a9a;
+  --cmp-checker-light: #ffffff;
+  --cmp-checker-dark: #cfcfcf;
 }
 
 * {
@@ -25,6 +63,11 @@ body {
   height: 100%;
 }
 
-.app-root {
-  height: 100%;
+/* 主题切换时让过渡更自然 */
+#app,
+.cmp-panel,
+.layer-row,
+.dock-header,
+.float-header {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }

@@ -210,7 +210,7 @@ export function isSelectionEmpty(selection: SelectionMask | null): boolean {
 }
 
 /**
- * 游程编码描边：从掩码提取 0.5 级别的等值线段，用���蚂蚁线显示。
+ * 游程编码描边：从掩码提取 0.5 级别的等值线段，用于蚂蚁线显示。
  * 返回线段数组（文档坐标）。
  */
 export function marchingSegments(selection: SelectionMask, threshold = 128): Point[][] {

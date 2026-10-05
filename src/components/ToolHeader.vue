@@ -110,8 +110,8 @@ function isTextOption(key: string): boolean {
   gap: 14px;
   height: 34px;
   padding: 0 10px;
-  background: #2b2b2c;
-  border-bottom: 1px solid #3a3a3a;
+  background: var(--cmp-panel-2);
+  border-bottom: 1px solid var(--cmp-border);
   font-size: 12px;
   overflow-x: auto;
   white-space: nowrap;
@@ -129,7 +129,7 @@ function isTextOption(key: string): boolean {
 }
 
 .label {
-  color: #9d9d9d;
+  color: var(--cmp-text-dim);
 }
 
 .control {
@@ -149,15 +149,15 @@ function isTextOption(key: string): boolean {
 .scrub {
   width: 62px;
   height: 22px;
-  background: #1e1e1e;
-  border: 1px solid #444;
-  color: #e5e5e5;
+  background: var(--cmp-bg);
+  border: 1px solid var(--cmp-border);
+  color: var(--cmp-text);
   padding: 0 4px;
   border-radius: 3px;
   cursor: ew-resize;
 }
 
 .unit {
-  color: #9d9d9d;
+  color: var(--cmp-text-dim);
 }
 </style>

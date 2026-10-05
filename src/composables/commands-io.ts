@@ -9,6 +9,8 @@ import { compositeDocument } from '@/core/engine/compositor';
 import { decodeImageBytes, encodeImage, IMAGE_OPEN_FILTERS, IMAGE_SAVE_FILTERS, type ExportOptions } from '@/io/imageIO';
 import { isRawExtension, loadCompProject as importCompProject, saveCompProject as exportCompProject, watchCompProject, type CompWatcher } from '@/io/compProject';
 import { decodeRaw, defaultRawSettings, developRawImage } from '@/io/raw';
+import { buildSample } from '@/io/samples';
+import { setTheme, themeLabel } from '@/composables/useTheme';
 import { exportPsd, importPsd } from '@/io/psd';
 import {
   confirmMessage, downloadInBrowser, fileName, joinPath, loadState, pickDirectory, pickFiles, pickSavePath,
@@ -18,6 +20,10 @@ import type { EditorApi } from '@/types/editor';
 import type { CompDocument } from '@/types/document';
 import type { ExportFormat } from '@/io/imageIO';
 
+/** 读取最近工程列表（启动页与菜单共用） */
+export async function loadRecentProjects(): Promise<string[]> {
+  return loadState<string[]>(RECENT_KEY, []);
+}
 /** 依赖：由 useEditor 注入的宿主函数 */
 export interface IoDependencies {
   openDocument(document: CompDocument): void;
@@ -47,7 +53,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
   };
 
   /** 打开最近工程列表 */
-  const recentProjects = (): Promise<string[]> => loadState<string[]>(RECENT_KEY, []);
+  const recentProjects = loadRecentProjects;
 
   /**
    * 当前文档（延迟解析）
@@ -233,6 +239,23 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         break;
       }
 
+      /* ---------------- 示例工程 ---------------- */
+      case 'sample': {
+        const sample = buildSample(String(payload ?? ''));
+        if (!sample) break;
+        deps.openDocument(sample);
+        deps.fitCanvas();
+        api.status(`已打开示例：${sample.name}`);
+        break;
+      }
+
+      /* ---------------- 主题 ---------------- */
+      case 'setTheme': {
+        const mode = (payload as 'dark' | 'light' | 'system') ?? 'dark';
+        setTheme(mode);
+        api.status(`主题已切换为：${themeLabel[mode]}`);
+        break;
+      }
       /* ---------------- 历史 ---------------- */
       case 'undo': {
         const history = deps.currentHistory();
@@ -305,7 +328,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
       deps.fitCanvas();
       api.status(`已打开工程 ${document.name}`);
     } catch (error) {
-      await showMessage(`打开工程失���：${(error as Error).message}`, 'warning');
+      await showMessage(`打开工程失败：${(error as Error).message}`, 'warning');
     }
   };
 

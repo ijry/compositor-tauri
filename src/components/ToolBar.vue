@@ -47,8 +47,8 @@ function onClick(tool: string, group: string): void {
 <style scoped>
 .cmp-toolbar {
   width: 52px;
-  background: #252526;
-  border-right: 1px solid #3a3a3a;
+  background: var(--cmp-panel);
+  border-right: 1px solid var(--cmp-border);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,7 +63,7 @@ function onClick(tool: string, group: string): void {
   gap: 2px;
   padding-bottom: 6px;
   margin-bottom: 4px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--cmp-border-soft);
 }
 
 .tool-button {
@@ -72,18 +72,18 @@ function onClick(tool: string, group: string): void {
   background: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
-  color: #d4d4d4;
+  color: var(--cmp-text);
   cursor: pointer;
   position: relative;
   font-size: 15px;
 }
 
 .tool-button:hover {
-  background: #333;
+  background: var(--cmp-border-soft);
 }
 
 .tool-button.active {
-  background: #0f4c81;
+  background: var(--cmp-active);
   border-color: #38bdf8;
   color: #fff;
 }

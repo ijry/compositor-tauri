@@ -238,7 +238,7 @@ export const moveTool: ToolDefinition = {
     if (event.key === 'ArrowDown') apply(0, step);
     const after = JSON.parse(JSON.stringify(layer.transform)) as LayerTransform;
     layer.transform = before;
-    endInteraction(editor, '微移��层', snapshot, snapshotBytes(snapshot));
+    endInteraction(editor, '微移图层', snapshot, snapshotBytes(snapshot));
     layer.transform = after;
     editor.pushHistory(
       '微移图层',

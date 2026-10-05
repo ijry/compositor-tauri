@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { api, closeDialog, commands, currentDialog, currentDocument, openDialog } from '@/composables/useEditor';
 import { defaultRawSettings, RAW_PANEL_GROUPS } from '@/io/raw';
 import { formatPsdReport } from '@/io/psd';
+import ShortcutDialog from '@/components/dialogs/ShortcutDialog.vue';
 import type { CameraRawSettings, RawImage } from '@/types/document';
 
 const name = computed(() => currentDialog.value?.name ?? '');
@@ -76,22 +77,11 @@ function submitExport(): void {
   closeDialog();
 }
 
-/** 快捷键说明（与上游一致的关键项） */
-const shortcuts = [
-  ['⌘/Ctrl + Z', '撤销'], ['⇧⌘/Ctrl + Z', '重做'], ['⌘/Ctrl + N', '新建画布'], ['⇧⌘/Ctrl + N', '新建图层'],
-  ['⌘/Ctrl + O', '打开工程'], ['⌘/Ctrl + S', '保存'], ['⇧⌘/Ctrl + S', '另存为'], ['⇧⌥⌘/Ctrl + S', '导出 JPEG'],
-  ['⌘/Ctrl + A', '全选'], ['⌘/Ctrl + D', '取消选择'], ['⇧⌘/Ctrl + I', '反选'], ['⌃⌥⌘/Ctrl + A', '选择主体'],
-  ['V', '移动/��换'], ['M', '框选'], ['L', '套索'], ['W', '魔棒'], ['B', '画笔'], ['E', '橡皮擦'], ['J', '污点修复'],
-  ['S', '仿制图章'], ['G', '渐变'], ['U', '形状'], ['T', '文字'], ['I', '吸管'], ['C', '裁剪'], ['R', '模糊/涂抹/液化'],
-  ['X', '交换前景/背景色'], ['D', '复位颜色'], ['Tab', '循环工具'], ['空格拖动', '临时抓手'],
-  ['[ / ]', '减小/增大画笔大小'], ['⇧[ / ⇧]', '减小/增大硬度'], ['0-9', '输入不透明度百分比'], ['⌘/Ctrl + 0', '适配画布'],
-  ['⌘/Ctrl + 1', '实际像素'], ['⌘/Ctrl + R', '标尺'], ["⌘/Ctrl + '", '网格'], ['⌘/Ctrl + ;', '参考线'],
-];
 </script>
 
 <template>
   <el-dialog v-model="visible" :title="name === 'newCanvas' ? '新建画布' : name === 'canvasSize' ? '画布大小' : name === 'imageSize' ? '图像大小' : name === 'rawDevelop' ? '相机 RAW 显影' : name === 'psdReport' ? 'Photoshop 转换报告' : name === 'colorRange' ? '色彩范围' : name === 'gridSettings' ? '网格设置' : name === 'snapSettings' ? '吸附设置' : name === 'shortcuts' ? '键盘快捷键' : name === 'recent' ? '最近工程' : name === 'exportDialog' ? '导出图片' : '关于合成器'"
-    width="520px" append-to-body>
+    width="640px" append-to-body>
     <!-- 新建画布 -->
     <el-form v-if="name === 'newCanvas'" label-width="70px" size="small">
       <el-form-item label="名称"><el-input v-model="newForm.name" /></el-form-item>
@@ -187,13 +177,8 @@ const shortcuts = [
     <!-- PSD 报告 -->
     <pre v-else-if="name === 'psdReport'" class="report">{{ psdReportText }}</pre>
 
-    <!-- 快捷键 -->
-    <div v-else-if="name === 'shortcuts'" class="shortcuts">
-      <div v-for="item in shortcuts" :key="item[0]" class="shortcut-row">
-        <kbd>{{ item[0] }}</kbd><span>{{ item[1] }}</span>
-      </div>
-    </div>
-
+    <!-- 快捷键（可重映射） -->
+    <ShortcutDialog v-else-if="name === 'shortcuts'" />
     <!-- 最近工程 -->
     <div v-else-if="name === 'recent'" class="recent">
       <div v-for="item in recentItems" :key="item" class="recent-item" @click="commands.run('openRecent', item); closeDialog()">
@@ -230,7 +215,7 @@ const shortcuts = [
 .report,
 .hint {
   font-size: 12px;
-  color: #aaa;
+  color: var(--cmp-text-dim);
   white-space: pre-wrap;
 }
 
@@ -261,8 +246,8 @@ const shortcuts = [
 }
 
 kbd {
-  background: #1e1e1e;
-  border: 1px solid #444;
+  background: var(--cmp-bg);
+  border: 1px solid var(--cmp-border);
   border-radius: 3px;
   padding: 0 4px;
   min-width: 108px;
@@ -272,11 +257,11 @@ kbd {
 .recent-item {
   padding: 4px;
   cursor: pointer;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--cmp-border-soft);
 }
 
 .recent-item:hover {
-  background: #333;
+  background: var(--cmp-border-soft);
 }
 
 .about h3 {

@@ -5,7 +5,7 @@
  *  1. otools 宿主（window.otools 提供 dialog / readHostFile / writeHostFile / listHostDir）
  *  2. Tauri 宿主（@tauri-apps/api 的 invoke 与 dialog 插件）
  *  3. 纯浏览器（开发预览，input[type=file] 与下载回退）
- * 业务代码只调用这里导出的函��，不需要判断运��时。
+ * 业务代码只调用这里导出的函数，不需要判断运行时。
  */
 
 export interface FileFilter {

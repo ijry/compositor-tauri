@@ -60,7 +60,7 @@ function brushColor(editor: EditorApi, erase: boolean): [number, number, number,
 function startPaint(editor: EditorApi, point: Point): void {
   const target = currentPaintTarget(editor);
   if (!target) {
-    editor.status('请先选择一个像素图层（新建或切��到像素图层）');
+    editor.status('请先选择一个像素图层（新建或切换到像素图层）');
     return;
   }
   setPaintDocument(editor.doc);

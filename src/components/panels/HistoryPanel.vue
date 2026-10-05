@@ -90,7 +90,7 @@ h4 {
 .history {
   max-height: 120px;
   overflow-y: auto;
-  border: 1px solid #3a3a3a;
+  border: 1px solid var(--cmp-border);
 }
 
 .entry {
@@ -100,12 +100,12 @@ h4 {
   padding: 3px 6px;
   background: transparent;
   border: none;
-  color: #ccc;
+  color: var(--cmp-text);
   cursor: pointer;
 }
 
 .entry.current {
-  background: #0f4c81;
+  background: var(--cmp-active);
   color: #fff;
 }
 
@@ -118,12 +118,12 @@ h4 {
 .chip {
   width: 18px;
   height: 18px;
-  border: 1px solid #555;
+  border: 1px solid var(--cmp-border);
   display: inline-block;
 }
 
 .hint {
-  color: #888;
+  color: var(--cmp-text-faint);
   font-size: 11px;
   margin: 0;
 }

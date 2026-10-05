@@ -1,6 +1,6 @@
 /**
  * otools 宿主注入的 API（与 vendor/otools-plugin-sdk 的 otools-globals 保持一致）。
- * 这里只声明本插��实际用到的部分，便于独立开发时类型提示。
+ * 这里只声明本插件实际用到的部分，便于独立开发时类型提示。
  */
 export {};
 

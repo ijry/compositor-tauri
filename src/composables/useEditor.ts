@@ -18,7 +18,8 @@ import {
 } from '@/core/document';
 import { createSelection, combineSelection, invertSelection, isSelectionEmpty } from '@/core/selection';
 import { cloneBuffer, cloneMask } from '@/core/pixels';
-import { getTool, cycleTool, TOOLS, TOOL_SHORTCUTS } from '@/tools';
+import { getTool, cycleTool, TOOLS } from '@/tools';
+import { bindShortcuts, chordFromEvent, findShortcut, loadShortcutOverrides } from '@/composables/shortcuts';
 import type { ToolDefinition, ToolPointerEvent } from '@/tools/types';
 import type { EditorApi, LayerSnapshot } from '@/types/editor';
 import type { CompDocument, Layer, PixelBuffer, SelectionMask } from '@/types/document';
@@ -29,6 +30,10 @@ import { createCommands } from '@/composables/commands';
 export const documents = ref<CompDocument[]>([]);
 const activeIndex = ref(0);
 const renderer = shallowRef<CanvasRenderer | null>(null);
+/** 是否已打开文档（启动页与命令守卫使用） */
+export function hasDocument(): boolean {
+  return currentDocument.value !== null;
+}
 /** 当前工具 id（界面绑定用） */
 export const currentToolId = ref<string>('move');
 const toolOptions = reactive<Record<string, Record<string, unknown>>>({});
@@ -159,15 +164,6 @@ export function ensureToolOptions(tool: ToolDefinition): void {
 /** 全部工具的选项初始化 */
 export function initToolOptions(): void {
   for (const tool of TOOLS) ensureToolOptions(tool);
-}
-
-/** 键盘快捷键切换工具 */
-function toolFromShortcut(key: string): string | null {
-  const id = TOOL_SHORTCUTS[key];
-  if (!id) return null;
-  const group = TOOLS.find((tool) => tool.id === id)?.group;
-  void group;
-  return id;
 }
 
 /** 指针事件分发 */
@@ -318,7 +314,7 @@ export const api: EditorApi = {
     invalidate();
   },
   beginInteraction() {
-    /* 交互快照由工具自己维���，这里仅保证文档指针最新 */
+    /* 交互快照由工具自己维护，这里仅保证文档指针最新 */
     setPaintDocument(currentDocument.value ?? null);
   },
   endInteraction() {
@@ -485,127 +481,22 @@ export const commands = { run: (name: string, payload?: unknown) => commandsImpl
 /** 命令实现 */
 export const commandsImpl = createCommands(api);
 
+/** 把编辑器接口注入快捷键表（避免循环依赖） */
+bindShortcuts(api);
+
 /** 叠加界面开关的读取（面板用） */
 export const uiState = ui;
 
 /* ------------------------------ 快捷键 ------------------------------ */
 
-/** 快捷键定义（与上游 Photoshop 风格一致，⌘/Ctrl 均可用） */
-interface Shortcut {
-  key: string;
-  ctrl?: boolean;
-  shift?: boolean;
-  alt?: boolean;
-  meta?: boolean;
-  run: () => void;
-}
-
-/** 全局快捷键表 */
-function buildShortcuts(): Shortcut[] {
-  const list: Shortcut[] = [];
-  const push = (key: string, run: () => void, modifiers: Partial<Omit<Shortcut, 'key' | 'run'>> = {}): void => {
-    list.push({ key, run, ...modifiers });
-  };
-  // 工具
-  for (const [key, id] of Object.entries(TOOL_SHORTCUTS)) push(key, () => setTool(id));
-  push('Tab', () => cycleCurrentTool(eventShift ? -1 : 1));
-  // 编辑
-  push('z', () => commands.run('undo'), { ctrl: true });
-  push('z', () => commands.run('redo'), { ctrl: true, shift: true });
-  push('y', () => commands.run('redo'), { ctrl: true });
-  push('x', () => commands.run('cut'), { ctrl: true });
-  push('c', () => commands.run('copy'), { ctrl: true });
-  push('c', () => commands.run('copyMerged'), { ctrl: true, shift: true });
-  push('v', () => commands.run('paste'), { ctrl: true });
-  // 文件
-  push('n', () => commands.run('newCanvas'), { ctrl: true });
-  push('o', () => commands.run('openComp'), { ctrl: true });
-  push('s', () => commands.run('saveComp'), { ctrl: true });
-  push('s', () => commands.run('saveCompAs'), { ctrl: true, shift: true });
-  push('e', () => openDialog('exportDialog', { format: 'png' }), { ctrl: true, shift: true });
-  push('s', () => openDialog('exportDialog', { format: 'jpeg' }), { ctrl: true, alt: true });
-  push('w', () => commands.run('closeDocument'), { ctrl: true });
-  // 视图
-  push('0', fitCanvas, { ctrl: true });
-  push('1', actualPixels, { ctrl: true });
-  push('=', () => zoomStep(1), { ctrl: true });
-  push('-', () => zoomStep(-1), { ctrl: true });
-  push('r', () => toggleUi('rulers'), { ctrl: true });
-  push("'", () => toggleUi('grid'), { ctrl: true });
-  push(';', () => toggleUi('guides'), { ctrl: true });
-  push(';', () => openDialog('snapSettings'), { ctrl: true, shift: true });
-  push('h', () => toggleUi('transformControls'), { ctrl: true });
-  // 选区
-  push('a', () => commands.run('selectAll'), { ctrl: true });
-  push('d', () => commands.run('deselect'), { ctrl: true });
-  push('i', () => commands.run('inverseSelection'), { ctrl: true, shift: true });
-  push('a', () => commands.run('selectSubject'), { ctrl: true, alt: true });
-  // 调整
-  push('m', () => commands.run('addAdjustment', 'Curves'), { ctrl: true });
-  push('l', () => commands.run('addAdjustment', 'Levels'), { ctrl: true });
-  push('u', () => commands.run('addAdjustment', 'Hue/Saturation'), { ctrl: true });
-  push('i', () => invertLayerOrMask(), { ctrl: true });
-  // 画布
-  push('c', () => openDialog('canvasSize'), { ctrl: true, alt: true });
-  push('i', () => openDialog('imageSize'), { ctrl: true, alt: true });
-  // 图层
-  push('t', () => commands.run('addAdjustment', 'Invert'), { ctrl: true });
-  push('j', () => commands.run('duplicateLayer'), { ctrl: true });
-  push('g', () => commands.run('toggleClipping'), { ctrl: true, alt: true });
-  push('g', () => commands.run('group'), { ctrl: true });
-  push('g', () => commands.run('ungroup'), { ctrl: true, shift: true });
-  push('n', () => commands.run('newLayer'), { ctrl: true, shift: true });
-  push(']', () => commands.run('moveLayerUp'), { ctrl: true });
-  push('[', () => commands.run('moveLayerDown'), { ctrl: true });
-  push('e', () => commands.run('mergeDown'), { ctrl: true });
-  // 填充
-  push('Delete', () => commands.run('fillForeground'), { alt: true });
-  push('Delete', () => commands.run('fillBackground'), { ctrl: true });
-  push('Delete', () => commands.run('clearSelection'), { shift: true });
-  push('Backspace', () => commands.run('fillForeground'), { alt: true });
-  // 帮助
-  push('k', () => openDialog('shortcuts'), { ctrl: true });
-  return list;
-}
-
 /** 记录当前按键的 Shift 状态（供 Tab 循环使用） */
 let eventShift = false;
-
-/** 反相像素或蒙版 */
-function invertLayerOrMask(): void {
-  const layer = api.activeLayer();
-  if (!layer) return;
-  if (layer.mask && layer.mask.target === 'mask') {
-    commands.run('invertMask');
-    return;
-  }
-  if (layer.kind !== 'pixel' || !layer.pixels) {
-    commands.run('addAdjustment', 'Invert');
-    return;
-  }
-  const before = api.snapshotLayer(layer.id);
-  const pixels = layer.pixels;
-  for (let i = 0; i < pixels.data.length; i += 4) {
-    pixels.data[i] = 255 - pixels.data[i]!;
-    pixels.data[i + 1] = 255 - pixels.data[i + 1]!;
-    pixels.data[i + 2] = 255 - pixels.data[i + 2]!;
-  }
-  layer.contentKey += 1;
-  api.markLayerDirty(layer.id);
-  const after = api.snapshotLayer(layer.id);
-  api.pushHistory(
-    '反相',
-    () => { if (before) api.restoreLayer(layer.id, before); },
-    () => { if (after) api.restoreLayer(layer.id, after); },
-    (before?.pixels?.data.length ?? 0) * 2,
-  );
-}
 
 /** 全局键盘处理（由 App.vue 挂到 window 上） */
 export function handleKeyDown(event: KeyboardEvent): void {
   const target = event.target as HTMLElement | null;
   // 输入框内不拦截
-  if (target && ['INPUT', 'TEXTAREA', 'el-input'].includes(target.tagName) || target?.isContentEditable) return;
+  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
   eventShift = event.shiftKey;
   const ctrl = event.ctrlKey || event.metaKey;
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
@@ -613,12 +504,13 @@ export function handleKeyDown(event: KeyboardEvent): void {
     event.preventDefault();
     return;
   }
-  for (const shortcut of buildShortcuts()) {
-    if (shortcut.key !== key) continue;
-    if (Boolean(shortcut.ctrl) !== (ctrl && !shortcut.meta) && !(shortcut.meta && event.metaKey)) continue;
-    if (Boolean(shortcut.shift) !== event.shiftKey && key !== 'Tab') continue;
-    if (Boolean(shortcut.alt) !== event.altKey) continue;
-    shortcut.run();
+  // 可重映射的全局快捷键
+  const matched = findShortcut(chordFromEvent(event));
+  if (matched) {
+    if (matched.id === 'tool.brush' || matched.id.startsWith('tool.')) {
+      // 工具快捷键需要走统一的 setTool，交给各自的 run 处理即可
+    }
+    matched.run();
     event.preventDefault();
     return;
   }
@@ -628,7 +520,6 @@ export function handleKeyDown(event: KeyboardEvent): void {
     applyOpacityBuffer();
   }
 }
-
 /** 不透明度快速输入缓冲 */
 let opacityBuffer = '';
 
@@ -652,7 +543,5 @@ function applyOpacityBuffer(): void {
 /** 初始化：注册默认文档 */
 export function initialize(): void {
   initToolOptions();
-  if (documents.value.length === 0) {
-    commands.run('newCanvas');
-  }
+  void loadShortcutOverrides();
 }

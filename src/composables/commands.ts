@@ -28,7 +28,7 @@ import { importPsd } from '@/io/psd';
 
 
 import { createIoCommands } from '@/composables/commands-io';
-import { actualPixels, closeCurrent, currentHistory, fitCanvas, invalidate, openDialog, openDocument, toggleUi, zoomStep } from '@/composables/useEditor';
+import { actualPixels, closeCurrent, currentHistory, fitCanvas, hasDocument, invalidate, openDialog, openDocument, toggleUi, zoomStep } from '@/composables/useEditor';
 import type { EditorApi } from '@/types/editor';
 import type { AdjustmentKind, CompDocument, Layer, PixelBuffer } from '@/types/document';
 
@@ -157,7 +157,14 @@ export function createCommands(api: EditorApi) {
     return true;
   };
 
+  /** 这些命令在没有打开文档时也能执行（启动页可用） */
+  const DOCUMENT_FREE = new Set(['newCanvas', 'openImage', 'openPsd', 'openRaw', 'openComp', 'openRecent', 'recentList', 'shortcuts', 'about', 'setTheme', 'sample']);
+
   const run = (name: string, payload?: unknown): void => {
+    if (!hasDocument() && !DOCUMENT_FREE.has(name)) {
+      setStatusSafe('请先新建或打开一个画布');
+      return;
+    }
     // 注意：这里不再取 api.doc，由顶部的惰性代理在真正访问时才解析（newCanvas 时还没有文档）
     switch (name) {
       /* ---------------- 图层 ---------------- */
@@ -484,6 +491,38 @@ export function createCommands(api: EditorApi) {
         break;
       }
 
+      /* ---------------- 反相 ---------------- */
+      case 'invertPixels': {
+        const layer = api.activeLayer();
+        if (!layer) break;
+        // 正在编辑蒙版时反相蒙版，否则反相像素
+        if (layer.mask && layer.mask.target === 'mask') {
+          invertLayerMask(layer);
+          api.markLayerDirty(layer.id);
+          break;
+        }
+        if (layer.kind !== 'pixel' || !layer.pixels) {
+          commands.run('addAdjustment', 'Invert');
+          break;
+        }
+        const snapshot = api.snapshotLayer(layer.id);
+        const pixels = layer.pixels;
+        for (let i = 0; i < pixels.data.length; i += 4) {
+          pixels.data[i] = 255 - pixels.data[i]!;
+          pixels.data[i + 1] = 255 - pixels.data[i + 1]!;
+          pixels.data[i + 2] = 255 - pixels.data[i + 2]!;
+        }
+        layer.contentKey += 1;
+        api.markLayerDirty(layer.id);
+        const after = api.snapshotLayer(layer.id);
+        api.pushHistory(
+          '反相',
+          () => { if (snapshot) api.restoreLayer(layer.id, snapshot); },
+          () => { if (after) api.restoreLayer(layer.id, after); },
+          (snapshot?.pixels?.data.length ?? 0) * 2,
+        );
+        break;
+      }
       /* ---------------- 调整层 ---------------- */
       case 'addAdjustment': {
         const kind = payload as AdjustmentKind;

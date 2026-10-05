@@ -71,7 +71,7 @@ export interface EditorApi {
   findLayer(id: string): Layer | null;
   snapshotLayer(id: string): LayerSnapshot | null;
   restoreLayer(id: string, snapshot: LayerSnapshot): void;
-  /** 图层内容已变化（触发��绘并使缓存失效） */
+  /** 图层内容已变化（触发重绘并使缓存失效） */
   markLayerDirty(id: string): void;
 
   /* --- 选区 --- */
@@ -106,7 +106,7 @@ export interface EditorApi {
 
 type Layer = import('@/types/document').Layer;
 
-/** 工具覆盖层常��的矩形绘制 */
+/** 工具覆盖层常用的矩形绘制 */
 export function strokeRect(ctx: CanvasRenderingContext2D, rect: Rect, color = '#38bdf8', width = 1): void {
   ctx.save();
   ctx.strokeStyle = color;

@@ -9,6 +9,8 @@ import CanvasStage from '@/components/CanvasStage.vue';
 import ToolBar from '@/components/ToolBar.vue';
 import ToolHeader from '@/components/ToolHeader.vue';
 import DockLayout from '@/components/DockLayout.vue';
+import StartPage from '@/components/StartPage.vue';
+import { initTheme } from '@/composables/useTheme';
 import { loadPanelLayout } from '@/composables/usePanels';
 import DialogHost from '@/components/dialogs/DialogHost.vue';
 import { api, closeDocument, commands, currentDocument, documents, handleKeyDown, initialize, selectDocument, statusMessage } from '@/composables/useEditor';
@@ -25,6 +27,10 @@ const menus = [
       { label: '导入相机 RAW…', run: () => commands.run('openRaw') },
       { label: '打开 .comp 工程包…', key: '3', run: () => commands.run('openComp') },
       { label: '最近工程', run: () => commands.run('recentList') },
+      { divider: true },
+      { label: '示例 · 渐变与文字', run: () => commands.run('sample', 'gradient') },
+      { label: '示例 · 图层组与蒙版', run: () => commands.run('sample', 'mask') },
+      { label: '示例 · 调整层', run: () => commands.run('sample', 'adjustment') },
       { divider: true },
       { label: '保存工程', key: '4', run: () => commands.run('saveComp') },
       { label: '另存为…', run: () => commands.run('saveCompAs') },
@@ -141,12 +147,16 @@ const menus = [
       { label: '显示参考线', run: () => commands.run('toggleGuides') },
       { label: '吸附设置…', run: () => commands.run('snapSettings') },
       { label: '显示变换控件', run: () => commands.run('toggleTransformControls') },
+      { divider: true },
+      { label: '主题：暗色', run: () => commands.run('setTheme', 'dark') },
+      { label: '主题：亮色', run: () => commands.run('setTheme', 'light') },
+      { label: '主题：跟随系统', run: () => commands.run('setTheme', 'system') },
     ],
   },
   {
     label: '帮助',
     items: [
-      { label: '键盘快捷键…', run: () => commands.run('shortcuts') },
+      { label: '键盘快捷键（可自定义）…', run: () => commands.run('shortcuts') },
       { label: '关于合成器', run: () => commands.run('about') },
     ],
   },
@@ -219,7 +229,8 @@ function foregroundHex(): string {
     </nav>
 
     <!-- 主体 -->
-    <DockLayout>
+    <StartPage v-if="documents.length === 0" />
+    <DockLayout v-else>
       <ToolBar />
       <ToolHeader />
       <CanvasStage />
@@ -246,8 +257,8 @@ function foregroundHex(): string {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #1e1e1e;
-  color: #dcdcdc;
+  background: var(--cmp-bg);
+  color: var(--cmp-text);
   font-size: 12px;
 }
 
@@ -257,8 +268,8 @@ function foregroundHex(): string {
   gap: 4px;
   padding: 0 8px;
   height: 28px;
-  background: #252526;
-  border-bottom: 1px solid #3a3a3a;
+  background: var(--cmp-panel);
+  border-bottom: 1px solid var(--cmp-border);
 }
 
 .menu-title {
@@ -268,7 +279,7 @@ function foregroundHex(): string {
 }
 
 .menu-title:hover {
-  background: #3a3a3a;
+  background: var(--cmp-border);
 }
 
 .spacer {
@@ -277,11 +288,11 @@ function foregroundHex(): string {
 
 .shortcut-hint {
   margin-left: 16px;
-  color: #888;
+  color: var(--cmp-text-faint);
 }
 
 .doc-meta {
-  color: #aaa;
+  color: var(--cmp-text-dim);
 }
 
 .dirty {
@@ -299,8 +310,8 @@ function foregroundHex(): string {
   align-items: center;
   gap: 2px;
   padding: 2px 6px;
-  background: #202020;
-  border-bottom: 1px solid #3a3a3a;
+  background: var(--cmp-tabs);
+  border-bottom: 1px solid var(--cmp-border);
   overflow-x: auto;
 }
 
@@ -316,21 +327,21 @@ function foregroundHex(): string {
 }
 
 .tab.active {
-  background: #3a3a3a;
+  background: var(--cmp-border);
   color: #fff;
 }
 
 .tab .close {
   background: transparent;
   border: none;
-  color: #999;
+  color: var(--cmp-text-dim);
   cursor: pointer;
 }
 
 .add-tab {
   background: transparent;
   border: none;
-  color: #bbb;
+  color: var(--cmp-text-dim);
   cursor: pointer;
   font-size: 14px;
 }
@@ -345,9 +356,9 @@ function foregroundHex(): string {
   gap: 8px;
   height: 24px;
   padding: 0 8px;
-  background: #252526;
-  border-top: 1px solid #3a3a3a;
-  color: #aaa;
+  background: var(--cmp-panel);
+  border-top: 1px solid var(--cmp-border);
+  color: var(--cmp-text-dim);
 }
 
 .swatch.fg {
@@ -355,7 +366,7 @@ function foregroundHex(): string {
 }
 
 .swatch.bg {
-  color: #e5e5e5;
+  color: var(--cmp-text);
 }
 
 .zoom {

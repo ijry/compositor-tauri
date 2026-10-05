@@ -233,7 +233,7 @@ export function smudgeDab(buffer: PixelBuffer, center: Point, radius: number, st
   }
 }
 
-/** 变形���液化）：以 center 为中心按 direction 位移像素，twirl 为环绕旋转强度 */
+/** 变形（液化））：以 center 为中心按 direction 位移像素，twirl 为环绕旋转强度 */
 export function warpRegion(buffer: PixelBuffer, center: Point, radius: number, dx: number, dy: number, twirl: number): void {
   const x0 = Math.max(0, Math.floor(center.x - radius));
   const x1 = Math.min(buffer.width - 1, Math.ceil(center.x + radius));
