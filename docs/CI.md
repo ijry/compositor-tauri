@@ -48,7 +48,7 @@ sequenceDiagram
 
 | Variable | 用途 |
 | --- | --- |
-| `XYCLOUD_OIDC_ISSUER` | xycloud 的令牌交换端点，例如 `https://api.lingyun.net/api/v1/user_pat/workload-token` |
+| `XYCLOUD_OIDC_ISSUER` | xycloud 的令牌交换端点，例如 `https://api.lingyun.net/api/v1/user_pat/workload/token` |
 | `XYCLOUD_OIDC_AUDIENCE` | OIDC 受众，默认 `otools-ci` |
 | `OTOOLS_MARKET_API` | 插件市场发布接口，默认 `https://otools-api.lingyun.net/api/v1/otools/plugin/publish` |
 | `OTOOLS_WEBSITE_BASE_URL` | 官网基址，用于拼插件主页地址 |
@@ -58,7 +58,7 @@ sequenceDiagram
 
 ## xycloud 侧需要实现的契约
 
-### 1. `POST /api/v1/user_pat/workload-token`（免登录）
+### 1. `POST /api/v1/user_pat/workload/token`（免登录）
 
 请求头：
 
