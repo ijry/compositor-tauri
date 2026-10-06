@@ -6,8 +6,8 @@
 
 | auth_mode | 凭证配置 | 发布身份 |
 | --- | --- | --- |
-| pat | Secret `XYCLOUD_PAT` | 个人 PAT 所属用户，仅限授权插件 |
-| oidc | 下述 OIDC Variables | 可信发布绑定所属用户，仅限绑定插件 |
+| pat | Secret `XYCLOUD_PAT` | 个人 PAT 所属用户，按权限和可选资源限制校验 |
+| oidc | 下述 OIDC Variables | 可信发布绑定所属用户，按权限和可选资源限制校验 |
 | login | Secret `XYCLOUD_LOGIN_TOKEN` | 原用户登录 Bearer Token；该模式保留 |
 | shared | Secret `OTOOLS_MARKET_TOKEN` | 原官方/内置插件发布密钥；保留，不废弃 |
 
@@ -15,20 +15,21 @@ login 值可填写登录 token 或完整 Bearer 前缀。用户不应获取官�
 
 ## 普通开发者：先用 PAT
 
-1. 通过原登录态在平台提交自己的插件。
-2. PC 个人中心 → 访问令牌，勾选发布权限及自己的插件。
+1. PC 个人中心 → 访问令牌，默认选择全部当前可授予权限（目前只有插件发布）。
+2. 插件范围默认覆盖本人所有插件，允许首次创建自己的插件；需要收窄时再选指定插件。
 3. 将一次性明文保存到本仓库 Secret `XYCLOUD_PAT`。
 4. 手动运行 Actions，选择 pat，勾选 publish_market，关闭 dry_run。
 
 ## GitHub OIDC 可信发布
 
-先在平台 PC 个人中心 → GitHub 可信发布创建绑定，通过 GitHub OAuth 验证目标仓库管理权限。
+先在平台 PC 个人中心 → GitHub 可信发布创建绑定，通过 GitHub OAuth 验证目标仓库管理权限。权限与 PAT 使用同一机制：全部当前权限或指定权限，插件范围可以不限制为单个插件。
 
 本插件示例绑定：
 
 | 项目 | 值 |
 | --- | --- |
-| 插件 | `otools-compositor`，必须属于当前平台用户 |
+| 权限 | 包含 `otools:plugin:publish`（也可选全部当前权限） |
+| 资源范围 | 默认本人所有插件（含首次创建），或指定自己的 `otools-compositor` |
 | GitHub 仓库 | `ijry/compositor-tauri`，fork 时填写自己的仓库 |
 | 工作流 | `.github/workflows/release-plugin.yml` |
 | 引用规则 | `refs/tags/v*`，或手动发布所用的精确分支，如 `refs/heads/main` |
@@ -71,7 +72,7 @@ HTTP 失败、业务 code 非 200、缺失凭证、版本/tag 不一致都会明
 
 ## 服务端上线前
 
-更新 xystack 后对 user_pat 执行 SQL 更新，增加 PAT 范围/revision 及可信发布绑定表。旧 PAT 空范围不可发布，需要重建；原登录态及官方共享密钥继续使用。
+更新 xystack 后对 user_pat 执行 SQL 更新，增加 PAT 范围/revision 及可信发布绑定表。通用 PAT 增加 scopeMode/resources，PAT 与 OIDC 新增权限均由服务端注册处理器；默认全部权限在授权时展开为快照，不自动取得未来权限。原登录态及官方共享密钥继续使用。
 
 OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC HTTPS 回调 URL。用户绑定的仓库、工作流、ref、环境与过期时间都要匹配，不能只把仓库加入全局白名单。
 
