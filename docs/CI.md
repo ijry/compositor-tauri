@@ -1,103 +1,78 @@
-# 插件发布 CI
+# 插件自动发布 CI
 
-`.github/workflows/release-plugin.yml` 参照 otools-publish 的 `build-otools-plugin.yml` 实现，
-针对「独立插件仓库」做了裁剪：插件源码就在本仓库，不需要 clone OTools 再构建。
+工作流：`.github/workflows/release-plugin.yml`。构建和发布分离，支持 dry-run、手动发布与 v* 标签触发。
 
-## 触发方式
+## 四种认证（显式选择，不自动降级）
 
-| 触发 | 说明 |
+| auth_mode | 凭证配置 | 发布身份 |
+| --- | --- | --- |
+| pat | Secret `XYCLOUD_PAT` | 个人 PAT 所属用户，仅限授权插件 |
+| oidc | 下述 OIDC Variables | 可信发布绑定所属用户，仅限绑定插件 |
+| login | Secret `XYCLOUD_LOGIN_TOKEN` | 原用户登录 Bearer Token；该模式保留 |
+| shared | Secret `OTOOLS_MARKET_TOKEN` | 原官方/内置插件发布密钥；保留，不废弃 |
+
+login 值可填写登录 token 或完整 Bearer 前缀。用户不应获取官方共享密钥。PAT 或 OIDC 验证失败会使发布步骤失败，不会退回官方身份。
+
+## 普通开发者：先用 PAT
+
+1. 通过原登录态在平台提交自己的插件。
+2. PC 个人中心 → 访问令牌，勾选发布权限及自己的插件。
+3. 将一次性明文保存到本仓库 Secret `XYCLOUD_PAT`。
+4. 手动运行 Actions，选择 pat，勾选 publish_market，关闭 dry_run。
+
+## GitHub OIDC 可信发布
+
+先在平台 PC 个人中心 → GitHub 可信发布创建绑定，通过 GitHub OAuth 验证目标仓库管理权限。
+
+本插件示例绑定：
+
+| 项目 | 值 |
 | --- | --- |
-| 手动（workflow_dispatch） | 可填版本号、是否同步市场、是否 dry-run |
-| 推送 tag `v*` | 自动发布，`dry_run` 视为 false |
+| 插件 | `otools-compositor`，必须属于当前平台用户 |
+| GitHub 仓库 | `ijry/compositor-tauri`，fork 时填写自己的仓库 |
+| 工作流 | `.github/workflows/release-plugin.yml` |
+| 引用规则 | `refs/tags/v*`，或手动发布所用的精确分支，如 `refs/heads/main` |
+| Environment | `release`（本工作流使用该环境，建议设置保护审批规则） |
 
-## 流水线
+添加 Repository Variables：
 
-1. **build**：安装依赖 → `pnpm typecheck` → `pnpm build` → `node scripts/pack-plugin.mjs` → 上传 `.oplg`
-2. **workload-token**：用 GitHub OIDC 身份向 xycloud 换短期访问令牌（仅在需要同步市场时运行）
-3. **publish**：创建 GitHub Release 并附带 `.oplg`；随后用短期令牌把插件元信息提交到插件市场
+- `XYCLOUD_OIDC_ISSUER`：`https://实际接口域名/api/v1/user_pat/workload/token`，不是 GitHub issuer，也不是个人密钥。
+- `XYCLOUD_OIDC_AUDIENCE`：`otools-ci`，须与服务端一致。
+- `XYCLOUD_PUBLISHER_ID`：在平台验证仓库后生成的绑定 ID，可公开，不是秘密。
+- `OTOOLS_MARKET_API`：市场发布接口，默认 `https://otools-api.lingyun.net/api/v1/otools/plugin/publish`。
 
-## 打包格式
+CI 在同一发布进程中获取 GitHub 响应的 value，将 JWT 发给兑换接口，读取 xycloud 响应的 data.access_token，然后立即发布。凭证不经过 job outputs 或 artifact，日志仅显示脱敏标记。
 
-`scripts/pack-plugin.mjs` 产出与 `otools/scripts/plugin_pack.py` 一致的 `.oplg`——
-本质是 ZIP，内含 `plugin.json`、`logo.svg` 与 `dist/`（若存在 `lib/` 也会带上）。
-脚本零依赖（用 `node:zlib` 手写 ZIP 结构），并会校验 `manifest.entry` 指向的文件确实在包内。
+市场授权与 GitHub 写权限独立。创建本仓库 Release 使用 GitHub 自动生成的 GITHUB_TOKEN，不从 xycloud 兑换所谓 git_token。
 
-```bash
-node scripts/pack-plugin.mjs --out dist-pack --version 0.1.0
+## 标签自动发布
+
+- 更新 plugin.json 版本号后推送一致的 `v<version>` 标签。
+- 配置 Variable `OTOOLS_PUBLISH_MARKET=true` 才自动同步市场；未启用时仅发布 GitHub Release。
+- 配置 Variable `XYCLOUD_AUTH_MODE` 为 pat/oidc/login/shared，默认 oidc，并配齐相应凭证或绑定。
+- 发布 job 使用 Environment `release`，若设置审批需通过审批。
+- 推送分支不会触发发布。配置工作流文件不代表已经执行过真实发布。
+
+## 打包与发布资源
+
+使用 Node 22 构建（打包脚本使用 node:zlib 的 crc32）。
+
+```sh
+pnpm install --frozen-lockfile
+pnpm exec vue-tsc -p tsconfig.app.json --noEmit --pretty false
+node --test scripts/publish-market.test.mjs
+pnpm build
+node scripts/pack-plugin.mjs --out dist-pack
 ```
 
-## 认证：OIDC 工作负载身份联合
+.oplg 是 ZIP，内含 plugin.json、logo.svg、dist。Release 同时上传独立 logo.svg，市场使用实际 packageUrl 和 logo 资源地址，不需要开发者向官方官网仓库推送文件。
 
-仓库中**不保存任何长期凭证**。CI 使用 GitHub Actions 内置的 OIDC 身份（`id-token: write` 权限）
-拿到一枚 JWT，再拿它向 xycloud 换一个**分钟级有效的访问令牌**：
+HTTP 失败、业务 code 非 200、缺失凭证、版本/tag 不一致都会明确失败。
 
-```mermaid
-sequenceDiagram
-    participant CI as GitHub Actions
-    participant GHO as GitHub OIDC
-    participant XY as xycloud
-    CI->>GHO: 请求 OIDC JWT（audience=otools-ci）
-    GHO-->>CI: JWT（含 sub/repo/ref/claims）
-    CI->>XY: POST $XYCLOUD_OIDC_ISSUER（Bearer: OIDC JWT）
-    XY-->>CI: { access_token, git_token, expires_in }
-    CI->>CI: ::add-mask:: 屏蔽令牌
-    CI->>XY: 用 access_token 调市场发布接口
-```
+## 服务端上线前
 
-配置项（仓库 Variables）：
+更新 xystack 后对 user_pat 执行 SQL 更新，增加 PAT 范围/revision 及可信发布绑定表。旧 PAT 空范围不可发布，需要重建；原登录态及官方共享密钥继续使用。
 
-| Variable | 用途 |
-| --- | --- |
-| `XYCLOUD_OIDC_ISSUER` | xycloud 的令牌交换端点，例如 `https://api.lingyun.net/api/v1/user_pat/workload/token` |
-| `XYCLOUD_OIDC_AUDIENCE` | OIDC 受众，默认 `otools-ci` |
-| `OTOOLS_MARKET_API` | 插件市场发布接口，默认 `https://otools-api.lingyun.net/api/v1/otools/plugin/publish` |
-| `OTOOLS_WEBSITE_BASE_URL` | 官网基址，用于拼插件主页地址 |
+OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC HTTPS 回调 URL。用户绑定的仓库、工作流、ref、环境与过期时间都要匹配，不能只把仓库加入全局白名单。
 
-未配置 `XYCLOUD_OIDC_ISSUER` 时会回退到旧的 `secrets.OTOOLS_MARKET_TOKEN`（打印弃用告警），
-两者都没有则跳过市场同步，只产出 Release。
-
-## xycloud 侧需要实现的契约
-
-### 1. `POST /api/v1/user_pat/workload/token`（免登录）
-
-请求头：
-
-- `Authorization: Bearer <GitHub OIDC JWT>`
-- `X-Repository` / `X-Workflow` / `X-Run-Id`：用于审计
-
-请求体：`{ "audience": "otools-ci", "scope": "otools:plugin:publish" }`
-
-响应：
-
-```json
-{
-  "access_token": "<短期 JWT，claims 含 sub/repository/aud/exp/scope>",
-  "git_token": "<可选，用于推送官网仓库的短期凭证>",
-  "expires_in": 900
-}
-```
-
-服务端需校验：JWT 签名与 `iss=https://token.actions.githubusercontent.com`、
-`aud`、`exp`，以及 `repository` 是否在白名单内。
-
-### 2. 市场发布接口鉴权
-
-`POST $OTOOLS_MARKET_API`，请求头 `Authorization: Bearer <access_token>`，
-由 xycloud 校验 `scope` 是否包含 `otools:plugin:publish`。
-
-### 3. 用户 PAT 模块（`app/_user/user_pat`）
-
-用户 PAT 是**个人长期凭证**，用于本地开发与非 CI 场景，也能兑换短期令牌：
-
-| 能力 | 说明 |
-| --- | --- |
-| 创建 | 指定名称、作用域、有效期（7/30/90/365 天或自定义），明文**只在创建时返回一次** |
-| 销毁 | 立即失效，记录 `deleteTime` |
-| 重置 | 原地作废旧明文并生成新明文，返回一次性明文 |
-| 列表 | 只返回前缀掩码（`xy_pat_****abcd`）、作用域、过期时间、最近使用时间，不含明文 |
-| 兑换 | 用 PAT 换取短期 access_token（与 OIDC 换取同一套 scope 模型） |
-
-存储：明文只保存哈希（`hash('sha256', $plain)`）与前缀，
-表结构建议 `xy_user_pat`：`gid / cloudAlias / id / uid / name / prefix / tokenHash /
-scope / expiresAt / lastUsedAt / usedCount / status / deleteTime / createTime / updateTime`
-（字段风格对齐 `install.json` 中 `tableRows` 的既有约定）。
+现有本地测试覆盖四种认证流程、JSON 提取、错误响应和元信息结构；真实 GitHub Actions/平台部署的集成验证仍需在配置完成后执行。
