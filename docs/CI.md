@@ -20,6 +20,8 @@ login 值可填写登录 token 或完整 Bearer 前缀。用户不应获取官�
 3. 将一次性明文保存到本仓库 Secret `XYCLOUD_PAT`。
 4. 手动运行 Actions，选择 pat，勾选 publish_market，关闭 dry_run。
 
+以后新增权限时，可在 PC 访问令牌列表中编辑原 PAT，勾选“编辑权限和资源范围”后授权。**编辑不更换密钥，GitHub Secret `XYCLOUD_PAT` 不用修改**；只改名称不刷新原权限快照。授权编辑后已兑换的短期令牌失效，重新兑换即可。“重置”才会轮换密钥并需要同步更新 Secret。
+
 ## GitHub OIDC 可信发布
 
 先在平台 PC 个人中心 → GitHub 可信发布创建绑定，通过 GitHub OAuth 验证目标仓库管理权限。权限与 PAT 使用同一机制：全部当前权限或指定权限，插件范围可以不限制为单个插件。
