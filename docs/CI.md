@@ -106,3 +106,15 @@ HTTP 失败、业务 code 非 200、缺失凭证、版本/tag 不一致都会明
 OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC HTTPS 回调 URL。用户绑定的仓库、工作流、ref、环境与过期时间都要匹配，不能只把仓库加入全局白名单。
 
 本地测试覆盖四种认证流程、JSON 提取、错误响应、dry-run 写操作开关、打包清单与篡改检测、标签提交归属。平台真实发布仍需正式运行后确认。
+
+
+## 2026-10-07 接入验证记录
+
+- [x] release 环境的 XYCLOUD_PAT 加密 Secret 已配置；普通 Variables 不保存 PAT。
+- [x] PAT 模式、市场地址与未来版本标签自动同步市场的开关已配置。
+- [x] 14 项本地脚本测试、完整构建、包摘要/CRC/入口/清单验证通过。
+- [x] 改动文件及包内容完成真实 PAT 明文检查，未发现泄漏。
+- [x] GitHub Actions dry-run 完整通过：[运行 37564303698](https://github.com/ijry/compositor-tauri/actions/runs/37564303698)，验证代码提交 0884b597b3cf05f37628800d1c9e5df3d0264fdb。
+- [x] 下载 Actions 的 oplg artifact 后再次通过独立包验证。
+
+该次运行明确跳过 GitHub Release 创建和市场提交。仅验证 Secret 的存在及格式，没有向市场发送 PAT；真实令牌权限、有效期和上架结果仍需正式发布确认。
