@@ -12,8 +12,10 @@
 - [x] 滚动：各内部区域保持 auto，不使用全页强制 scroll。
 - [x] 补充已保存文字修改的未保存提示、空目录备份失败立即终止的回归与修复。
 - [x] 完整构建、41 项浏览器/像素/文件回归、14 项发布脚本测试，以及本地 0.1.0 包生成和独立校验。
-- [ ] 提交推送并完成 GitHub Actions dry-run（不创建 Release、不上架市场）。
+- [x] 修复提交 25628ad 已推送；GitHub Actions dry-run 37686773933 成功，正式发布任务已跳过。
 
 安全保存测试仅使用内存宿主文件系统模拟失败边界，不触碰真实用户工程。实际 OTools 安装需验证宿主 rename 支持；不支持时只返回清晰失败。
 
 验证：已有26项回归保留，新增review-core/review-document/review-project用于复现后验证；完整构建、脚本测试及本地包校验。文件系统故障使用测试宿主模拟，实际原生宿主安装待用户验证。
+
+CI 验证记录：https://github.com/ijry/compositor-tauri/actions/runs/37686773933 。本地包：dist-pack/otools-compositor-0.1.0.oplg。
