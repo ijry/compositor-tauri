@@ -2,6 +2,28 @@
 
 工作流：`.github/workflows/release-plugin.yml`。构建和发布分离，支持 dry-run、手动发布与 v* 标签触发。
 
+## 当前仓库配置
+
+- GitHub Environment：`release`。
+- Environment Secret：`XYCLOUD_PAT`（加密保存，不是普通 Variable，不进入源码或产物）。
+- Environment Variable：`XYCLOUD_AUTH_MODE=pat`。
+- Repository Variable：`OTOOLS_PUBLISH_MARKET=true`，未来推送版本标签时自动同步市场。
+- 市场地址可通过 `release` 环境的 `OTOOLS_MARKET_API` 覆盖。
+
+PAT 明文只通过标准输入传入 GitHub CLI，不写入命令参数或日志。更换 PAT 时更新同名 Secret 即可，不需要修改工作流。
+
+## 建议先运行一次验证
+
+在 Actions 中运行 `release-plugin`，选择 `auth_mode=pat`、`publish_market=true`、`dry_run=true`。
+
+这会构建、测试、打包、上传 artifact，并验证发布产物、GitHub 标签归属和环境 Secret 的格式。**不会创建标签、GitHub Release，也不会请求插件市场或把 PAT 发往平台。**因此验证成功不等于平台已接受 PAT 的权限或已经上架。
+
+```bash
+gh workflow run release-plugin.yml --ref main -f auth_mode=pat -f publish_market=true -f dry_run=true
+```
+
+真正发布时再关闭 dry_run，或推送与 plugin.json 版本一致的 `v<version>` 标签。
+
 ## 四种认证（显式选择，不自动降级）
 
 | auth_mode | 凭证配置 | 发布身份 |
@@ -17,7 +39,7 @@ login 值可填写登录 token 或完整 Bearer 前缀。用户不应获取官�
 
 1. PC 个人中心 → 访问令牌，默认选择全部当前可授予权限（目前只有插件发布）。
 2. 插件范围默认覆盖本人所有插件，允许首次创建自己的插件；需要收窄时再选指定插件。
-3. 将一次性明文保存到本仓库 Secret `XYCLOUD_PAT`。
+3. 将一次性明文保存到 `release` Environment Secret `XYCLOUD_PAT`。
 4. 手动运行 Actions，选择 pat，勾选 publish_market，关闭 dry_run。
 
 以后新增权限时，可在 PC 访问令牌列表中编辑原 PAT，勾选“编辑权限和资源范围”后授权。**编辑不更换密钥，GitHub Secret `XYCLOUD_PAT` 不用修改**；只改名称不刷新原权限快照。授权编辑后已兑换的短期令牌失效，重新兑换即可。“重置”才会轮换密钥并需要同步更新 Secret。
@@ -37,7 +59,7 @@ login 值可填写登录 token 或完整 Bearer 前缀。用户不应获取官�
 | 引用规则 | `refs/tags/v*`，或手动发布所用的精确分支，如 `refs/heads/main` |
 | Environment | `release`（本工作流使用该环境，建议设置保护审批规则） |
 
-添加 Repository Variables：
+为 `release` Environment 配置 Variables（也可使用 Repository Variables）：
 
 - `XYCLOUD_OIDC_ISSUER`：`https://实际接口域名/api/v1/user_pat/workload/token`，不是 GitHub issuer，也不是个人密钥。
 - `XYCLOUD_OIDC_AUDIENCE`：`otools-ci`，须与服务端一致。
@@ -52,7 +74,7 @@ CI 在同一发布进程中获取 GitHub 响应的 value，将 JWT 发给兑换�
 
 - 更新 plugin.json 版本号后推送一致的 `v<version>` 标签。
 - 配置 Variable `OTOOLS_PUBLISH_MARKET=true` 才自动同步市场；未启用时仅发布 GitHub Release。
-- 配置 Variable `XYCLOUD_AUTH_MODE` 为 pat/oidc/login/shared，默认 oidc，并配齐相应凭证或绑定。
+- 配置 Variable `XYCLOUD_AUTH_MODE` 为 pat/oidc/login/shared，默认 pat，并配齐相应凭证或绑定。
 - 发布 job 使用 Environment `release`，若设置审批需通过审批。
 - 推送分支不会触发发布。配置工作流文件不代表已经执行过真实发布。
 
@@ -63,12 +85,17 @@ CI 在同一发布进程中获取 GitHub 响应的 value，将 JWT 发给兑换�
 ```sh
 pnpm install --frozen-lockfile
 pnpm exec vue-tsc -p tsconfig.app.json --noEmit --pretty false
-node --test scripts/publish-market.test.mjs
+node --test scripts/*.test.mjs
 pnpm build
 node scripts/pack-plugin.mjs --out dist-pack
+python scripts/verify-plugin.py dist-pack
 ```
 
-.oplg 是 ZIP，内含 plugin.json、logo.svg、dist。Release 同时上传独立 logo.svg，市场使用实际 packageUrl 和 logo 资源地址，不需要开发者向官方官网仓库推送文件。
+.oplg 是 ZIP，内含 plugin.json、logo.svg、dist（以及存在时的 lib）。正式清单去除 devUrl/quickDev，不修改开发用的源 plugin.json。
+
+构建产物为扁平目录：`.oplg`、`plugin.json`、`logo.svg`、`SHA256SUMS`。打包和发布前都会验证 SHA-256、ZIP CRC、入口文件、包内外清单与图标的一致性。Release 上传这四类文件，市场使用实际 packageUrl 和 logo 地址。
+
+发布前检查当前标签对应的提交，拒绝用同版本覆盖其他提交的产物。相同提交可重试上传；认证配置检查先于 GitHub Release 创建。PAT、OIDC、登录和共享密钥仍显式选择，不自动降级。
 
 HTTP 失败、业务 code 非 200、缺失凭证、版本/tag 不一致都会明确失败。
 
@@ -78,4 +105,4 @@ HTTP 失败、业务 code 非 200、缺失凭证、版本/tag 不一致都会明
 
 OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC HTTPS 回调 URL。用户绑定的仓库、工作流、ref、环境与过期时间都要匹配，不能只把仓库加入全局白名单。
 
-现有本地测试覆盖四种认证流程、JSON 提取、错误响应和元信息结构；真实 GitHub Actions/平台部署的集成验证仍需在配置完成后执行。
+本地测试覆盖四种认证流程、JSON 提取、错误响应、dry-run 写操作开关、打包清单与篡改检测、标签提交归属。平台真实发布仍需正式运行后确认。

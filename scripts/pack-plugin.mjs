@@ -11,6 +11,8 @@ import { deflateRawSync, crc32 } from 'node:zlib';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { createHash } from 'node:crypto';
+import { productionManifest } from './publish-market.mjs';
 
 const root = process.cwd();
 
@@ -25,7 +27,8 @@ function walk(dir, base = dir) {
   const out = [];
   for (const name of fs.readdirSync(dir)) {
     const full = path.join(dir, name);
-    const stat = fs.statSync(full);
+    const stat = fs.lstatSync(full);
+    if (stat.isSymbolicLink()) throw new Error('打包目录不能包含符号链接');
     if (stat.isDirectory()) out.push(...walk(full, base));
     else if (stat.isFile()) out.push(path.relative(base, full).split(path.sep).join('/'));
   }
@@ -96,9 +99,9 @@ function zip(entries) {
 function main() {
   const manifestPath = path.join(root, 'plugin.json');
   if (!fs.existsSync(manifestPath)) throw new Error('缺少 plugin.json');
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const version = arg('version', manifest.version);
-  const packid = manifest.packid || manifest.uuid;
+  const source = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const manifest = productionManifest(source, arg('version', source.version));
+  const { version, packid } = manifest;
   const outDir = path.join(root, arg('out', 'dist-pack'));
   fs.mkdirSync(outDir, { recursive: true });
 
@@ -129,9 +132,15 @@ function main() {
 
   const output = path.join(outDir, `${packid}-${version}.oplg`);
   fs.writeFileSync(output, zip(entries));
+  // 发布目录统一为扁平结构，避免 artifact 解包层级与上传路径不一致。
+  fs.writeFileSync(path.join(outDir, 'plugin.json'), entries[0].data);
+  fs.copyFileSync(path.join(root, 'logo.svg'), path.join(outDir, 'logo.svg'));
+  const releaseFiles = [path.basename(output), 'plugin.json', 'logo.svg'];
+  const sums = releaseFiles.map(name => `${createHash('sha256').update(fs.readFileSync(path.join(outDir, name))).digest('hex')}  ${name}`);
+  fs.writeFileSync(path.join(outDir, 'SHA256SUMS'), sums.join('\n') + '\n');
   const meta = { packid, uuid: manifest.uuid, version, output, entries: entries.length };
   fs.writeFileSync(path.join(outDir, 'meta.json'), `${JSON.stringify(meta, null, 2)}\n`, 'utf8');
   process.stdout.write(`${JSON.stringify(meta)}\n`);
 }
 
-main();
+try { main(); } catch (error) { console.error(error.message); process.exitCode = 1; }

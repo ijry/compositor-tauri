@@ -1,23 +1,23 @@
 name: release-plugin
-run-name: "发布插件 · ${{ inputs.display_version || github.ref_name }}"
+run-name: "插件${{ inputs.dry_run && '验证' || '发布' }} · ${{ inputs.display_version || github.ref_name }}"
 
 on:
   workflow_dispatch:
     inputs:
       display_version:
-        description: "版本号（留空取 plugin.json）"
+        description: "打包版本号（留空取 plugin.json）"
         default: ""
       auth_mode:
-        description: "市场认证：个人 PAT / OIDC 可信发布 / 原用户登录 / 官方共享密钥"
+        description: "市场认证方式"
         type: choice
         options: [pat, oidc, login, shared]
         default: pat
       publish_market:
-        description: "同步插件市场"
+        description: "同步插件市场（dry-run 时仅检查配置，不上架）"
         type: boolean
         default: false
       dry_run:
-        description: "仅构建打包，不发布"
+        description: "仅构建和校验，不创建 Release、不提交市场"
         type: boolean
         default: true
   push:
@@ -37,8 +37,14 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
       packid: ${{ steps.meta.outputs.packid }}
       release_tag: ${{ steps.meta.outputs.release_tag }}
+      publish_enabled: ${{ steps.meta.outputs.publish_enabled }}
+      market_requested: ${{ steps.meta.outputs.market_requested }}
+      market_enabled: ${{ steps.meta.outputs.market_enabled }}
+      validate_release: ${{ steps.meta.outputs.validate_release }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@v4
         with:
           version: 10
@@ -46,31 +52,55 @@ jobs:
         with:
           node-version: "22"
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec vue-tsc -p tsconfig.app.json --noEmit --pretty false
-      - run: node --test scripts/publish-market.test.mjs
-      - run: pnpm build
-      - name: 校验版本及标签
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: 校验版本、标签和发布开关
         id: meta
         env:
           DISPLAY_VERSION: ${{ inputs.display_version }}
           RELEASE_SOURCE_TAG: ${{ github.event_name == 'push' && github.ref_name || '' }}
+          EVENT_NAME: ${{ github.event_name }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          PUBLISH_MARKET: ${{ inputs.publish_market }}
+          AUTO_PUBLISH_MARKET: ${{ vars.OTOOLS_PUBLISH_MARKET || 'false' }}
         run: node scripts/publish-market.mjs meta
-      - name: 打包插件
+      - run: pnpm install --frozen-lockfile
+      - name: 发布脚本回归测试
+        run: node --test scripts/*.test.mjs
+      - name: 类型检查并构建
+        run: pnpm build
+      - name: 打包正式插件并生成摘要
         env:
           VERSION: ${{ steps.meta.outputs.version }}
         run: node scripts/pack-plugin.mjs --out dist-pack --version "$VERSION"
+      - name: 独立验证插件包
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          PACKID: ${{ steps.meta.outputs.packid }}
+        run: python scripts/verify-plugin.py dist-pack --version "$VERSION" --packid "$PACKID"
       - uses: actions/upload-artifact@v4
         with:
           name: oplg
           path: |
             dist-pack/*.oplg
-            logo.svg
+            dist-pack/plugin.json
+            dist-pack/logo.svg
+            dist-pack/SHA256SUMS
           if-no-files-found: error
+          retention-days: 14
+      - name: 构建摘要
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          PACKID: ${{ steps.meta.outputs.packid }}
+          PUBLISH_ENABLED: ${{ steps.meta.outputs.publish_enabled }}
+        run: |
+          printf '### 插件构建完成\n- 插件：`%s`\n- 版本：`%s`\n- 允许正式发布：`%s`\n\n' "$PACKID" "$VERSION" "$PUBLISH_ENABLED" >> "$GITHUB_STEP_SUMMARY"
+          cat dist-pack/SHA256SUMS >> "$GITHUB_STEP_SUMMARY"
 
   publish:
     needs: build
-    if: ${{ github.event_name == 'push' || !inputs.dry_run }}
+    if: ${{ needs.build.outputs.validate_release == 'true' }}
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -78,14 +108,42 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
       - uses: actions/download-artifact@v4
         with:
           name: oplg
           path: release-assets
+      - name: 发布前重新验证产物
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          PACKID: ${{ needs.build.outputs.packid }}
+        run: python scripts/verify-plugin.py release-assets --version "$VERSION" --packid "$PACKID"
+      - name: 检查市场凭证配置（不发送凭证、不上架）
+        if: ${{ needs.build.outputs.market_requested == 'true' }}
+        env:
+          AUTH_MODE: ${{ inputs.auth_mode || vars.XYCLOUD_AUTH_MODE || 'pat' }}
+          XYCLOUD_PAT: ${{ secrets.XYCLOUD_PAT }}
+          XYCLOUD_LOGIN_TOKEN: ${{ secrets.XYCLOUD_LOGIN_TOKEN }}
+          OTOOLS_MARKET_TOKEN: ${{ secrets.OTOOLS_MARKET_TOKEN }}
+          XYCLOUD_OIDC_ISSUER: ${{ vars.XYCLOUD_OIDC_ISSUER }}
+          XYCLOUD_PUBLISHER_ID: ${{ vars.XYCLOUD_PUBLISHER_ID }}
+          OTOOLS_MARKET_API: ${{ vars.OTOOLS_MARKET_API || 'https://otools-api.lingyun.net/api/v1/otools/plugin/publish' }}
+        run: node scripts/publish-market.mjs preflight
+      - name: 核验发布标签与构建提交
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: node scripts/release-policy.mjs
       - name: 发布 GitHub Release
+        if: ${{ needs.build.outputs.publish_enabled == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
@@ -97,13 +155,12 @@ jobs:
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" --target "$COMMIT_SHA" --title "$RELEASE_TAG" --notes "otools-compositor v${RELEASE_VERSION}"
           fi
-          gh release upload "$RELEASE_TAG" release-assets/dist-pack/*.oplg release-assets/logo.svg --clobber
-      # 获取与使用 OIDC 凭证在同一进程完成，不通过 job outputs 传递秘密。
-      # 用户 PAT、登录 Token 和官方共享密钥也显式选择，不做降级回退。
+          gh release upload "$RELEASE_TAG" release-assets/*.oplg release-assets/logo.svg release-assets/plugin.json release-assets/SHA256SUMS --clobber
+      # OIDC 获取和使用在同一进程完成，秘密不经过 job outputs 或 artifact。
       - name: 授权并提交市场
-        if: ${{ inputs.publish_market || (github.event_name == 'push' && vars.OTOOLS_PUBLISH_MARKET == 'true') }}
+        if: ${{ needs.build.outputs.market_enabled == 'true' }}
         env:
-          AUTH_MODE: ${{ inputs.auth_mode || vars.XYCLOUD_AUTH_MODE || 'oidc' }}
+          AUTH_MODE: ${{ inputs.auth_mode || vars.XYCLOUD_AUTH_MODE || 'pat' }}
           XYCLOUD_PAT: ${{ secrets.XYCLOUD_PAT }}
           XYCLOUD_LOGIN_TOKEN: ${{ secrets.XYCLOUD_LOGIN_TOKEN }}
           OTOOLS_MARKET_TOKEN: ${{ secrets.OTOOLS_MARKET_TOKEN }}
@@ -113,4 +170,12 @@ jobs:
           OTOOLS_MARKET_API: ${{ vars.OTOOLS_MARKET_API || 'https://otools-api.lingyun.net/api/v1/otools/plugin/publish' }}
           RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
           RELEASE_VERSION: ${{ needs.build.outputs.version }}
+          PLUGIN_MANIFEST: release-assets/plugin.json
         run: node scripts/publish-market.mjs
+      - name: 发布摘要
+        env:
+          PUBLISH_ENABLED: ${{ needs.build.outputs.publish_enabled }}
+          MARKET_ENABLED: ${{ needs.build.outputs.market_enabled }}
+          RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
+        run: |
+          printf '### 发布检查完成\n- 正式发布：`%s`\n- 市场提交：`%s`\n- 标签：`%s`\n' "$PUBLISH_ENABLED" "$MARKET_ENABLED" "$RELEASE_TAG" >> "$GITHUB_STEP_SUMMARY"
