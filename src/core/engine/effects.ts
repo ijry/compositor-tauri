@@ -142,11 +142,11 @@ function compositeOutside(target: Surface, layer: PixelBuffer, offsetX: number, 
       if (as <= 0) continue;
       const di = (y * buffer.width + x) * 4;
       const ab = buffer.data[di + 3] / 255;
-      const outA = as + ab * (1 - as);
+      const outA = ab + as * (1 - ab);
       if (outA <= 0) continue;
-      buffer.data[di] = (layer.data[si] * as + buffer.data[di] * ab * (1 - as)) / outA;
-      buffer.data[di + 1] = (layer.data[si + 1] * as + buffer.data[di + 1] * ab * (1 - as)) / outA;
-      buffer.data[di + 2] = (layer.data[si + 2] * as + buffer.data[di + 2] * ab * (1 - as)) / outA;
+      buffer.data[di] = (buffer.data[di] * ab + layer.data[si] * as * (1 - ab)) / outA;
+      buffer.data[di + 1] = (buffer.data[di + 1] * ab + layer.data[si + 1] * as * (1 - ab)) / outA;
+      buffer.data[di + 2] = (buffer.data[di + 2] * ab + layer.data[si + 2] * as * (1 - ab)) / outA;
       buffer.data[di + 3] = outA * 255;
     }
   }
@@ -163,14 +163,10 @@ function compositeInside(target: Surface, layer: PixelBuffer): void {
       if (as <= 0) continue;
       const di = (y * width + x) * 4;
       const ab = buffer.data[di + 3] / 255;
-      // 内侧效果只在已有像素范围内生效（不扩展画布面积）
-      const limit = as * ab;
-      if (limit <= 0) continue;
-      const outA = limit + ab * (1 - limit);
-      buffer.data[di] = (layer.data[si] * limit + buffer.data[di] * ab * (1 - limit)) / outA;
-      buffer.data[di + 1] = (layer.data[si + 1] * limit + buffer.data[di + 1] * ab * (1 - limit)) / outA;
-      buffer.data[di + 2] = (layer.data[si + 2] * limit + buffer.data[di + 2] * ab * (1 - limit)) / outA;
-      buffer.data[di + 3] = outA * 255;
+      // 着色层的 alpha 已由原像素覆盖率生成；内侧效果改变颜色而不增加轮廓 alpha。
+      if (ab <= 0) continue;
+      const weight = Math.min(1, as / ab);
+      for (let c = 0; c < 3; c++) buffer.data[di + c] = layer.data[si + c] * weight + buffer.data[di + c] * (1 - weight);
     }
   }
 }
@@ -188,11 +184,12 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
   }) as (keyof LayerEffects)[];
   if (keys.length === 0) return surface;
 
-  let margin = 0;
+  // 内部效果也需要一圈透明采样边界，否则实心矩形边缘无法被腐蚀检测。
+  let margin = Math.ceil(1 / surface.scale);
   if (effects.shadow && effects.shadow.enabled !== false) margin = Math.max(margin, Math.ceil(effects.shadow.distance + effects.shadow.blur * 2));
   if (effects.outerGlow && effects.outerGlow.enabled !== false) margin = Math.max(margin, Math.ceil(effects.outerGlow.size * 1.5));
   if (effects.stroke && effects.stroke.enabled !== false && !effects.stroke.inside) margin = Math.max(margin, Math.ceil(effects.stroke.size));
-  if (margin <= 0) return surface;
+  // 内部效果不需要扩边，但仍需执行；不以 margin=0 提前返回。
 
   // rect/margin 是文档坐标；复制时要转成缓冲像素，不能再把缩小的图像裁一次。
   const expanded = expandRect(surface.rect, margin);

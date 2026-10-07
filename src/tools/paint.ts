@@ -84,7 +84,7 @@ function finishPaint(editor: EditorApi, label: string): void {
 /** 通用绘画参数读取 */
 function paintParams(editor: EditorApi) {
   return {
-    radius: Math.max(0.5, editor.option<number>('size', 40)),
+    radius: Math.max(0.5, editor.option<number>('size', 40) / 2),
     hardness: Math.max(0, Math.min(1, editor.option<number>('hardness', 0.7))),
     opacity: Math.max(0, Math.min(1, editor.option<number>('opacity', 1))),
   };

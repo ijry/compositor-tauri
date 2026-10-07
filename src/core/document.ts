@@ -470,9 +470,10 @@ export function flattenVisible(document: CompDocument): Layer | null {
 /* ------------------------------ 蒙版 ------------------------------ */
 
 /** 为图层添加全白蒙版 */
-export function addLayerMask(layer: Layer): MaskBuffer {
-  const width = layer.kind === 'pixel' && layer.pixels ? layer.pixels.width : 1;
-  const height = layer.kind === 'pixel' && layer.pixels ? layer.pixels.height : 1;
+export function addLayerMask(layer: Layer, canvasWidth = 1, canvasHeight = 1): MaskBuffer {
+  const width = layer.kind === 'pixel' && layer.pixels ? layer.pixels.width : canvasWidth;
+  const height = layer.kind === 'pixel' && layer.pixels ? layer.pixels.height : canvasHeight;
+  if (layer.kind !== 'pixel') layer.transform = defaultTransform(width,height);
   const pixels = createMask(width, height, 255);
   layer.mask = { pixels, enabled: true, linked: true, placement: null, target: 'mask', inverted: false };
   return pixels;
@@ -747,22 +748,26 @@ function rotatePoint(point: [number, number], degrees: number, width: number, he
 /** 翻转画布（同时翻转所有图层） */
 export function flipCanvas(document: CompDocument, horizontal: boolean, vertical: boolean): void {
   for (const layer of document.layers) {
-    if (layer.kind === 'pixel' && layer.pixels) {
-      layer.pixels = flipBuffer(layer.pixels, horizontal, vertical);
-      if (layer.mask) layer.mask.pixels = flipMask(layer.mask.pixels, horizontal, vertical);
-    }
-    const [x, y] = layer.transform.origin;
-    const w = layer.transform.size[0];
-    const h = layer.transform.size[1];
+    const transform = layer.transform;
     if (horizontal) {
-      layer.transform.origin[0] = document.width - x - w;
-      layer.transform.flipX = !layer.transform.flipX;
+      transform.origin[0] = document.width - transform.origin[0] - transform.size[0];
+      transform.flipX = !transform.flipX;
     }
     if (vertical) {
-      layer.transform.origin[1] = document.height - y - h;
-      layer.transform.flipY = !layer.transform.flipY;
+      transform.origin[1] = document.height - transform.origin[1] - transform.size[1];
+      transform.flipY = !transform.flipY;
     }
+    if (horizontal !== vertical) transform.rotation = -transform.rotation;
+    // 已链接蒙版随变换；独立矩形蒙版单独镜像，不能再次翻转图层原始像素。
+    if (layer.mask && !layer.mask.linked && layer.mask.placement) {
+      const p = layer.mask.placement;
+      if (horizontal) p.x = document.width - p.x - p.width;
+      if (vertical) p.y = document.height - p.y - p.height;
+      layer.mask.pixels = flipMask(layer.mask.pixels, horizontal, vertical);
+    }
+    layer.contentKey += 1;
   }
+  document.guides = document.guides.map(g => ({ ...g, position: g.axis === 'vertical' && horizontal ? document.width - g.position : g.axis === 'horizontal' && vertical ? document.height - g.position : g.position }));
   if (document.selection) document.selection = flipMaskSelection(document.selection, horizontal, vertical);
   document.updatedAt = Date.now();
 }

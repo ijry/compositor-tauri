@@ -12,7 +12,7 @@ import {
 } from '@/core/document';
 import { createBuffer, createMask } from '@/core/pixels';
 import { decodeImageBytes, encodeImage } from '@/io/imageIO';
-import { fileExtension, joinPath, listDirectory, readFile, writeFile } from '@/platform/host';
+import { canRenameHostEntry, renameHostEntry, removeTemporaryEntry, fileExtension, joinPath, listDirectory, readFile, writeFile } from '@/platform/host';
 import type {
   AdjustmentKind, BlendMode, CompDocument, Layer, LayerEffects, LevelRange, PixelBuffer, ShapeMeta, TextMeta,
 } from '@/types/document';
@@ -50,7 +50,11 @@ interface ManifestLayer {
     flipX: boolean;
     flipY: boolean;
     sampling: string;
+    warp?: Layer['transform']['warp'];
   };
+  clipping?: boolean;
+  maskSourceID?: string | null;
+  maskInverted?: boolean;
   maskFile?: string;
   maskEnabled?: boolean;
   maskPlacement?: { x: number; y: number; width: number; height: number };
@@ -85,7 +89,7 @@ function maskToPngBytes(mask: { width: number; height: number; data: Uint8Array<
  * 保存工程包。
  * 写入顺序：先写所有 PNG，再写 manifest（AI 代理也遵循同样的顺序，避免读到半成品）。
  */
-export async function saveCompProject(document: CompDocument, directory: string, onProgress?: (done: number, total: number) => void): Promise<string | null> {
+async function writeProjectFiles(document: CompDocument, directory: string, onProgress?: (done: number, total: number) => void): Promise<string | null> {
   const imagesDir = joinPath(directory, 'images');
   const layers: ManifestLayer[] = [];
   let index = 0;
@@ -100,6 +104,7 @@ export async function saveCompProject(document: CompDocument, directory: string,
       parentID: layer.parentId,
       opacity: layer.opacity,
       blendMode: layer.blendMode,
+      clipping: layer.clipping,
       transform: {
         origin: layer.transform.origin,
         size: layer.transform.size,
@@ -107,6 +112,7 @@ export async function saveCompProject(document: CompDocument, directory: string,
         flipX: layer.transform.flipX,
         flipY: layer.transform.flipY,
         sampling: layer.transform.sampling,
+        warp: layer.transform.warp,
       },
     };
     if (layer.kind === 'pixel' && layer.pixels) {
@@ -114,21 +120,27 @@ export async function saveCompProject(document: CompDocument, directory: string,
       const ok = await writeFile(joinPath(imagesDir, fileName), await bufferToPngBytes(layer.pixels));
       if (!ok) return null;
       entry.imageFile = fileName;
-      if (layer.mask) {
-        const maskName = `${layer.id.toUpperCase()}.mask.png`;
-        const maskOk = await writeFile(joinPath(imagesDir, maskName), await bufferToPngBytes(maskToPngBytes(layer.mask.pixels)));
-        if (!maskOk) return null;
-        entry.maskFile = maskName;
-        entry.maskEnabled = layer.mask.enabled;
-        if (!layer.mask.linked && layer.mask.placement) {
-          entry.maskLinked = false;
-          entry.maskPlacement = layer.mask.placement;
-        }
-      }
       if (layer.text) entry.text = layer.text;
       if (layer.shape) entry.shape = layer.shape;
     } else if (layer.kind === 'adjustment' && layer.adjustment) {
       entry.adjustment = layer.adjustment as unknown as ManifestLayer['adjustment'];
+    }
+    if (layer.mask) {
+      const maskName = `${layer.id.toUpperCase()}.mask.png`;
+      const maskOk = await writeFile(joinPath(imagesDir, maskName), await bufferToPngBytes(maskToPngBytes(layer.mask.pixels)));
+      if (!maskOk) return null;
+      entry.maskFile = maskName;
+      entry.maskEnabled = layer.mask.enabled;
+      entry.maskInverted = layer.mask.inverted;
+      entry.maskLinked = layer.mask.linked;
+      if (!layer.mask.linked && layer.mask.placement) {
+        entry.maskLinked = false;
+        entry.maskPlacement = layer.mask.placement;
+      }
+    }
+    if (layer.clipping) {
+      const previous = document.layers.slice(0,index-1).reverse().find(candidate => candidate.parentId === layer.parentId && !candidate.clipping && candidate.kind === 'pixel');
+      if (previous) entry.maskSourceID = previous.id;
     }
     if (layer.effects) entry.effects = layer.effects;
     layers.push(entry);
@@ -150,6 +162,50 @@ export async function saveCompProject(document: CompDocument, directory: string,
   return ok ? directory : null;
 }
 
+/** 序列化保存并使用同级临时包+备份提交；失败不覆盖原图片，不删除备份。 */
+let saveQueue: Promise<unknown> = Promise.resolve();
+export function saveCompProject(document: CompDocument, directory: string, onProgress?: (done: number, total: number) => void): Promise<string | null> {
+  const snapshot = cloneProjectValue(document);
+  const save = async (): Promise<string | null> => {
+    if (!canRenameHostEntry()) throw new Error('当前宿主缺少安全重命名接口，已拒绝覆盖工程');
+    const target = directory.replace(/[/\\]+$/, '');
+    if (!target || target==='/' || target==='.' || target==='..' || target.split(/[/\\]/).includes('..') || /^[A-Za-z]:$/.test(target)) throw new Error('不能将根目录作为工程目录');
+    const entries = await window.otools!.listHostDir?.(target);
+    if (!entries) throw new Error('无法检查保存目录，已取消安全保存');
+    if (entries.length) {
+      if (!entries.some(entry => entry.name === 'manifest.json')) throw new Error('只能保存到空文件夹或已有 .comp 工程目录');
+      const previous = await readFile(joinPath(target, 'manifest.json'));
+      if (!previous || JSON.parse(new TextDecoder().decode(previous)).format !== 'com.compositor.project') throw new Error('目标目录不是有效工程，已取消替换');
+    }
+    const suffix=uuid();const staging=target+'.saving-'+suffix;const backup=target+'.backup-'+suffix;
+    let backedUp=false;
+    try {
+      if (!await writeProjectFiles(snapshot,staging,onProgress)) return null;
+      // 用户可能选中已创建的空文件夹，因此统一先尝试移动目标；失败时不继续替换。
+      try { await renameHostEntry(target,backup); backedUp=true; }
+      catch { throw new Error('目标目录无法备份，保存已取消；请检查目录权限'); }
+      try { await renameHostEntry(staging,target); }
+      catch (error) {
+        if (backedUp) {
+          try { await renameHostEntry(backup,target); backedUp=false; }
+          catch { throw new Error('工程提交与回滚失败，旧工程完整保留于：'+backup); }
+        }
+        throw error;
+      }
+      // 保留上一版完整备份：宿主只有普通 rename，进程中断可由用户恢复备份，不能宣称原子替换。
+      return target;
+    } finally { await removeTemporaryEntry(staging).catch(()=>undefined); }
+  };
+  const result=saveQueue.then(save);saveQueue=result.catch(()=>undefined);return result;
+}
+function cloneProjectValue<T>(value: T): T {
+  if (value instanceof Uint8ClampedArray) return new Uint8ClampedArray(value) as T;
+  if (value instanceof Uint8Array) return new Uint8Array(value) as T;
+  if (Array.isArray(value)) return value.map(cloneProjectValue) as T;
+  if (value && typeof value==='object') return Object.fromEntries(Object.entries(value).map(([key,v])=>[key,cloneProjectValue(v)])) as T;
+  return value;
+}
+
 /* ------------------------------ 读 ------------------------------ */
 
 /** 读取工程包目录 */
@@ -158,9 +214,10 @@ export async function loadCompProject(directory: string): Promise<CompDocument> 
   if (!manifestBuffer) throw new Error('manifest.json 读取失败');
   const manifest = JSON.parse(new TextDecoder().decode(manifestBuffer)) as ProjectManifest;
   if (manifest.format !== 'com.compositor.project') throw new Error('不是有效的 .comp 工程');
-  if (!Number.isFinite(manifest.version) || manifest.version > PROJECT_VERSION) {
+  if (!Number.isInteger(manifest.version) || manifest.version < 1 || manifest.version > PROJECT_VERSION) {
     throw new Error(`工程版本 ${manifest.version} 高于当前支持的 ${PROJECT_VERSION}`);
   }
+  validateManifest(manifest);
   const document = createDocument(manifest.width, manifest.height, directory.split(/[/\\]/).pop() ?? '未命名');
   document.id = manifest.documentID || document.id;
   document.resolution = manifest.resolution ?? 72;
@@ -177,6 +234,20 @@ export async function loadCompProject(directory: string): Promise<CompDocument> 
   return document;
 }
 
+function validateManifest(manifest: ProjectManifest): void {
+  if (!Number.isInteger(manifest.width) || !Number.isInteger(manifest.height) || manifest.width<1 || manifest.height<1 || manifest.width*manifest.height>100_000_000 || !Array.isArray(manifest.layers)) throw new Error('工程尺寸或图层列表无效');
+  const ids=new Map<string,ManifestLayer>();
+  for (const entry of manifest.layers) {
+    if (!entry.id || ids.has(entry.id)) throw new Error('工程图层 ID 重复或缺失');
+    ids.set(entry.id,entry);
+    for (const name of [entry.imageFile,entry.maskFile]) if (name && (!/^[a-zA-Z0-9_.-]+\.png$/i.test(name) || name.includes('..'))) throw new Error('工程资源路径无效');
+  }
+  for (const entry of manifest.layers) {
+    const seen=new Set([entry.id]);let parent=entry.parentID;
+    while(parent){if(seen.has(parent)||!ids.get(parent)?.isGroup)throw new Error('工程图层层级无效');seen.add(parent);parent=ids.get(parent)!.parentID;}
+  }
+}
+
 async function buildLayer(entry: ManifestLayer, directory: string, manifest: ProjectManifest): Promise<Layer | null> {
   const base = {
     isVisible: entry.isVisible !== false,
@@ -184,69 +255,43 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
     blendMode: (entry.blendMode ?? 'Normal') as BlendMode,
     parentId: entry.parentID ?? null,
   };
+  let layer: Layer;
   if (entry.isGroup) {
-    const group = createGroupLayer(entry.name, base.parentId);
-    group.opacity = base.opacity;
-    group.isVisible = base.isVisible;
-    return group;
+    layer = createGroupLayer(entry.name, base.parentId);
+  } else if (entry.adjustment) {
+    const adjustment = { ...defaultAdjustment(entry.adjustment.kind), ...entry.adjustment };
+    layer = { ...createGroupLayer(entry.name, base.parentId), kind:'adjustment', adjustment } as Layer;
+  } else {
+    if (!entry.imageFile) throw new Error('图层缺少图片资源：' + entry.name);
+    // 文件名必须是 <ID>.png，且 ID 大写
+    const expected = `${entry.id.toUpperCase()}.png`;
+    if (entry.imageFile.toUpperCase() !== expected.toUpperCase()) {
+      console.warn('图层图片文件名与 ID 不一致，已按记录名读取：', entry.imageFile);
+    }
+    const buffer = await readFile(joinPath(joinPath(directory, 'images'), entry.imageFile));
+    if (!buffer) throw new Error('工程图片读取失败，未载入不完整工程：' + entry.imageFile);
+    const pixels = await decodeImageBytes(buffer);
+    layer = createPixelLayer(entry.name, pixels, base);
   }
-  if (entry.adjustment) {
-    const adjustment = { ...defaultAdjustment(entry.adjustment.kind), ...entry.adjustment } as ReturnType<typeof defaultAdjustment>;
-    return {
-      id: entry.id,
-      kind: 'adjustment',
-      name: entry.name,
-      isVisible: base.isVisible,
-      opacity: base.opacity,
-      blendMode: base.blendMode,
-      transform: {
-        origin: entry.transform?.origin ?? [0, 0],
-        size: entry.transform?.size ?? [manifest.width, manifest.height],
-        rotation: entry.transform?.rotation ?? 0,
-        flipX: entry.transform?.flipX ?? false,
-        flipY: entry.transform?.flipY ?? false,
-        sampling: (entry.transform?.sampling ?? 'High quality') as 'High quality' | 'Smooth' | 'Nearest',
-        warp: null,
-      },
-      parentId: base.parentId,
-      clipping: false,
-      mask: null,
-      effects: entry.effects ?? null,
-      expanded: true,
-      locked: false,
-      contentKey: 0,
-      pixels: null,
-      text: null,
-      shape: null,
-      adjustment,
-    };
-  }
-  if (!entry.imageFile) return null;
-  // 文件名必须是 <ID>.png，且 ID 大写
-  const expected = `${entry.id.toUpperCase()}.png`;
-  if (entry.imageFile.toUpperCase() !== expected.toUpperCase()) {
-    console.warn('图层图片文件名与 ID 不一致，已按记录名读取：', entry.imageFile);
-  }
-  const buffer = await readFile(joinPath(joinPath(directory, 'images'), entry.imageFile));
-  if (!buffer) return null;
-  const pixels = await decodeImageBytes(buffer);
-  const layer = createPixelLayer(entry.name, pixels, base);
+  Object.assign(layer, base);
   layer.id = entry.id;
+  layer.clipping = entry.clipping === true || !!entry.maskSourceID;
   layer.transform = {
     origin: entry.transform?.origin ?? [0, 0],
-    size: entry.transform?.size ?? [pixels.width, pixels.height],
+    size: entry.transform?.size ?? [layer.pixels?.width ?? manifest.width, layer.pixels?.height ?? manifest.height],
     rotation: entry.transform?.rotation ?? 0,
     flipX: entry.transform?.flipX ?? false,
     flipY: entry.transform?.flipY ?? false,
     sampling: (entry.transform?.sampling ?? 'High quality') as 'High quality' | 'Smooth' | 'Nearest',
-    warp: null,
+    warp: entry.transform?.warp ?? null,
   };
   layer.text = entry.text ?? null;
   layer.shape = entry.shape ?? null;
   layer.effects = entry.effects ?? null;
   if (entry.maskFile) {
     const maskBuffer = await readFile(joinPath(joinPath(directory, 'images'), entry.maskFile));
-    if (maskBuffer) {
+    if (!maskBuffer) throw new Error('工程蒙版读取失败：' + entry.maskFile);
+    {
       const decoded = await decodeImageBytes(maskBuffer);
       const mask = createMask(decoded.width, decoded.height, 0);
       for (let i = 0; i < mask.data.length; i += 1) mask.data[i] = decoded.data[i * 4] ?? 0;
@@ -256,7 +301,7 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
         linked: entry.maskLinked !== false,
         placement: entry.maskPlacement ?? null,
         target: 'image',
-        inverted: false,
+        inverted: entry.maskInverted === true,
       };
     }
   }
@@ -279,49 +324,24 @@ export function watchCompProject(
   onChange: () => void,
   onError?: (error: Error) => void,
 ): CompWatcher {
-  let timer: number | null = null;
-  let signature = '';
-  let pending = false;
-
-  const poll = async (): Promise<void> => {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let stopped=false, accepted='', candidate='';
+  const poll=async (): Promise<void> => {
     try {
-      const entries = await listDirectory(directory);
-      const manifest = entries.find((entry) => entry.name === 'manifest.json');
-      const images = entries
-        .filter((entry) => entry.kind === 'file' && entry.name.endsWith('.png'))
-        .map((entry) => `${entry.name}:${entry.size}`)
-        .sort()
-        .join('|');
-      const next = `${manifest?.size ?? 0}:${images}`;
-      if (signature === '') {
-        signature = next;
-        return;
-      }
-      if (next !== signature) {
-        if (!pending) {
-          pending = true;
-          // 等写入停止再重载，连续多次写入会合并成一次更新
-          window.setTimeout(() => {
-            pending = false;
-            poll().finally(() => onChange());
-          }, 320);
-        }
-      } else {
-        pending = false;
-        signature = next;
-      }
-    } catch (error) {
-      onError?.(error as Error);
-    }
+      const bytes=await readFile(joinPath(directory,'manifest.json'));
+      if (!bytes) throw new Error('工程清单暂不可读');
+      const entries=await listDirectory(joinPath(directory,'images'));
+      const next=new TextDecoder().decode(bytes)+'|'+entries.filter(e=>e.kind==='file').map(e=>`${e.name}:${e.size}`).sort().join('|');
+      if (stopped) return;
+      if (!accepted) accepted=next;
+      else if (next===accepted) candidate='';
+      else if (candidate===next) {accepted=next;candidate='';await onChange();}
+      else candidate=next;
+    } catch(error) {if(!stopped)onError?.(error as Error);}
+    finally {if(!stopped)timer=setTimeout(()=>void poll(),340);}
   };
-
-  timer = window.setInterval(() => { void poll(); }, 340);
-  return {
-    stop: () => {
-      if (timer !== null) window.clearInterval(timer);
-      timer = null;
-    },
-  };
+  void poll();
+  return {stop:()=>{stopped=true;if(timer!==null)clearTimeout(timer);timer=null;}};
 }
 
 /** 判断文件是否是工程包目录的 manifest */

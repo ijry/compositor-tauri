@@ -2,21 +2,26 @@
 /** 工具选项头：随当前工具自动切换，数值标签支持拖拽擦洗（scrub） */
 import { computed, ref } from 'vue';
 import { api, currentTool } from '@/composables/useEditor';
+import { updateTextLayer } from '@/tools/transform';
 
 const scrubbing = ref<{ key: string; startX: number; startValue: number } | null>(null);
 
 /** 当前工具的选项定义与当前值 */
 const specs = computed(() => currentTool.value?.specs ?? []);
-const values = computed(() => currentTool.value ? (api.toolOptions as Record<string, Record<string, unknown>>)[currentTool.value.id] ?? {} : {});
+const values = computed(() => api.toolId === 'type' && api.activeLayer()?.text ? api.activeLayer()!.text as unknown as Record<string, unknown> : api.toolOptions);
 
 /** 读取选项值 */
 function value(key: string): unknown {
-  return values.value[key];
+  const raw = values.value[key];
+  return specs.value.find(spec => spec.key === key)?.unit === '%' && ['hardness','opacity','strength'].includes(key) && Number(currentTool.value?.defaults[key]) <= 1 && typeof raw === 'number' ? raw * 100 : raw;
 }
 
 /** 写入选项值 */
 function setValue(key: string, next: unknown): void {
-  api.setToolOption(key, next);
+  const normalized = specs.value.find(spec => spec.key === key)?.unit === '%' && ['hardness','opacity','strength'].includes(key) && Number(currentTool.value?.defaults[key]) <= 1 && typeof next === 'number' ? next / 100 : next;
+  api.setToolOption(key, normalized);
+  const layer = api.activeLayer();
+  if (api.toolId === 'type' && layer?.text) updateTextLayer(api, layer.id, { [key]: normalized });
 }
 
 /** 数字标签拖拽擦洗 */
@@ -92,6 +97,7 @@ function isTextOption(key: string): boolean {
           />
           <span v-if="spec.unit" class="unit">{{ spec.unit }}</span>
         </div>
+        <el-color-picker v-else-if="spec.type === 'color'" :model-value="`rgb(${(value(spec.key) as number[] || api.foreground).join(',')})`" color-format="rgb" @change="(v: string) => setValue(spec.key, (v.match(/\d+/g) || ['0','0','0']).slice(0,3).map(Number))" />
         <el-checkbox
           v-else-if="spec.type === 'boolean'"
           size="small"

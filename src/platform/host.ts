@@ -178,6 +178,21 @@ export async function writeFile(path: string, data: ArrayBuffer | Uint8Array): P
   return false;
 }
 
+/** 使用宿主已注册的重命名接口提交临时工程；不支持时拒绝覆盖旧工程。 */
+export function canRenameHostEntry(): boolean {
+  return typeof window.otools?.invokeNativeRaw === 'function';
+}
+export async function renameHostEntry(from: string, to: string): Promise<void> {
+  const invoke = window.otools?.invokeNativeRaw;
+  if (!invoke) throw new Error('当前宿主不支持安全工程保存，请升级宿主');
+  await invoke('tools_webview_rename_entry', { request: { from, to } });
+}
+/** 仅供清理本次保存生成的临时/备份目录，不清理用户源工程。 */
+export async function removeTemporaryEntry(path: string): Promise<void> {
+  const invoke = window.otools?.invokeNativeRaw;
+  if (invoke) await invoke('tools_webview_remove_entry', { path, recursive: true });
+}
+
 /** 写入文本 */
 export async function writeTextFile(path: string, text: string): Promise<boolean> {
   return writeFile(path, new TextEncoder().encode(text));

@@ -4,6 +4,7 @@
  * 移动/变换是非破坏性的：只改图层 transform（必要时改 warp 四点），
  * 因此图层缩放到 5% 仍保持原始分辨率。
  */
+import { reactive } from 'vue';
 import { cropDocument } from '@/core/document';
 import { snapPoint } from '@/core/engine/snapping';
 import { defaultTextMeta, renderText } from '@/core/engine/text';
@@ -772,7 +773,7 @@ export function renderShape(
 /* ------------------------------ 文字 ------------------------------ */
 
 /** 文字工具的编辑状态（供画布与工具选项头共享） */
-export const textToolState = { box: null as Rect | null, layerId: null as string | null };
+export const textToolState = reactive({ box: null as Rect | null, layerId: null as string | null, editingId: null as string | null });
 
 export const typeTool: ToolDefinition = {
   id: 'type',
@@ -785,7 +786,7 @@ export const typeTool: ToolDefinition = {
     content: '文字',
     fontName: 'PingFang SC',
     fontSize: 72,
-    color: [255, 255, 255] as [number, number, number],
+    color: [0, 0, 0] as [number, number, number],
     align: 'left',
     tracking: 0,
     lineSpacing: 0,
@@ -796,13 +797,34 @@ export const typeTool: ToolDefinition = {
     { key: 'content', label: '内容', type: 'select', options: [] },
     { key: 'fontName', label: '字体', type: 'select', options: [] },
     { key: 'fontSize', label: '字号', type: 'number', min: 6, max: 800, step: 1, unit: 'px' },
+    { key: 'color', label: '颜色', type: 'color' },
     { key: 'align', label: '对齐', type: 'select', options: [{ value: 'left', label: '左' }, { value: 'center', label: '中' }, { value: 'right', label: '右' }] },
     { key: 'tracking', label: '字距', type: 'number', min: -100, max: 500, step: 1 },
     { key: 'lineSpacing', label: '行距', type: 'number', min: 0, max: 800, step: 1, unit: 'px' },
     { key: 'bold', label: '加粗', type: 'boolean' },
     { key: 'italic', label: '倾斜', type: 'boolean' },
   ],
+  activate(editor) {
+    textToolState.layerId = null;
+    const layer = editor.activeLayer();
+    if (layer?.text) for (const [key,value] of Object.entries(layer.text)) editor.setToolOption(key,value);
+    else editor.setToolOption('color', [...editor.foreground]);
+  },
+  deactivate() { textToolState.editingId = null; textToolState.box = null; },
   onDown(editor, event) {
+    const hit = [...editor.doc.layers].reverse().find(layer => {
+      if (!layer.text || !layer.isVisible || layer.locked) return false;
+      const point = invertSimple(layer.transform)(event.doc);
+      return point.x>=0 && point.y>=0 && point.x<=layer.transform.size[0] && point.y<=layer.transform.size[1];
+    });
+    if (hit?.text) {
+      editor.doc.activeLayerId = hit.id;
+      for (const [key,value] of Object.entries(hit.text)) editor.setToolOption(key,value);
+      textToolState.editingId = hit.id;
+      textToolState.box = null;
+      return;
+    }
+    textToolState.editingId = null;
     textToolState.box = { x: event.doc.x, y: event.doc.y, width: 8, height: 8 };
   },
   onMove(editor, event) {
@@ -816,8 +838,9 @@ export const typeTool: ToolDefinition = {
     textToolState.box = null;
     commitText(editor, box);
   },
-  onDblClick(editor, event) {
-    commitText(editor, { x: event.doc.x, y: event.doc.y, width: 8, height: 8 });
+  onDblClick(editor) {
+    // 单击已经创建或选中，双击只继续编辑，不能再添加一层。
+    if (editor.activeLayer()?.text) textToolState.editingId = editor.doc.activeLayerId;
   },
   onKeyDown(editor, event) {
     if (event.key === 'Escape') {
@@ -857,21 +880,11 @@ export function commitText(editor: EditorApi, box: Rect): void {
   meta.lineSpacing = editor.option<number>('lineSpacing', 0);
   meta.bold = editor.option<boolean>('bold', false);
   meta.italic = editor.option<boolean>('italic', false);
-  meta.boxSize = [Math.max(24, box.width), Math.max(24, box.height)];
-  const buffer = renderText(meta, meta.boxSize[0], meta.boxSize[1]);
-  const existing = textToolState.layerId ? editor.findLayer(textToolState.layerId) : null;
-  if (existing && existing.kind === 'pixel') {
-    const snapshot = beginInteraction(editor, [existing.id]);
-    existing.pixels = buffer;
-    existing.text = meta;
-    existing.transform.size = [buffer.width, buffer.height];
-    existing.contentKey += 1;
-    editor.markLayerDirty(existing.id);
-    endInteraction(editor, '修改文字', snapshot, snapshotBytes(snapshot));
-    return;
-  }
+  const pointText = box.width <= 8 && box.height <= 8;
+  meta.boxSize = pointText ? null : [Math.max(24, box.width), Math.max(24, box.height)];
+  const buffer = meta.boxSize ? renderText(meta, meta.boxSize[0], meta.boxSize[1]) : renderText(meta);
   const layer = {
-    id: `text-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    id: crypto.randomUUID(),
     kind: 'pixel' as const,
     name: '文字',
     isVisible: true,
@@ -899,19 +912,24 @@ export function commitText(editor: EditorApi, box: Rect): void {
     adjustment: null,
   };
   const layerId = layer.id;
+  const document = editor.doc;
+  const previousActive = document.activeLayerId;
   editor.doc.layers.push(layer);
   editor.doc.activeLayerId = layerId;
   textToolState.layerId = layerId;
+  textToolState.editingId = layerId;
+  editor.touch();
   editor.pushHistory(
     '添加文字',
     () => {
-      const index = editor.doc.layers.findIndex((item) => item.id === layerId);
-      if (index >= 0) editor.doc.layers.splice(index, 1);
+      const index = document.layers.findIndex((item) => item.id === layerId);
+      if (index >= 0) document.layers.splice(index, 1);
+      document.activeLayerId = previousActive;
       editor.invalidate();
     },
     () => {
-      editor.doc.layers.push(layer);
-      editor.doc.activeLayerId = layerId;
+      document.layers.push(layer);
+      document.activeLayerId = layerId;
       editor.invalidate();
     },
     buffer.data.length * 2,
@@ -931,6 +949,8 @@ export function updateTextLayer(editor: EditorApi, layerId: string, patch: Parti
   layer.transform.size = [layer.pixels.width, layer.pixels.height];
   layer.contentKey += 1;
   editor.markLayerDirty(layerId);
+  // 参数栏与画布文字框都会进入此路径，必须提示保存此次编辑。
+  editor.touch();
   endInteraction(editor, '修改文字', snapshot, snapshotBytes(snapshot));
   editor.invalidate();
 }

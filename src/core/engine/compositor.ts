@@ -203,9 +203,9 @@ export function compositeInto(
       guard += 1;
       const parent = layers.find((item) => item.id === parentId);
       if (!parent) break;
-      opacity *= parent.opacity;
+      opacity *= parent.isVisible ? parent.opacity : 0;
       if (parent.mask && parent.mask.enabled) {
-        masks.push(maskSampler(parent.mask.pixels, parent, parent.kind === 'pixel' && parent.pixels ? layerLocalMatrix(parent) : IDENTITY));
+        masks.push(maskSampler(parent.mask.pixels, parent, layerMaskMatrix(parent)));
       }
       parentId = parent.parentId;
     }
@@ -245,13 +245,13 @@ export function compositeInto(
     if (context.opacity <= 0) continue;
     const alpha = layer.opacity * context.opacity;
     const maskSample = layer.mask && layer.mask.enabled
-      ? maskSampler(layer.mask.pixels, layer, layer.kind === 'pixel' && layer.pixels ? layerLocalMatrix(layer) : IDENTITY)
+      ? maskSampler(layer.mask.pixels, layer, layerMaskMatrix(layer))
       : null;
     const clipSample = clipSamplerFor(layer);
 
     if (layer.kind === 'adjustment' && layer.adjustment) {
       // 调整层：作用于当前 target（其下方已合成的内容）
-      const coverage = buildCoverage(width, height, [maskSample, clipSample, selectionSample], alpha);
+      const coverage = buildCoverage(width, height, [...context.masks, maskSample, clipSample, selectionSample], alpha);
       applyAdjustment(target, layer.adjustment, coverage);
       continue;
     }
@@ -259,8 +259,15 @@ export function compositeInto(
     if (layer.kind !== 'pixel' || !layer.pixels) continue;
     const surface = buildLayerSurface(layer, scale);
     if (!surface) continue;
-    blitSurface(target, surface, [maskSample, clipSample], alpha, layer.blendMode, scale);
+    blitSurface(target, surface, [...context.masks, maskSample, clipSample], alpha, layer.blendMode, scale);
   }
+}
+
+/** 非像素层的蒙版用自身矩形映射，跟随组变换而不是固定在文档原点。 */
+function layerMaskMatrix(layer: Layer): Matrix {
+  if (layer.kind==='pixel' && layer.pixels) return layerLocalMatrix(layer);
+  if (!layer.mask) return IDENTITY;
+  return layerMatrix(layer.transform,layer.mask.pixels.width,layer.mask.pixels.height);
 }
 
 /** 取像素图层的局部矩阵（无像素时返回单位阵） */

@@ -10,7 +10,7 @@ import {
   duplicateLayer as duplicateLayerCore, flipCanvas, groupLayers as groupLayersCore, insertLayer as insertLayerCore,
   invertLayerMask, maskFromSelection, mergeDown as mergeDownCore, mergeGroup as mergeGroupCore,
   mergeLayers as mergeLayersCore, flattenVisible as flattenCore, nudgeLayerOrder, removeLayers as removeLayersCore,
-  resizeCanvas, resizeImage, rotateCanvas, trimDocument, ungroupLayers as ungroupCore, uuid,
+  cropDocument, resizeCanvas, resizeImage, rotateCanvas, trimDocument, ungroupLayers as ungroupCore, uuid,
 } from '@/core/document';
 import { contentAwareFill } from '@/core/filters/contentAware';
 import {
@@ -28,7 +28,7 @@ import { importPsd } from '@/io/psd';
 
 
 import { createIoCommands } from '@/composables/commands-io';
-import { actualPixels, closeCurrent, currentHistory, fitCanvas, hasDocument, invalidate, openDialog, openDocument, toggleUi, zoomStep } from '@/composables/useEditor';
+import { actualPixels, closeCurrent, currentHistory, fitCanvas, hasDocument, invalidate, openDialog, openDocument, reloadDocument, toggleUi, zoomStep } from '@/composables/useEditor';
 import type { EditorApi } from '@/types/editor';
 import type { AdjustmentKind, CompDocument, Layer, PixelBuffer } from '@/types/document';
 
@@ -408,8 +408,8 @@ export function createCommands(api: EditorApi) {
       case 'addMask': {
         const layer = api.activeLayer();
         if (!layer) break;
-        const before = layer.mask ? api.snapshotLayer(layer.id) : null;
-        addLayerMask(layer);
+        const before = api.snapshotLayer(layer.id);
+        addLayerMask(layer, doc.width, doc.height);
         if (layer.mask) layer.mask.target = 'mask';
         const after = api.snapshotLayer(layer.id);
         api.pushHistory(
@@ -745,37 +745,35 @@ export function createCommands(api: EditorApi) {
       /* ---------------- 画布 ---------------- */
       case 'canvasSize': {
         const options = (payload as { width: number; height: number; anchor: import('@/core/document').Anchor }) ?? { width: doc.width, height: doc.height, anchor: 'top-left' as const };
-        const snapshotLayers = doc.layers.map((layer) => ({ id: layer.id, transform: { ...layer.transform, origin: [...layer.transform.origin] as [number, number] } }));
-        const beforeSelection = api.selectionSnapshot();
+        const before = captureCanvas();
         resizeCanvas(doc, options.width, options.height, options.anchor);
-        recordCanvasHistory('画布大小', snapshotLayers, beforeSelection);
+        recordCanvasHistory('画布大小', before);
         break;
       }
       case 'imageSize': {
         const options = (payload as { width: number; height: number }) ?? { width: doc.width, height: doc.height };
-        const snapshotLayers = doc.layers.map((layer) => ({ id: layer.id, transform: { ...layer.transform, origin: [...layer.transform.origin] as [number, number] } }));
-        const beforeSelection = api.selectionSnapshot();
+        const before = captureCanvas();
         resizeImage(doc, options.width, options.height);
-        recordCanvasHistory('图像大小', snapshotLayers, beforeSelection);
+        recordCanvasHistory('图像大小', before);
         break;
       }
       case 'rotateCanvasAll': {
         const degrees = Number(payload ?? 90);
-        const snapshotLayers = doc.layers.map((layer) => ({ id: layer.id, transform: { ...layer.transform, origin: [...layer.transform.origin] as [number, number], size: [...layer.transform.size] as [number, number] } }));
+        const before = captureCanvas();
         rotateCanvas(doc, degrees);
-        recordCanvasHistory('旋转画布', snapshotLayers, api.selectionSnapshot());
+        recordCanvasHistory('旋转画布', before);
         break;
       }
       case 'flipCanvasH': {
-        const snapshotLayers = doc.layers.map((layer) => ({ id: layer.id, transform: { ...layer.transform, origin: [...layer.transform.origin] as [number, number] } }));
+        const before = captureCanvas();
         flipCanvas(doc, true, false);
-        recordCanvasHistory('水平翻转画布', snapshotLayers, api.selectionSnapshot());
+        recordCanvasHistory('水平翻转画布', before);
         break;
       }
       case 'flipCanvasV': {
-        const snapshotLayers = doc.layers.map((layer) => ({ id: layer.id, transform: { ...layer.transform, origin: [...layer.transform.origin] as [number, number] } }));
+        const before = captureCanvas();
         flipCanvas(doc, false, true);
-        recordCanvasHistory('垂直翻转画布', snapshotLayers, api.selectionSnapshot());
+        recordCanvasHistory('垂直翻转画布', before);
         break;
       }
       case 'trim': {
@@ -785,10 +783,9 @@ export function createCommands(api: EditorApi) {
           setStatusSafe('四周没有可修边的边');
           break;
         }
-        const snapshotLayers = doc.layers.map((layer) => ({ id: layer.id, transform: { ...layer.transform, origin: [...layer.transform.origin] as [number, number] } }));
-        const { cropDocument } = require('@/core/document') as typeof import('@/core/document');
+        const before = captureCanvas();
         cropDocument(doc, rect);
-        recordCanvasHistory('修边', snapshotLayers, api.selectionSnapshot());
+        recordCanvasHistory('修边', before);
         break;
       }
 
@@ -864,42 +861,23 @@ export function createCommands(api: EditorApi) {
     }
   };
 
-  /** 记录画布级操作 */
-  function recordCanvasHistory(
-    label: string,
-    transforms: { id: string; transform: import('@/types/document').LayerTransform }[],
-    beforeSelection: ReturnType<typeof api.selectionSnapshot>,
-  ): void {
-    const afterTransforms = transforms.map((item) => {
-      const layer = doc.layers.find((candidate) => candidate.id === item.id);
-      return { id: item.id, transform: layer ? { ...layer.transform, origin: [...layer.transform.origin] as [number, number] } : item.transform };
-    });
-    const beforeWidth = doc.width;
-    const beforeHeight = doc.height;
-    const afterWidth = doc.width;
-    const afterHeight = doc.height;
-    const applyTransforms = (list: typeof transforms): void => {
-      for (const item of list) {
-        const layer = doc.layers.find((candidate) => candidate.id === item.id);
-        if (layer) layer.transform = JSON.parse(JSON.stringify(item.transform));
-      }
-      api.invalidate();
-    };
-    api.pushHistory(
-      label,
-      () => {
-        doc.width = beforeWidth;
-        doc.height = beforeHeight;
-        applyTransforms(transforms);
-        api.restoreSelection(beforeSelection);
-      },
-      () => {
-        doc.width = afterWidth;
-        doc.height = afterHeight;
-        applyTransforms(afterTransforms);
-      },
-      512,
-    );
+  /** 深复制文档数据，保留图层 ID、像素、蒙版、选区、尺寸和参考线。 */
+  function cloneCanvasValue<T>(value: T): T {
+    if (value instanceof Uint8ClampedArray) return new Uint8ClampedArray(value) as T;
+    if (value instanceof Uint8Array) return new Uint8Array(value) as T;
+    if (Array.isArray(value)) return value.map(cloneCanvasValue) as T;
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key,v])=>[key,cloneCanvasValue(v)])) as T;
+    return value;
+  }
+  function captureCanvas() {
+    return cloneCanvasValue({width:doc.width,height:doc.height,layers:doc.layers,selection:doc.selection,guides:doc.guides,activeLayerId:doc.activeLayerId});
+  }
+  function recordCanvasHistory(label: string, before: ReturnType<typeof captureCanvas>): void {
+    const after = captureCanvas();
+    const target = api.doc;
+    const apply = (snapshot: typeof before): void => { Object.assign(target, cloneCanvasValue(snapshot)); api.touch(); api.invalidate(); };
+    const bytes = [...before.layers,...after.layers].reduce((n,l)=>n+(l.pixels?.data.byteLength??0)+(l.mask?.pixels.data.byteLength??0),512);
+    api.pushHistory(label,()=>apply(before),()=>apply(after),bytes);
     api.touch();
   }
 
@@ -959,6 +937,7 @@ export function createCommands(api: EditorApi) {
 
   const ioCommands = createIoCommands(api, {
     openDocument,
+    reloadDocument,
     currentHistory,
     closeCurrent,
     setViewport: (patch) => api.setViewport(patch),

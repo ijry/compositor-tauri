@@ -10,6 +10,7 @@ import { api, currentDocument, currentTool, dispatchPointer, getStageSize, fitCa
 import { drawSelectionAnts } from '@/tools/selection';
 import { drawTransformControls } from '@/tools/transform';
 import { drawBrushCursor } from '@/tools/paint';
+import InlineTextEditor from '@/components/InlineTextEditor.vue';
 import { CanvasRenderer } from '@/core/engine/renderer';
 import type { ToolPointerEvent } from '@/tools/types';
 
@@ -40,7 +41,7 @@ function render(): void {
   if (!canvas || !document) return;
   if (!stageRenderer) {
     stageRenderer = new CanvasRenderer(canvas);
-    registerStage(canvas, size.value);
+    registerStage(canvas, size.value, stageRenderer);
   }
   stageRenderer.render(document, api.viewport, {
     width: size.value.width,
@@ -146,6 +147,7 @@ function toToolEvent(event: PointerEvent | MouseEvent): ToolPointerEvent {
 
 /** 指针按下 */
 function onPointerDown(event: PointerEvent): void {
+  if (api.toolId === 'type') event.preventDefault();
   const element = event.currentTarget as HTMLElement;
   element.setPointerCapture(event.pointerId);
   // 中键或按住空格 -> 平移
@@ -253,7 +255,8 @@ function syncSize(): void {
   const element = host.value;
   if (!element) return;
   size.value = { width: element.clientWidth, height: element.clientHeight };
-  registerStage(mainCanvas.value, size.value);
+  if (mainCanvas.value && !stageRenderer) stageRenderer = new CanvasRenderer(mainCanvas.value);
+  registerStage(mainCanvas.value, size.value, stageRenderer ?? undefined);
   scheduleRender();
 }
 
@@ -316,6 +319,7 @@ void getStageSize;
   >
     <canvas ref="mainCanvas" class="layer main" />
     <canvas ref="overlay" class="layer overlay" />
+    <InlineTextEditor />
     <!-- 标尺 -->
     <template v-if="uiState.rulers">
       <div class="ruler-corner" />

@@ -112,6 +112,20 @@ export function openDocument(document: CompDocument): void {
   statusMessage.value = `已打开 ${document.name}`;
 }
 
+/** 热重载只替换仍打开的原工程，不新增标签，不抢走当前标签焦点。 */
+export function reloadDocument(document: CompDocument): void {
+  const index = documents.value.findIndex(item => item.packagePath && item.packagePath === document.packagePath);
+  if (index < 0) return;
+  const old = documents.value[index];
+  document.id = old.id;
+  if (old.width === document.width && old.height === document.height) document.selection = old.selection;
+  if (document.layers.some(layer => layer.id === old.activeLayerId)) document.activeLayerId = old.activeLayerId;
+  for (const layer of document.layers) { const previous = old.layers.find(item => item.id === layer.id); if (previous) layer.expanded = previous.expanded; }
+  histories.delete(old.id);
+  documents.value[index] = document;
+  invalidate();
+}
+
 /** 关闭标签页 */
 export function closeDocument(id: string): void {
   const index = documents.value.findIndex((item) => item.id === id);
@@ -133,6 +147,7 @@ export function invalidate(): void {
   const document = currentDocument.value;
   if (!document) return;
   renderer.value?.invalidate();
+  compositeCache = null;
   thumbnailVersion.value += 1;
   document.updatedAt = Date.now();
   if (typeof requestAnimationFrame === 'function') {
@@ -192,8 +207,8 @@ export function cycleCurrentTool(direction: 1 | -1 = 1): void {
 }
 
 /** 注册画布渲染器与尺寸 */
-export function registerStage(canvas: HTMLCanvasElement | null, size: { width: number; height: number }): void {
-  renderer.value = canvas ? new CanvasRenderer(canvas) : null;
+export function registerStage(canvas: HTMLCanvasElement | null, size: { width: number; height: number }, stageRenderer?: CanvasRenderer): void {
+  renderer.value = canvas ? stageRenderer ?? new CanvasRenderer(canvas) : null;
   stageSize = size;
 }
 
@@ -334,6 +349,8 @@ export const api: EditorApi = {
     return {
       pixels: layer.pixels ? cloneBuffer(layer.pixels) : null,
       mask: layer.mask ? cloneMask(layer.mask.pixels) : null,
+      maskState: layer.mask ? {enabled:layer.mask.enabled,linked:layer.mask.linked,placement:layer.mask.placement ? {...layer.mask.placement} : null,target:layer.mask.target,inverted:layer.mask.inverted} : null,
+      clipping:layer.clipping,
       transform: JSON.parse(JSON.stringify(layer.transform)),
       opacity: layer.opacity,
       blendMode: layer.blendMode,
@@ -349,7 +366,8 @@ export const api: EditorApi = {
     if (snapshot.pixels) {
       layer.pixels = cloneBuffer(snapshot.pixels) as PixelBuffer;
     }
-    if (snapshot.mask && layer.mask) layer.mask.pixels = cloneMask(snapshot.mask);
+    layer.mask = snapshot.mask ? { pixels:cloneMask(snapshot.mask),enabled:true,linked:true,placement:null,target:'image',inverted:false,...snapshot.maskState } : null;
+    if (snapshot.clipping !== undefined) layer.clipping = snapshot.clipping;
     layer.transform = JSON.parse(JSON.stringify(snapshot.transform));
     layer.opacity = snapshot.opacity;
     layer.blendMode = snapshot.blendMode;

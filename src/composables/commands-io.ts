@@ -27,6 +27,7 @@ export async function loadRecentProjects(): Promise<string[]> {
 /** 依赖：由 useEditor 注入的宿主函数 */
 export interface IoDependencies {
   openDocument(document: CompDocument): void;
+  reloadDocument(document: CompDocument): void;
   currentHistory(): { undo(): string | null; redo(): string | null; clear(): void } | null;
   closeCurrent(): void;
   setViewport(patch: { zoom?: number; centerX?: number; centerY?: number }): void;
@@ -158,30 +159,29 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         break;
       }
       case 'saveComp': {
-        if (!doc.packagePath) {
-          await run('saveCompAs');
-          return;
-        }
-        doc.saving = true;
-        deps.invalidate();
-        const result = await exportCompProject(doc, doc.packagePath);
-        doc.saving = false;
-        if (result) {
-          doc.dirty = false;
-          await rememberRecent(doc.packagePath);
-          api.status(`已保存到 ${doc.packagePath}`);
-        } else {
-          api.status('保存失败：请检查宿主目录权限');
-        }
-        deps.invalidate();
+        const target=api.doc;
+        if (target.saving) return;
+        if (!target.packagePath) {await run('saveCompAs');return;}
+        target.saving=true;deps.invalidate();
+        const stamp=target.updatedAt;
+        try {
+          const result=await exportCompProject(target,target.packagePath);
+          if(result){if(target.updatedAt===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
+          else api.status('保存失败：旧工程未替换，请检查宿主目录权限');
+        } catch(error){api.status(`保存失败：${(error as Error).message}`);}
+        finally{target.saving=false;deps.invalidate();}
         break;
       }
       case 'saveCompAs': {
-        const directory = await pickDirectory('保存 .comp 工程包');
-        if (!directory) break;
-        doc.packagePath = directory;
-        doc.name = fileName(directory);
-        await run('saveComp');
+        const target=api.doc;const directory=await pickDirectory('保存 .comp 工程包');
+        if(!directory || target.saving)break;
+        target.saving=true;deps.invalidate();const stamp=target.updatedAt;
+        try {
+          const result=await exportCompProject(target,directory);
+          if(result){target.packagePath=result;target.name=fileName(result);if(target.updatedAt===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
+          else api.status('另存失败，原工程路径保持不变');
+        }catch(error){api.status(`保存失败：${(error as Error).message}`);}
+        finally{target.saving=false;deps.invalidate();}
         break;
       }
       case 'watchComp': {
@@ -191,10 +191,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         watcher = watchCompProject(path, async () => {
           try {
             const reloaded = await importCompProject(path);
-            const index = deps.currentHistory();
-            // 保留缩放与滚动，清空历史（与上游一致）
-            index?.clear();
-            deps.openDocument(reloaded);
+            deps.reloadDocument(reloaded);
             api.status('工程已从磁盘重新载入');
           } catch {
             api.status('检测到工程变化，但文件尚不可用（可能仍在写入）');

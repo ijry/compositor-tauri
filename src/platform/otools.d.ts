@@ -11,6 +11,7 @@ declare global {
   }
 
   interface OtoolsApiLocal {
+    invokeNativeRaw?<T>(method: string, payload?: unknown): Promise<T>;
     dialog?: {
       open(options?: { directory?: boolean; multiple?: boolean; title?: string; defaultPath?: string; filters?: OtoolsDialogFilterLocal[] }): Promise<string | string[] | null>;
       save(options?: { title?: string; defaultPath?: string; filters?: OtoolsDialogFilterLocal[] }): Promise<string | null>;

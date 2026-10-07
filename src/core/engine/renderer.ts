@@ -171,10 +171,10 @@ export class CanvasRenderer {
 
   /** 缓存键：文档内容摘要 + 比例 */
   private cacheKey(doc: CompDocument, scale: number): string {
-    let signature = `${doc.width}x${doc.height}@${scale}`;
+    let signature = `${doc.id}:${doc.updatedAt}:${doc.width}x${doc.height}@${scale}`;
     for (const layer of doc.layers) {
       signature += `|${layer.id}:${layer.isVisible ? 1 : 0}:${layer.opacity}:${layer.blendMode}:${layer.clipping ? 1 : 0}:${layer.contentKey}`;
-      signature += `:${layer.transform.origin.join(',')}:${layer.transform.size.join(',')}:${layer.transform.rotation}`;
+      signature += `:${JSON.stringify(layer.transform)}:${layer.parentId}`;
       signature += `:${layer.mask ? `${layer.mask.enabled ? 1 : 0}:${layer.mask.pixels.data.length}` : '0'}`;
       signature += `:${layer.adjustment ? JSON.stringify(layer.adjustment) : ''}`;
       signature += `:${layer.effects ? JSON.stringify(layer.effects) : ''}`;

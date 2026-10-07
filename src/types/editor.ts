@@ -10,6 +10,8 @@ import type { PixelBuffer, Point, Rect } from '@/types/document';
 export interface LayerSnapshot {
   pixels: PixelBuffer | null;
   mask: { width: number; height: number; data: Uint8Array<ArrayBuffer> } | null;
+  maskState?: Omit<NonNullable<Layer['mask']>, 'pixels'> | null;
+  clipping?: boolean;
   transform: Layer['transform'];
   opacity: number;
   blendMode: Layer['blendMode'];
