@@ -11,7 +11,7 @@ import ToolHeader from '@/components/ToolHeader.vue';
 import DockLayout from '@/components/DockLayout.vue';
 import StartPage from '@/components/StartPage.vue';
 import { initTheme } from '@/composables/useTheme';
-import { loadPanelLayout, resetPanels } from '@/composables/usePanels';
+import { loadPanelLayout, resetPanels, constrainFloatingPanels } from '@/composables/usePanels';
 import DialogHost from '@/components/dialogs/DialogHost.vue';
 import { api, closeDocument, commands, currentDocument, documents, handleKeyDown, initialize, selectDocument, statusMessage } from '@/composables/useEditor';
 import { toHex } from '@/core/color';
@@ -174,11 +174,14 @@ function onKeyDown(event: KeyboardEvent): void {
 
 onMounted(() => {
   initialize();
+  void initTheme();
   void loadPanelLayout();
+  window.addEventListener('resize', constrainFloatingPanels);
   window.addEventListener('keydown', onKeyDown);
 });
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', constrainFloatingPanels);
   window.removeEventListener('keydown', onKeyDown);
 });
 

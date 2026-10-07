@@ -68,6 +68,7 @@ export async function loadPanelLayout(): Promise<void> {
     if (typeof patch.order === 'number') state.order = patch.order;
     if (patch.float) state.float = { ...state.float, ...patch.float };
   }
+  constrainFloatingPanels();
 }
 
 /** 保存布局（防抖） */
@@ -98,6 +99,7 @@ export function toggleFloat(id: PanelId): void {
   }
   state.float.area = state.area;
   state.area = 'float';
+  constrainFloat(state);
 }
 
 /** 停靠到指定区域 */
@@ -125,26 +127,50 @@ export function toggleCollapse(id: PanelId): void {
   panelStates[id].collapsed = !panelStates[id].collapsed;
 }
 
+/** 将浮动面板限制在当前窗口内，恢复大屏坐标时同样保证标题栏可操作。 */
+function constrainFloat(state: PanelState): void {
+  const margin = 8;
+  const maxWidth = Math.max(1, window.innerWidth - margin * 2);
+  const maxHeight = Math.max(1, window.innerHeight - margin * 2);
+  const defaults = defaultPanels()[state.id].float;
+  const finite = (value: number, fallback: number): number => Number.isFinite(value) ? value : fallback;
+  const frame = state.float;
+  frame.width = Math.max(Math.min(220, maxWidth), Math.min(maxWidth, finite(frame.width, defaults.width)));
+  frame.height = Math.max(Math.min(140, maxHeight), Math.min(maxHeight, finite(frame.height, defaults.height)));
+  frame.x = Math.max(margin, Math.min(window.innerWidth - margin - frame.width, finite(frame.x, defaults.x)));
+  frame.y = Math.max(margin, Math.min(window.innerHeight - margin - frame.height, finite(frame.y, defaults.y)));
+}
+
+/** 窗口缩小时修正当前浮动面板；停靠面板的历史浮动位置在再次浮动时处理。 */
+export function constrainFloatingPanels(): void {
+  for (const state of Object.values(panelStates)) {
+    if (state.area === 'float') constrainFloat(state);
+  }
+}
+
 /** 移动浮动面板 */
 export function moveFloat(id: PanelId, x: number, y: number): void {
   const state = panelStates[id];
-  const size = Math.max(220, Math.min(window.innerWidth - 40, state.float.width));
-  state.float.x = Math.max(-size + 80, Math.min(window.innerWidth - 60, x));
-  state.float.y = Math.max(0, Math.min(window.innerHeight - 40, y));
+  state.float.x = x;
+  state.float.y = y;
+  constrainFloat(state);
 }
 
 /** 缩放浮动面板 */
 export function resizeFloat(id: PanelId, width: number, height: number): void {
   const state = panelStates[id];
-  state.float.width = Math.max(220, Math.min(window.innerWidth - 40, width));
-  state.float.height = Math.max(140, Math.min(window.innerHeight - 40, height));
+  state.float.width = width;
+  state.float.height = height;
+  constrainFloat(state);
 }
 
-/** 调整停靠面板的厚度 */
+/** 同侧面板共用厚度，折叠面板也同步，避免展开后又把侧栏撑回旧尺寸。 */
 export function resizeDock(id: PanelId, size: number): void {
   const state = panelStates[id];
+  if (state.area === 'float' || !Number.isFinite(size)) return;
   const max = state.area === 'bottom' ? 520 : 640;
-  state.size = Math.max(100, Math.min(max, size));
+  const thickness = Math.max(100, Math.min(max, size));
+  for (const peer of docked(state.area)) peer.size = thickness;
 }
 
 /** 按区域取停靠面板（已排序） */

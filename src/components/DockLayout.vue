@@ -92,7 +92,13 @@ function startResize(event: MouseEvent, id: PanelId): void {
 function startDockResize(event: MouseEvent, id: PanelId): void {
   const state = panelOf(id);
   const horizontal = state.area !== 'bottom';
-  dockResize.value = { id, start: horizontal ? event.clientX : event.clientY, size: state.size };
+  const container = (event.currentTarget as HTMLElement).closest<HTMLElement>('.dock');
+  if (!container) return;
+  const rect = container.getBoundingClientRect();
+  const style = getComputedStyle(container);
+  // CSS 可能限制了旧布局的尺寸；拖动必须从当前显示尺寸起算，而不是历史存储值。
+  const size = horizontal ? rect.width : rect.height - parseFloat(style.borderTopWidth) - parseFloat(style.borderBottomWidth);
+  dockResize.value = { id, start: horizontal ? event.clientX : event.clientY, size };
   const move = (moveEvent: MouseEvent): void => {
     const current = dockResize.value;
     if (!current) return;

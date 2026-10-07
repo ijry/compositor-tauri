@@ -125,3 +125,8 @@ OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC H
 发布 CI 在构建后运行 Chromium 布局测试：1245×768、960×768 窗口下的工具栏、工具选项、画布、右侧面板、底部区域，以及浮动拖回停靠区、恢复旧布局。截图作为 layout-screenshots artifact 保存。
 
 本地执行 `pnpm build`、`pnpm exec playwright install chromium`、`pnpm test:layout`。界面使用明确的 Grid 区域，不允许主布局 flex-wrap 换行；旧的过宽停靠布局会受窗口宽度约束，可通过“视图 → 恢复默认面板布局”恢复。
+
+
+### 布局审查回归补充
+
+`tests/layout/review-fixes.spec.ts` 增加左右侧栏缩窄/持久化、折叠后恢复宽度、视口限制下的拖动起点、大屏浮动坐标恢复、窗口缩小、三种主题初始化与系统主题切换测试。现有 CI 的 `playwright test` 自动执行这些测试，截图仍包含在 `layout-screenshots` artifact 中。
