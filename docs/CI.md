@@ -130,3 +130,8 @@ OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC H
 ### 布局审查回归补充
 
 `tests/layout/review-fixes.spec.ts` 增加左右侧栏缩窄/持久化、折叠后恢复宽度、视口限制下的拖动起点、大屏浮动坐标恢复、窗口缩小、三种主题初始化与系统主题切换测试。现有 CI 的 `playwright test` 自动执行这些测试，截图仍包含在 `layout-screenshots` artifact 中。
+
+
+### 画布像素回归补充
+
+`tests/layout/canvas-pixels.spec.ts` 验证降采样比例、合成坐标矩阵、原像素保持及缩略图，同时在 DPR=1/2 的真实浏览器中读取新建画布像素：白色背景必须覆盖全画布，隐藏背景后仍显示透明棋盘格。与布局回归一起在打包前执行，避免只有布局测试通过却未发现像素内容缩放错误。

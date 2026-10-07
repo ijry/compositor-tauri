@@ -130,12 +130,12 @@ export function expandRect(rect: Rect, margin: number): Rect {
 
 /** 在表面外侧（投影、外发光）叠加一个着色层 */
 function compositeOutside(target: Surface, layer: PixelBuffer, offsetX: number, offsetY: number): void {
-  const { buffer, rect, scale } = target;
+  const { buffer, scale } = target;
   for (let y = 0; y < buffer.height; y += 1) {
-    const sy = Math.round(y / scale - offsetY);
+    const sy = Math.round(y - offsetY * scale);
     if (sy < 0 || sy >= layer.height) continue;
     for (let x = 0; x < buffer.width; x += 1) {
-      const sx = Math.round(x / scale - offsetX);
+      const sx = Math.round(x - offsetX * scale);
       if (sx < 0 || sx >= layer.width) continue;
       const si = (sy * layer.width + sx) * 4;
       const as = layer.data[si + 3] / 255;
@@ -194,7 +194,7 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
   if (effects.stroke && effects.stroke.enabled !== false && !effects.stroke.inside) margin = Math.max(margin, Math.ceil(effects.stroke.size));
   if (margin <= 0) return surface;
 
-  // 把现有像素搬到扩大的矩形里
+  // rect/margin 是文档坐标；复制时要转成缓冲像素，不能再把缩小的图像裁一次。
   const expanded = expandRect(surface.rect, margin);
   const buffer = createBuffer(
     Math.max(1, Math.round(expanded.width * surface.scale)),
@@ -202,8 +202,8 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
   );
   for (let y = 0; y < buffer.height; y += 1) {
     for (let x = 0; x < buffer.width; x += 1) {
-      const sx = Math.round((expanded.x + x / surface.scale) - surface.rect.x);
-      const sy = Math.round((expanded.y + y / surface.scale) - surface.rect.y);
+      const sx = Math.round(x + (expanded.x - surface.rect.x) * surface.scale);
+      const sy = Math.round(y + (expanded.y - surface.rect.y) * surface.scale);
       if (sx < 0 || sy < 0 || sx >= surface.buffer.width || sy >= surface.buffer.height) continue;
       const si = (sy * surface.buffer.width + sx) * 4;
       const di = (y * buffer.width + x) * 4;
@@ -220,18 +220,18 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
   if (effects.shadow && effects.shadow.enabled !== false) {
     const shadow = effects.shadow;
     const angle = (shadow.angle * Math.PI) / 180;
-    const dx = Math.cos(angle) * shadow.distance;
-    const dy = Math.sin(angle) * shadow.distance;
+    const dx = Math.cos(angle) * shadow.distance * surface.scale;
+    const dy = Math.sin(angle) * shadow.distance * surface.scale;
     const shifted = shiftAlpha(alpha, width, height, Math.round(dx), Math.round(dy));
-    const blurred = blurAlpha(shifted, width, height, Math.max(0, shadow.blur));
+    const blurred = blurAlpha(shifted, width, height, Math.max(0, shadow.blur * surface.scale));
     const tint = tintAlpha(blurred, width, height, shadow.color, shadow.opacity);
     compositeOutside(surface, tint, 0, 0);
   }
 
   if (effects.outerGlow && effects.outerGlow.enabled !== false) {
     const glow = effects.outerGlow;
-    const grown = dilateAlpha(alpha, width, height, Math.max(1, Math.round(glow.size)));
-    const blurred = blurAlpha(grown, width, height, Math.max(1, Math.round(glow.size * 0.6)));
+    const grown = dilateAlpha(alpha, width, height, Math.max(1, Math.round(glow.size * surface.scale)));
+    const blurred = blurAlpha(grown, width, height, Math.max(1, Math.round(glow.size * surface.scale * 0.6)));
     const tint = tintAlpha(blurred, width, height, glow.color, glow.opacity);
     compositeOutside(surface, tint, 0, 0);
   }
@@ -245,10 +245,10 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
   if (effects.innerShadow && effects.innerShadow.enabled !== false) {
     const inner = effects.innerShadow;
     const angle = (inner.angle * Math.PI) / 180;
-    const dx = Math.round(Math.cos(angle) * inner.distance);
-    const dy = Math.round(Math.sin(angle) * inner.distance);
+    const dx = Math.round(Math.cos(angle) * inner.distance * surface.scale);
+    const dy = Math.round(Math.sin(angle) * inner.distance * surface.scale);
     const shifted = shiftAlpha(alpha, width, height, -dx, -dy);
-    const blurred = blurAlpha(shifted, width, height, Math.max(0, inner.blur));
+    const blurred = blurAlpha(shifted, width, height, Math.max(0, inner.blur * surface.scale));
     const eroded = erodeAlpha(alpha, width, height, 1);
     const insideMask = new Float32Array(width * height);
     for (let i = 0; i < insideMask.length; i += 1) insideMask[i] = Math.max(0, eroded[i] - blurred[i]) * (1 - alpha[i] * 0);
@@ -258,8 +258,8 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
 
   if (effects.innerGlow && effects.innerGlow.enabled !== false) {
     const glow = effects.innerGlow;
-    const eroded = erodeAlpha(alpha, width, height, Math.max(1, Math.round(glow.size)));
-    const blurred = blurAlpha(eroded, width, height, Math.max(1, Math.round(glow.size * 0.6)));
+    const eroded = erodeAlpha(alpha, width, height, Math.max(1, Math.round(glow.size * surface.scale)));
+    const blurred = blurAlpha(eroded, width, height, Math.max(1, Math.round(glow.size * surface.scale * 0.6)));
     const insideMask = new Float32Array(width * height);
     for (let i = 0; i < insideMask.length; i += 1) insideMask[i] = Math.max(0, alpha[i] - blurred[i]);
     const tint = tintAlpha(insideMask, width, height, glow.color, glow.opacity);
@@ -268,7 +268,7 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
 
   if (effects.stroke && effects.stroke.enabled !== false) {
     const stroke = effects.stroke;
-    const size = Math.max(1, Math.round(stroke.size));
+    const size = Math.max(1, Math.round(stroke.size * surface.scale));
     let strokeAlpha: Float32Array;
     if (stroke.inside) {
       const eroded = erodeAlpha(alpha, width, height, size);

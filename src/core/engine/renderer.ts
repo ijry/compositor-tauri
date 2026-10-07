@@ -123,7 +123,7 @@ export class CanvasRenderer {
     ctx.drawImage(checkerCanvas, x, y);
 
     // 合成内容
-    const renderScale = this.resolveRenderScale(doc, zoom);
+    const renderScale = resolveRenderScale(doc, zoom);
     const key = this.cacheKey(doc, renderScale);
     if (!this.cache || this.cache.key !== key) {
       const widthOut = Math.max(1, Math.round(doc.width * renderScale));
@@ -169,22 +169,6 @@ export class CanvasRenderer {
     }
   }
 
-  /**
-   * 选择合成比例
-   * ---------------------------------------------------------------
-   * 缩小时按 2 的幂降采样，同时受像素预算约束：
-   * 预算内最多合成 16 megapixels，否则浏览器会分配不出缓冲。
-   */
-  private resolveRenderScale(doc: CompDocument, zoom: number): number {
-    const budget = 16_000_000;
-    const totalPixels = Math.max(1, doc.width * doc.height);
-    let scale = 1;
-    if (zoom < 1) scale = Math.min(64, Math.pow(2, Math.ceil(Math.log2(1 / zoom))));
-    // 超出预算继续减半，保证缓冲一定分配得出来
-    while (totalPixels * scale * scale > budget && scale > 0.02) scale /= 2;
-    return Math.max(0.02, scale);
-  }
-
   /** 缓存键：文档内容摘要 + 比例 */
   private cacheKey(doc: CompDocument, scale: number): string {
     let signature = `${doc.width}x${doc.height}@${scale}`;
@@ -198,6 +182,22 @@ export class CanvasRenderer {
     signature += `|sel:${doc.selection ? selectionSignature(doc) : '0'}`;
     return signature;
   }
+}
+
+/**
+ * 选择合成比例
+ * ---------------------------------------------------------------
+ * 缩小时按 2 的幂降采样，同时受像素预算约束：
+ * 预算内最多合成 16 megapixels，否则浏览器会分配不出缓冲。
+ */
+export function resolveRenderScale(doc: Pick<CompDocument, 'width' | 'height'>, zoom: number): number {
+  const budget = 16_000_000;
+  const totalPixels = Math.max(1, doc.width * doc.height);
+  let scale = 1;
+  if (zoom < 1) scale = 1 / Math.min(64, Math.pow(2, Math.ceil(Math.log2(1 / zoom))));
+  // 超出预算继续减半，保证缓冲一定分配得出来
+  while (totalPixels * scale * scale > budget && scale > 0.02) scale /= 2;
+  return Math.max(0.02, scale);
 }
 
 /** 选区内容签名（抽样若干像素，避免每次全量比较） */

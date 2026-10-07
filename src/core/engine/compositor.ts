@@ -13,7 +13,7 @@
 import { blendFunction } from '@/core/blend';
 import { applyAdjustment } from '@/core/filters/adjust';
 import { bakeEffects, type Surface } from '@/core/engine/effects';
-import { applyMatrix, IDENTITY, invertMatrix, layerMatrix, multiplyMatrix, translation, type Matrix } from '@/core/geometry';
+import { applyMatrix, IDENTITY, invertMatrix, layerMatrix, multiplyMatrix, translation, scaling, type Matrix } from '@/core/geometry';
 import { cloneBuffer, createBuffer } from '@/core/pixels';
 import { samplingAt } from '@/core/sampler';
 import type { CompDocument, Layer, MaskBuffer, PixelBuffer, SelectionMask } from '@/types/document';
@@ -104,7 +104,8 @@ export function buildLayerSurface(layer: Layer, scale = 1): Surface | null {
     Math.max(1, Math.round(rect.width * scale)),
     Math.max(1, Math.round(rect.height * scale)),
   );
-  const local = multiplyMatrix(multiplyMatrix(translation(-rect.x, -rect.y), translation(scale, scale)), matrix);
+  // 图层局部像素 -> 文档 -> 表面原点 -> 缩放后的缓冲；平移也必须随合成比例缩放。
+  const local = multiplyMatrix(scaling(scale, scale), multiplyMatrix(translation(-rect.x, -rect.y), matrix));
   fillFromSource(buffer, pixels, local, layer.transform.sampling);
   let surface: Surface = { buffer, rect, scale };
   if (layer.effects) surface = bakeEffects(surface, layer.effects);
@@ -119,7 +120,7 @@ function fillFromSource(target: PixelBuffer, source: PixelBuffer, matrix: Matrix
     for (let x = 0; x < target.width; x += 1) {
       const local = applyMatrix(inverse, x + 0.5, y + 0.5);
       const di = (y * target.width + x) * 4;
-      if (local.x < -0.5 || local.y < -0.5 || local.x > source.width - 0.5 || local.y > source.height - 0.5) {
+      if (local.x < 0 || local.y < 0 || local.x >= source.width || local.y >= source.height) {
         target.data[di + 3] = 0;
         continue;
       }
@@ -132,7 +133,8 @@ function fillFromSource(target: PixelBuffer, source: PixelBuffer, matrix: Matrix
         target.data[di + 2] = src[si + 2];
         target.data[di + 3] = src[si + 3];
       } else {
-        samplingAt(src, source.width, source.height, local.x, local.y, target.data, di);
+        // 逆变换坐标为像素边界坐标，双线性采样器以整数表示像素中心。
+        samplingAt(src, source.width, source.height, local.x - 0.5, local.y - 0.5, target.data, di);
       }
     }
   }
@@ -187,11 +189,6 @@ export function compositeInto(
   const selectionSample = selectionSampler(selection);
   const width = target.width;
   const height = target.height;
-  // 文档像素 -> 合成缓冲的缩放
-  const toBuffer = multiplyMatrix(translation(0.5, 0.5), translation(scale, scale));
-  void toBuffer;
-  void width;
-  void height;
 
   // 预计算每个图层的祖先上下文（组不透明度 + 组蒙版）
   const contextCache = new Map<string, { opacity: number; masks: CoverageSampler[] }>();
@@ -381,7 +378,7 @@ export function renderLayerThumbnail(layer: Layer, size = 48): PixelBuffer {
   const offsetX = (size - layer.pixels.width * scale) / 2;
   const offsetY = (size - layer.pixels.height * scale) / 2;
   const matrixThumb = multiplyMatrix(
-    multiplyMatrix(translation(offsetX, offsetY), translation(scale, scale)),
+    multiplyMatrix(translation(offsetX, offsetY), scaling(scale, scale)),
     IDENTITY,
   );
   const source = layer.pixels;
