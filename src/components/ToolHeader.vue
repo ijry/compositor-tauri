@@ -108,7 +108,10 @@ function isTextOption(key: string): boolean {
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 34px;
+  min-height: 38px;
+  flex: 0 0 auto;
+  max-width: 100%;
+  scrollbar-width: thin;
   padding: 0 10px;
   background: var(--cmp-panel-2);
   border-bottom: 1px solid var(--cmp-border);

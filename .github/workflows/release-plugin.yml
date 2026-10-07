@@ -70,6 +70,17 @@ jobs:
         run: node --test scripts/*.test.mjs
       - name: 类型检查并构建
         run: pnpm build
+      - name: 安装布局测试浏览器
+        run: pnpm exec playwright install --with-deps chromium
+      - name: 浏览器布局与面板停靠回归
+        run: pnpm exec playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: layout-screenshots
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: 打包正式插件并生成摘要
         env:
           VERSION: ${{ steps.meta.outputs.version }}

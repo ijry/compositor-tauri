@@ -51,10 +51,10 @@ function startFloatDrag(event: MouseEvent, id: PanelId): void {
   };
   const up = (upEvent: MouseEvent): void => {
     const current = dragState.value;
+    const target = detectDockZone(upEvent.clientX, upEvent.clientY);
     dragState.value = null;
     dockHint.value = null;
-    if (current && dockHint.value) dock(current.id, dockHint.value);
-    void upEvent;
+    if (current && target) dock(current.id, target);
     window.removeEventListener('mousemove', move);
     window.removeEventListener('mouseup', up);
   };
@@ -98,7 +98,7 @@ function startDockResize(event: MouseEvent, id: PanelId): void {
     if (!current) return;
     const position = currentStart(current, horizontal, moveEvent);
     const delta = position - current.start;
-    resizeDock(current.id, current.size + delta);
+    resizeDock(current.id, current.size + (state.area === 'left' ? delta : -delta));
   };
   const up = (): void => {
     dockResize.value = null;
@@ -119,8 +119,19 @@ function currentStart(current: { start: number }, horizontal: boolean, event: Mo
 function panelStyle(id: PanelId): Record<string, string> {
   const state = panelOf(id);
   if (state.area === 'bottom') return { height: `${state.collapsed ? 30 : state.size}px` };
-  return { width: `${state.collapsed ? 34 : state.size}px` };
+  return { width: '100%', flex: state.collapsed ? '0 0 30px' : '1 1 0' };
 }
+
+/** 同一侧面板共用栏宽；窄窗口限制侧栏，给画布保留空间。 */
+function dockWidth(area: 'left' | 'right'): string {
+  const panels = docked(area);
+  if (!panels.length) return '0px';
+  const expanded = panels.filter(panel => !panel.collapsed);
+  if (!expanded.length) return '34px';
+  const width = Math.max(...expanded.map(panel => panel.size));
+  return `min(${width}px, 26vw)`;
+}
+const gridStyle = computed(() => ({ gridTemplateColumns: `${dockWidth('left')} minmax(0, 1fr) ${dockWidth('right')}` }));
 
 /** 标题栏按钮：切换停靠区域 */
 function cycleDock(id: PanelId): void {
@@ -132,7 +143,7 @@ function cycleDock(id: PanelId): void {
 </script>
 
 <template>
-  <div class="dock-layout">
+  <div class="dock-layout" :style="gridStyle">
     <!-- 左侧停靠 -->
     <div v-if="left.length > 0" class="dock dock-left">
       <div v-for="panel in left" :key="panel.id" class="dock-panel" :style="panelStyle(panel.id)">
@@ -228,48 +239,41 @@ function cycleDock(id: PanelId): void {
 <style scoped>
 .dock-layout {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas: "left center right" "bottom bottom bottom";
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
   position: relative;
 }
-
 .dock {
   display: flex;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   background: var(--cmp-panel);
 }
-
-.dock-left {
-  border-right: 1px solid var(--cmp-border);
-}
-
-.dock-right {
-  border-left: 1px solid var(--cmp-border);
-}
-
+.dock-left { grid-area: left; border-right: 1px solid var(--cmp-border); }
+.dock-right { grid-area: right; border-left: 1px solid var(--cmp-border); }
+.dock-left, .dock-right { flex-direction: column; }
 .dock-bottom {
-  width: 100%;
+  grid-area: bottom;
   border-top: 1px solid var(--cmp-border);
-  max-height: 60%;
+  max-height: 30vh;
 }
-
 .dock-center {
-  flex: 1;
+  grid-area: center;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  order: 1;
+  overflow: hidden;
 }
-
-.dock-left,
-.dock-right {
-  order: 0;
-}
-
-.dock-bottom {
-  order: 2;
-}
+.dock-panel + .dock-panel { border-top: 1px solid var(--cmp-border); }
+.dock-right .resize-handle { left: 0; right: auto; }
+.dock-bottom .dock-panel { flex: 1 1 0; min-width: 0; max-height: 30vh; }
+.dock-bottom .resize-handle.horizontal { top: 0; bottom: auto; }
 
 .dock-panel {
   position: relative;

@@ -47,6 +47,10 @@ function onClick(tool: string, group: string): void {
 <style scoped>
 .cmp-toolbar {
   width: 52px;
+  flex: 0 0 52px;
+  min-height: 0;
+  overflow-x: hidden;
+  scrollbar-width: thin;
   background: var(--cmp-panel);
   border-right: 1px solid var(--cmp-border);
   display: flex;
@@ -58,6 +62,7 @@ function onClick(tool: string, group: string): void {
 }
 
 .tool-group {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;

@@ -74,6 +74,7 @@ const stats = computed(() => {
 
 <style scoped>
 .side-panels {
+  container-type: inline-size;
   padding: 6px 8px;
 }
 
@@ -126,5 +127,10 @@ h4 {
   color: var(--cmp-text-faint);
   font-size: 11px;
   margin: 0;
+}
+/* 底部停靠时横向分栏，浮动或侧边停靠时保持纵向布局。 */
+@container (min-width: 560px) {
+  .block { display: inline-block; vertical-align: top; width: 32%; padding-right: 16px; }
+  .history { max-height: 92px; }
 }
 </style>

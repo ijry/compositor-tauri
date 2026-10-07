@@ -6,7 +6,7 @@
  * 指针事件统一换算成文档坐标后交给当前工具处理。
  */
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { api, currentDocument, currentTool, dispatchPointer, getStageSize, invalidate, registerStage, uiState } from '@/composables/useEditor';
+import { api, currentDocument, currentTool, dispatchPointer, getStageSize, fitCanvas, invalidate, registerStage, uiState } from '@/composables/useEditor';
 import { drawSelectionAnts } from '@/tools/selection';
 import { drawTransformControls } from '@/tools/transform';
 import { drawBrushCursor } from '@/tools/paint';
@@ -276,6 +276,8 @@ function onKeyUp(event: KeyboardEvent): void {
 
 onMounted(() => {
   syncSize();
+  // 首次挂载前默认舞台尺寸尚未更新，须在真实布局就绪后适配。
+  fitCanvas();
   const observer = new ResizeObserver(syncSize);
   if (host.value) observer.observe(host.value);
   window.addEventListener('keydown', onKeyDown);
@@ -325,9 +327,12 @@ void getStageSize;
 
 <style scoped>
 .cmp-stage {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
   position: relative;
   width: 100%;
-  height: 100%;
+  height: auto;
   overflow: hidden;
   background: var(--cmp-canvas);
   touch-action: none;

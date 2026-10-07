@@ -289,9 +289,16 @@ function isDragging(layer: Layer): boolean {
 
 .panel-bar {
   display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
   gap: 2px;
   padding: 4px;
   border-bottom: 1px solid var(--cmp-border);
+}
+
+.panel-bar > .el-button {
+  margin-left: 0;
+  padding-inline: 8px;
 }
 
 .layer-list {

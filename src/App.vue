@@ -11,7 +11,7 @@ import ToolHeader from '@/components/ToolHeader.vue';
 import DockLayout from '@/components/DockLayout.vue';
 import StartPage from '@/components/StartPage.vue';
 import { initTheme } from '@/composables/useTheme';
-import { loadPanelLayout } from '@/composables/usePanels';
+import { loadPanelLayout, resetPanels } from '@/composables/usePanels';
 import DialogHost from '@/components/dialogs/DialogHost.vue';
 import { api, closeDocument, commands, currentDocument, documents, handleKeyDown, initialize, selectDocument, statusMessage } from '@/composables/useEditor';
 import { toHex } from '@/core/color';
@@ -138,6 +138,7 @@ const menus = [
     items: [
       { label: '放大', run: () => commands.run('zoomIn') },
       { label: '缩小', run: () => commands.run('zoomOut') },
+      { label: '恢复默认面板布局', run: () => resetPanels() },
       { label: '适配画布', run: () => commands.run('fitCanvas') },
       { label: '实际像素', run: () => commands.run('actualPixels') },
       { divider: true },
@@ -230,11 +231,13 @@ function foregroundHex(): string {
 
     <!-- 主体 -->
     <StartPage v-if="documents.length === 0" />
-    <DockLayout v-else>
+    <div v-else class="editor-workspace">
       <ToolBar />
-      <ToolHeader />
-      <CanvasStage />
-    </DockLayout>
+      <DockLayout>
+        <ToolHeader />
+        <CanvasStage />
+      </DockLayout>
+    </div>
 
     <!-- 状态栏 -->
     <footer class="status-bar">
@@ -253,6 +256,14 @@ function foregroundHex(): string {
 </script>
 
 <style>
+.editor-workspace {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .cmp-app {
   display: flex;
   flex-direction: column;
@@ -260,6 +271,10 @@ function foregroundHex(): string {
   background: var(--cmp-bg);
   color: var(--cmp-text);
   font-size: 12px;
+}
+
+.menu-bar, .tabs, .status-bar {
+  flex-shrink: 0;
 }
 
 .menu-bar {

@@ -118,3 +118,10 @@ OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC H
 - [x] 下载 Actions 的 oplg artifact 后再次通过独立包验证。
 
 该次运行明确跳过 GitHub Release 创建和市场提交。仅验证 Secret 的存在及格式，没有向市场发送 PAT；真实令牌权限、有效期和上架结果仍需正式发布确认。
+
+
+## 布局回归（2026-10-07）
+
+发布 CI 在构建后运行 Chromium 布局测试：1245×768、960×768 窗口下的工具栏、工具选项、画布、右侧面板、底部区域，以及浮动拖回停靠区、恢复旧布局。截图作为 layout-screenshots artifact 保存。
+
+本地执行 `pnpm build`、`pnpm exec playwright install chromium`、`pnpm test:layout`。界面使用明确的 Grid 区域，不允许主布局 flex-wrap 换行；旧的过宽停靠布局会受窗口宽度约束，可通过“视图 → 恢复默认面板布局”恢复。

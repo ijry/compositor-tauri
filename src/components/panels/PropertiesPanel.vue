@@ -175,8 +175,8 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
 <style scoped>
 .props {
   padding: 6px 8px;
-  overflow-y: auto;
-  max-height: 46%;
+  min-width: 0;
+  width: 100%;
   border-bottom: 1px solid var(--cmp-border);
 }
 
@@ -192,9 +192,14 @@ h4 {
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2px 6px;
 }
+
+.row { flex-wrap: wrap; }
+.row > .el-button { margin-left: 0; }
+.grid label { min-width: 0; }
+.grid input, .grid select { min-width: 0; max-width: 100%; }
 
 .grid label,
 .row {
