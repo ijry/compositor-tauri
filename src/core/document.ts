@@ -5,8 +5,11 @@
  * 保证「一次操作 = 一次历史记录 = 一次重绘」。
  */
 import { compositeInto } from '@/core/engine/compositor';
+import { applyPixelMask, placementTransform } from '@/core/engine/maskGeometry';
+
+import { rotatedTransform, scaledTransform, scaledMask } from './documentTransforms';
 import {
-  cloneBuffer, cloneMask, createBuffer, createMask, flipBuffer, resizeBuffer, resizeMask, rotateBuffer,
+  cloneBuffer, cloneMask, createBuffer, createMask, resizeBuffer, resizeMask,
 } from '@/core/pixels';
 import { BLEND_MODES } from '@/types/document';
 import type {
@@ -417,7 +420,7 @@ export function mergeLayers(document: CompDocument, ids: string[]): Layer | null
     .map((id) => findLayer(document, id))
     .filter((layer): layer is Layer => Boolean(layer))
     .sort((a, b) => layerIndex(document, a.id) - layerIndex(document, b.id));
-  if (selected.length < 2) return null;
+  if (!selected.length || (selected.length===1 && selected[0]!.kind!=='group')) return null;
   const top = selected[selected.length - 1]!;
   const composite = createBuffer(document.width, document.height);
   const subset = new Set<string>();
@@ -425,14 +428,18 @@ export function mergeLayers(document: CompDocument, ids: string[]): Layer | null
     if (layer.kind === 'group') descendantsOf(document, layer.id).forEach((child) => subset.add(child.id));
     subset.add(layer.id);
   }
-  const tempDocument: CompDocument = { ...document, layers: document.layers.filter((layer) => subset.has(layer.id)) };
+  if (!document.layers.some(layer=>subset.has(layer.id) && layer.kind!=='group')) return null;
+  const tempDocument: CompDocument = { ...document, layers: document.layers.filter(layer=>subset.has(layer.id)).map(layer=>({
+    ...layer, parentId: layer.parentId && subset.has(layer.parentId) ? layer.parentId : null,
+  })) };
   compositeInto(composite, tempDocument, 1);
   const merged = createPixelLayer(top.name, composite, {
-    opacity: top.opacity,
-    blendMode: top.blendMode,
+    opacity: 1,
+    blendMode: 'Normal',
     parentId: top.parentId,
   });
-  const insertAt = layerIndex(document, top.id);
+  const anchor = layerIndex(document,top.id);
+  const insertAt = anchor-document.layers.slice(0,anchor).filter(layer=>subset.has(layer.id)).length;
   removeLayers(document, selected.map((layer) => layer.id));
   document.layers.splice(Math.max(0, Math.min(document.layers.length, insertAt)), 0, merged);
   document.activeLayerId = merged.id;
@@ -444,8 +451,10 @@ export function mergeLayers(document: CompDocument, ids: string[]): Layer | null
 export function mergeDown(document: CompDocument, id: string): Layer | null {
   const index = layerIndex(document, id);
   if (index <= 0) return null;
-  const below = document.layers[index - 1];
-  if (!below) return null;
+  const layer = document.layers[index]!;
+  if (layer.kind==='group') return mergeGroup(document,id);
+  const below = document.layers.slice(0,index).reverse().find(item=>item.parentId===layer.parentId);
+  if (!below || below.kind==='group') return null;
   return mergeLayers(document, [below.id, id]);
 }
 
@@ -482,18 +491,8 @@ export function addLayerMask(layer: Layer, canvasWidth = 1, canvasHeight = 1): M
 /** 应用蒙版：把蒙版并入像素的 alpha 后删除蒙版 */
 export function applyLayerMask(layer: Layer): void {
   if (!layer.mask || layer.kind !== 'pixel' || !layer.pixels) return;
-  const { pixels } = layer;
-  const mask = layer.mask;
-  const width = Math.min(pixels.width, mask.pixels.width);
-  const height = Math.min(pixels.height, mask.pixels.height);
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const i = (y * pixels.width + x) * 4;
-      const value = mask.pixels.data[y * mask.pixels.width + x];
-      const m = mask.inverted ? 255 - value : value;
-      pixels.data[i + 3] = (pixels.data[i + 3] * m) / 255;
-    }
-  }
+  applyPixelMask(layer,layer.pixels);
+  layer.contentKey += 1;
   layer.mask = null;
 }
 
@@ -527,66 +526,42 @@ export function maskFromSelection(layer: Layer, selection: Uint8Array, width: nu
 export type Anchor = 'top-left' | 'top' | 'top-right' | 'left' | 'center' | 'right' | 'bottom-left' | 'bottom' | 'bottom-right';
 
 function anchorOffset(anchor: Anchor, width: number, height: number): { dx: number; dy: number } {
-  const mapX: Record<string, number> = { left: 0, center: 0.5, right: 1 };
-  const mapY: Record<string, number> = { top: 0, center: 0.5, bottom: 1 };
-  const [vertical, horizontal] = anchor.split('-');
-  const fx = horizontal ? (mapX[horizontal] ?? 0.5) : 0.5;
-  const fy = vertical ? (mapY[vertical] ?? 0.5) : 0.5;
-  return { dx: Math.round(width * fx), dy: Math.round(height * fy) };
+  const factors: Record<Anchor, [number,number]> = {
+    'top-left':[0,0], top:[0.5,0], 'top-right':[1,0], left:[0,0.5], center:[0.5,0.5], right:[1,0.5],
+    'bottom-left':[0,1], bottom:[0.5,1], 'bottom-right':[1,1],
+  };
+  const [fx,fy] = factors[anchor] ?? factors.center;
+  return {dx:Math.round(width*fx),dy:Math.round(height*fy)};
 }
 
-/** 画布大小：改变文档尺寸，所有图层按锚点平移 */
+/** 画布大小只改变边界及锚点偏移，不重采样已有图层/蒙版。 */
 export function resizeCanvas(document: CompDocument, width: number, height: number, anchor: Anchor = 'top-left'): void {
-  const offset = anchorOffset(anchor, width - document.width, height - document.height);
-  document.width = width;
-  document.height = height;
+  const offset = anchorOffset(anchor,width-document.width,height-document.height);
   for (const layer of document.layers) {
-    layer.transform.origin[0] += offset.dx;
-    layer.transform.origin[1] += offset.dy;
-    layer.transform.size = layer.kind === 'pixel' && layer.pixels
-      ? [layer.pixels.width, layer.pixels.height]
-      : [width, height];
-    layer.transform.origin[0] = Math.round(layer.transform.origin[0]);
-    layer.transform.origin[1] = Math.round(layer.transform.origin[1]);
-    if (layer.kind === 'pixel' && layer.pixels && layer.mask) {
-      layer.mask.pixels = resizeMask(layer.mask.pixels, layer.pixels.width, layer.pixels.height);
-    }
+    layer.transform.origin = [layer.transform.origin[0]+offset.dx,layer.transform.origin[1]+offset.dy];
+    if (layer.mask?.placement) { layer.mask.placement.x += offset.dx; layer.mask.placement.y += offset.dy; }
+    layer.contentKey += 1;
   }
-  document.selection = resizeSelection(document.selection, width, height);
+  document.selection = cropSelection(document.selection,-offset.dx,-offset.dy,width,height);
+  document.guides = document.guides.map(g=>({...g,position:g.position+(g.axis==='vertical'?offset.dx:offset.dy)}));
+  document.width = width; document.height = height;
   document.updatedAt = Date.now();
 }
 
-/** 图像大小：按比例重采样所有图层像素 */
+/** 图像大小：重采样原像素/灰度数据，同时按文档比例变换原有图层位置与形状。 */
 export function resizeImage(document: CompDocument, width: number, height: number): void {
-  const scaleX = width / document.width;
-  const scaleY = height / document.height;
-  document.width = width;
-  document.height = height;
+  const sx = width/document.width, sy = height/document.height;
   for (const layer of document.layers) {
-    layer.transform.origin[0] = Math.round(layer.transform.origin[0] * scaleX);
-    layer.transform.origin[1] = Math.round(layer.transform.origin[1] * scaleY);
-    if (layer.kind === 'pixel' && layer.pixels) {
-      const newWidth = Math.max(1, Math.round(layer.pixels.width * scaleX));
-      const newHeight = Math.max(1, Math.round(layer.pixels.height * scaleY));
-      layer.pixels = resizeBuffer(layer.pixels, newWidth, newHeight);
-      layer.transform.size = [newWidth, newHeight];
-      if (layer.mask) {
-        layer.mask.pixels = resizeMask(layer.mask.pixels, newWidth, newHeight);
-        if (layer.mask.placement) {
-          layer.mask.placement = {
-            x: Math.round(layer.mask.placement.x * scaleX),
-            y: Math.round(layer.mask.placement.y * scaleY),
-            width: Math.max(1, Math.round(layer.mask.placement.width * scaleX)),
-            height: Math.max(1, Math.round(layer.mask.placement.height * scaleY)),
-          };
-        }
-      }
-    } else {
-      layer.transform.size = [width, height];
-      if (layer.mask) layer.mask.pixels = createMask(width, height, 255);
+    layer.transform = scaledTransform(layer.transform,sx,sy);
+    if (layer.kind==='pixel' && layer.pixels) {
+      layer.pixels = resizeBuffer(layer.pixels,Math.max(1,Math.round(layer.pixels.width*sx)),Math.max(1,Math.round(layer.pixels.height*sy)));
     }
+    if (layer.mask) layer.mask = scaledMask(layer.mask,sx,sy);
+    layer.contentKey += 1;
   }
-  document.selection = resizeSelection(document.selection, width, height);
+  document.selection = resizeSelection(document.selection,width,height);
+  document.guides = document.guides.map(g=>({...g,position:g.position*(g.axis==='vertical'?sx:sy)}));
+  document.width = width; document.height = height;
   document.updatedAt = Date.now();
 }
 
@@ -598,7 +573,8 @@ function resizeSelection<T extends { width: number; height: number; data: Uint8A
   if (!selection) return selection;
   const mask: MaskBuffer = { width: selection.width, height: selection.height, data: selection.data };
   const resized = resizeMask(mask, width, height);
-  return { ...selection, width, height, data: resized.data, outline: null };
+  return { ...selection, width, height, data: resized.data,
+    outline: selection.outline?.map(p=>({x:p.x*width/selection.width,y:p.y*height/selection.height})) ?? null };
 }
 
 /** 裁剪：按矩形裁剪画布与所有图层 */
@@ -648,7 +624,7 @@ function cropSelection<T extends { width: number; height: number; data: Uint8Arr
       data[row * width + column] = selection.data[sy * selection.width + sx];
     }
   }
-  return { ...selection, width, height, data, outline: null } as T;
+  return { ...selection, width, height, data, outline: selection.outline?.map(p=>({x:p.x-x,y:p.y-y})) ?? null } as T;
 }
 
 /** 图层像素的文档空间包围盒（未考虑旋转） */
@@ -706,43 +682,30 @@ export function trimDocument(document: CompDocument, tolerance: number, backgrou
   return { x: left, y: top, width: right - left + 1, height: bottom - top + 1 };
 }
 
-/** 旋转画布（顺时针 90 的倍数），像素层会被真正旋转 */
+/** 旋转画布：移动图层中心并增加角度，避免旋转像素与原点造成裁切。 */
 export function rotateCanvas(document: CompDocument, degrees: number): void {
-  const rotation = ((degrees % 360) + 360) % 360;
-  if (rotation === 0) return;
+  const rotation = ((degrees%360)+360)%360;
+  if (rotation===0) return;
+  if (![90,180,270].includes(rotation)) throw new Error('画布旋转只支持 90 度的倍数');
+  const {width,height} = document;
   for (const layer of document.layers) {
-    if (layer.kind === 'pixel' && layer.pixels) {
-      layer.pixels = rotateBuffer(layer.pixels, rotation);
-      if (layer.mask) layer.mask.pixels = rotateMask(layer.mask.pixels, rotation);
-      layer.transform.size = [layer.pixels.width, layer.pixels.height];
-      layer.transform.origin = rotatePoint(layer.transform.origin, rotation, document.width, document.height);
-    } else {
-      layer.transform.size = rotation === 180 ? [layer.transform.size[0], layer.transform.size[1]] : [layer.transform.size[1], layer.transform.size[0]];
-      layer.transform.origin = rotatePoint(layer.transform.origin, rotation, document.width, document.height);
+    layer.transform = rotatedTransform(layer.transform,rotation,width,height);
+    if (layer.mask?.placement) {
+      const p = layer.mask.placement;
+      const t = rotatedTransform(placementTransform(p),rotation,width,height);
+      layer.mask.placement = {...p,x:t.origin[0],y:t.origin[1],rotation:t.rotation};
     }
+    layer.contentKey += 1;
   }
-  if (document.selection) document.selection = rotateSelection(document.selection, rotation);
-  document.guides = document.guides.map((guide) => {
-    const old = guide.position;
-    if (rotation === 90) return { ...guide, axis: guide.axis === 'horizontal' ? 'horizontal' : 'vertical', position: guide.axis === 'horizontal' ? old : document.height - old };
-    if (rotation === 180) return { ...guide, position: guide.axis === 'horizontal' ? document.height - old : document.width - old };
-    if (rotation === 270) return { ...guide, axis: guide.axis === 'horizontal' ? 'horizontal' : 'vertical', position: guide.axis === 'horizontal' ? document.width - old : old };
-    return guide;
+  if (document.selection) document.selection = rotateSelection(document.selection,rotation);
+  document.guides = document.guides.map(g=>{
+    const vertical = g.axis==='vertical';
+    if (rotation===180) return {...g,position:(vertical?width:height)-g.position};
+    const position = rotation===90 ? (vertical?g.position:height-g.position) : (vertical?width-g.position:g.position);
+    return {...g,axis:vertical?'horizontal':'vertical',position};
   });
-  if (rotation === 90 || rotation === 270) {
-    const width = document.height;
-    document.height = document.width;
-    document.width = width;
-  }
-  document.updatedAt = Date.now();
-}
-
-function rotatePoint(point: [number, number], degrees: number, width: number, height: number): [number, number] {
-  const [x, y] = point;
-  if (degrees === 90) return [height - y, x];
-  if (degrees === 180) return [width - x, height - y];
-  if (degrees === 270) return [y, width - x];
-  return [x, y];
+  if (rotation!==180) {document.width=height;document.height=width;}
+  document.updatedAt=Date.now();
 }
 
 /** 翻转画布（同时翻转所有图层） */

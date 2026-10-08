@@ -44,9 +44,10 @@ const state: PaintState = {
 /** 取当前绘制目标 */
 export function currentPaintTarget(editor: EditorApi): PaintTarget | null {
   const layer = editor.activeLayer();
-  if (!layer || layer.kind !== 'pixel' || layer.locked) return null;
-  const onMask = Boolean(layer.mask && layer.mask.target === 'mask' && layer.mask.enabled);
-  return { layer, onMask };
+  if (!layer || layer.locked) return null;
+  // 组和调整层没有图像像素，但其启用的蒙版可以成为绘制目标。
+  if (layer.mask?.target === 'mask') return layer.mask.enabled ? { layer, onMask: true } : null;
+  return layer.kind === 'pixel' ? { layer, onMask: false } : null;
 }
 
 /** 前景色（带 alpha 的画笔颜色） */

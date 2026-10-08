@@ -11,6 +11,7 @@
  *  - previewScale < 1 时整体降采样，保证大图在缩小时依然流畅。
  */
 import { blendFunction } from '@/core/blend';
+import { createMaskSampler, applyPixelMask } from './maskGeometry';
 import { applyAdjustment } from '@/core/filters/adjust';
 import { bakeEffects, type Surface } from '@/core/engine/effects';
 import { applyMatrix, IDENTITY, invertMatrix, layerMatrix, multiplyMatrix, translation, scaling, type Matrix } from '@/core/geometry';
@@ -51,19 +52,9 @@ export function maskSampler(
   layer: Layer,
   matrix: Matrix,
 ): CoverageSampler {
-  let inverse = invertMatrix(matrix);
-  if (!layer.mask?.linked && layer.mask?.placement) {
-    const p = layer.mask.placement;
-    inverse = invertMatrix(layerMatrix({ origin: [p.x,p.y], size: [p.width,p.height], rotation: p.rotation ?? 0,
-      flipX: p.flipX ?? false, flipY: p.flipY ?? false, sampling: p.sampling ?? 'Nearest' }, mask.width, mask.height));
-  }
-  return (x, y) => {
-    const local = applyMatrix(inverse, x, y);
-    const mx = Math.floor(local.x);
-    const my = Math.floor(local.y);
-    if (mx < 0 || my < 0 || mx >= mask.width || my >= mask.height) return 0;
-    return mask.data[my * mask.width + mx] / 255;
-  };
+  // 保留旧调用签名，蒙版映射不再错误依赖图像像素尺寸。
+  void matrix;
+  return createMaskSampler(layer, mask);
 }
 
 /** 取图层的「局部像素 -> 文档」矩阵 */
@@ -78,7 +69,9 @@ export function layerLocalToDocument(layer: Layer): Matrix {
  */
 export function buildLayerSurface(layer: Layer, scale = 1): Surface | null {
   if (layer.kind !== 'pixel' || !layer.pixels) return null;
-  const pixels = layer.pixels;
+  let pixels = layer.pixels;
+  // 像上游一样，先把蒙版采样到图层网格，再变换和生成效果，避免应用前后跳变。
+  if (layer.mask?.enabled) { pixels = cloneBuffer(pixels); applyPixelMask(layer,pixels); }
   if (pixels.width === 0 || pixels.height === 0) return null;
   const matrix = layerMatrix(layer.transform, pixels.width, pixels.height);
   // 先算包围盒（变换后四角）
@@ -136,8 +129,10 @@ function fillFromSource(target: PixelBuffer, source: PixelBuffer, matrix: Matrix
 
 /** 取某图层在文档空间的 alpha 覆盖率采样器（用于剪贴蒙版） */
 export function layerAlphaSampler(layer: Layer, scale = 1): CoverageSampler {
+  if (!layer.isVisible) return () => 0;
   const surface = buildLayerSurface(layer, scale);
   if (!surface) return () => 0;
+
   const { buffer, rect, scale: s } = surface;
   return (x, y) => {
     const bx = Math.floor((x - rect.x) * s);
@@ -253,7 +248,7 @@ export function compositeInto(
     if (layer.kind !== 'pixel' || !layer.pixels) continue;
     const surface = buildLayerSurface(layer, scale);
     if (!surface) continue;
-    blitSurface(target, surface, [...context.masks, maskSample, clipSample], alpha, layer.blendMode, scale);
+    blitSurface(target, surface, [...context.masks, clipSample], alpha, layer.blendMode, scale);
   }
 }
 
@@ -333,7 +328,7 @@ export function blitSurface(
       as *= opacity;
       if (list.length > 0) {
         for (const sampler of list) {
-          as *= sampler(docX, docY);
+          as *= sampler((x + 0.5) / scale, (y + 0.5) / scale);
           if (as <= 0) break;
         }
       }

@@ -9,6 +9,7 @@
  */
 import { applyMatrix, invertMatrix, layerMatrix } from '@/core/geometry';
 import { sampleScalar } from '@/core/sampler';
+import { maskToDocument } from './maskGeometry';
 import type { CompDocument, Layer, MaskBuffer, PixelBuffer, Point } from '@/types/document';
 
 /** 绘制目标：图层 + 当前编辑面（图像或蒙版） */
@@ -33,17 +34,17 @@ export interface DabOptions {
 }
 
 /** 图层局部坐标 <-> 文档坐标 */
-export function makeLayerMapping(layer: Layer): { toLocal: (p: Point) => Point; toDoc: (p: Point) => Point; scale: number } {
-  const width = layer.kind === 'pixel' && layer.pixels ? layer.pixels.width : 1;
-  const height = layer.kind === 'pixel' && layer.pixels ? layer.pixels.height : 1;
-  const matrix = layerMatrix(layer.transform, width, height);
+export function makeLayerMapping(layer: Layer, onMask = false): { toLocal: (p: Point) => Point; toDoc: (p: Point) => Point; scale: number } {
+  const width = onMask && layer.mask ? layer.mask.pixels.width : layer.kind === 'pixel' && layer.pixels ? layer.pixels.width : 1;
+  const height = onMask && layer.mask ? layer.mask.pixels.height : layer.kind === 'pixel' && layer.pixels ? layer.pixels.height : 1;
+  const matrix = onMask && layer.mask ? maskToDocument(layer) : layerMatrix(layer.transform, width, height);
   const inverse = invertMatrix(matrix);
   return {
     toLocal: (p) => applyMatrix(inverse, p.x, p.y),
     toDoc: (p) => applyMatrix(matrix, p.x, p.y),
     scale: Math.max(0.05, Math.min(
-      Math.abs(layer.transform.size[0] / Math.max(1, width)),
-      Math.abs(layer.transform.size[1] / Math.max(1, height)),
+      Math.hypot(matrix[0], matrix[3]),
+      Math.hypot(matrix[1], matrix[4]),
     )),
   };
 }
@@ -64,12 +65,12 @@ function selectionCoverage(doc: CompDocument | null, x: number, y: number): numb
  */
 export function paintDab(document: CompDocument, target: PaintTarget, options: DabOptions): void {
   const { layer } = target;
-  const mapping = makeLayerMapping(layer);
+  const mapping = makeLayerMapping(layer, target.onMask);
   const local = mapping.toLocal({ x: options.x, y: options.y });
   // 文档空间的笔刷半径换算到局部像素
   const radius = Math.max(0.5, options.radius / mapping.scale);
   if (target.onMask && layer.mask) {
-    paintIntoMask(layer.mask.pixels, layer, local, radius, options);
+    paintIntoMask(layer.mask.pixels, layer, document, local, radius, options);
     layer.contentKey += 1;
     return;
   }
@@ -112,22 +113,25 @@ function paintIntoPixels(
       if (options.erase) {
         pixels.data[i + 3] = pixels.data[i + 3]! * (1 - k);
       } else {
-        pixels.data[i] = pixels.data[i]! * (1 - k) + options.color[0] * k;
-        pixels.data[i + 1] = pixels.data[i + 1]! * (1 - k) + options.color[1] * k;
-        pixels.data[i + 2] = pixels.data[i + 2]! * (1 - k) + options.color[2] * k;
-        pixels.data[i + 3] = Math.min(255, pixels.data[i + 3]! * (1 - k) + options.color[3] * k);
+        // 内部存储非预乘 RGBA：先合成覆盖率，再除以输出 alpha 得到颜色。
+        const sourceAlpha = k * options.color[3] / 255;
+        const destinationAlpha = pixels.data[i + 3] / 255;
+        const outAlpha = sourceAlpha + destinationAlpha * (1 - sourceAlpha);
+        if (outAlpha <= 0) continue;
+        for (let c = 0; c < 3; c++) pixels.data[i + c] = (options.color[c] * sourceAlpha + pixels.data[i + c] * destinationAlpha * (1 - sourceAlpha)) / outAlpha;
+        pixels.data[i + 3] = outAlpha * 255;
       }
     }
   }
 }
 
 /** 在蒙版上绘制（蒙版为灰度，白=显示） */
-function paintIntoMask(mask: MaskBuffer, layer: Layer, center: Point, radius: number, options: DabOptions): void {
+function paintIntoMask(mask: MaskBuffer, layer: Layer, document: CompDocument, center: Point, radius: number, options: DabOptions): void {
   const x0 = Math.max(0, Math.floor(center.x - radius));
   const x1 = Math.min(mask.width - 1, Math.ceil(center.x + radius));
   const y0 = Math.max(0, Math.floor(center.y - radius));
   const y1 = Math.min(mask.height - 1, Math.ceil(center.y + radius));
-  const mapping = makeLayerMapping(layer);
+  const mapping = makeLayerMapping(layer, true);
   const inner = Math.max(0, Math.min(1, options.hardness));
   for (let y = y0; y <= y1; y += 1) {
     for (let x = x0; x <= x1; x += 1) {
@@ -139,16 +143,14 @@ function paintIntoMask(mask: MaskBuffer, layer: Layer, center: Point, radius: nu
       if (distance > inner) alpha = 1 - (distance - inner) / Math.max(1e-4, 1 - inner);
       alpha *= options.opacity;
       if (alpha <= 0) continue;
-      const docPoint = mapping.toDoc({ x, y });
-      if (selectionCoverage(documentRef.current, docPoint.x, docPoint.y) <= 0) continue;
+      const docPoint = mapping.toDoc({ x: x + 0.5, y: y + 0.5 });
+      const coverage = selectionCoverage(document, docPoint.x, docPoint.y);
+      const strength = Math.min(1, alpha * coverage);
+      if (strength <= 0) continue;
       const index = y * mask.width + x;
-      if (options.erase) {
-        mask.data[index] = Math.max(0, mask.data[index]! - alpha * 255);
-      } else {
-        // 蒙版上绘制前景色：亮度即覆盖率
-        const value = Math.max(options.color[0], Math.max(options.color[1], options.color[2]));
-        mask.data[index] = Math.min(255, mask.data[index]! + (value / 255) * alpha * 255);
-      }
+      const gray = options.erase ? 0 : 0.299 * options.color[0] + 0.587 * options.color[1] + 0.114 * options.color[2];
+      const value = layer.mask?.inverted ? 255 - gray : gray;
+      mask.data[index] = Math.round(mask.data[index] * (1 - strength) + value * strength);
     }
   }
 }
