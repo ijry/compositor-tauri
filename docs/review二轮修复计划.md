@@ -13,6 +13,9 @@
 - [x] 7. 行菜单：LayersPanel.vue 显式选中被点击图层，验证蒙版与删除只作用目标行。
 - [x] 8. 复制组：commands.ts 递归复制子孙图层、重映射父引用，完整撤销重做。
 - [x] 9. 本地验证：新增失败回归后完成修复；完整构建、64 项 Playwright（新增 23 项）和 14 项发布脚本测试通过；0.1.0 oplg 已生成并独立校验通过。
-- [ ] 10. 提交推送并完成 Actions dry-run（不上架）。
+- [x] 10. 修复提交 9f885c8 已推送；Actions dry-run 37712958414 成功，正式发布任务已跳过。
 
 测试文件：tests/layout/review-safety.spec.ts（历史/标签/图层面板）、review-reload.spec.ts（热重载保护）、review-codecs.spec.ts（上游与旧插件工程）。测试只使用浏览器临时文档及内存宿主，不触碰用户工程。
+
+CI：https://github.com/ijry/compositor-tauri/actions/runs/37712958414
+本地包：dist-pack/otools-compositor-0.1.0.oplg（SHA256：48F4B22AAAFDB22DCD3858ACC02D9C01ACC9EBC261AF85C2CD217CF491473868）。
