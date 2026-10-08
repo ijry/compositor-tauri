@@ -14,6 +14,9 @@
 - [x] 8. 复制合并：按选区裁剪并保留原位置和灰度覆盖率；空选区不复制整张图像。
 - [x] 9. 灰度清除：仅降低图像 alpha，不重复缩暗非预乘 RGB；蒙版清除填充背景灰度。
 - [x] 10. 本地构建通过；新增 27 项回归，全部 117 项 Playwright 与 14 项发布脚本测试通过；0.1.0 本地插件包已生成并独立校验。
-- [ ] 11. 提交推送及 GitHub Actions dry-run（不上架）。
+- [x] 11. 修复提交 139cf1e 已推送；GitHub Actions dry-run 37733687025 成功，正式发布任务已跳过。
 
 主要文件：src/core/engine/editTarget.ts、src/core/clipboard.ts、src/core/blend.ts、src/core/engine/compositor.ts、src/core/filters/blur.ts、src/tools/paint.ts、src/composables/commands.ts。测试只使用临时浏览器文档，不改真实工程。
+
+CI：https://github.com/ijry/compositor-tauri/actions/runs/37733687025
+本地包：dist-pack/otools-compositor-0.1.0.oplg；SHA256：C57FB270A08B6E4423C2CF03A0684F9DF0AB94977974172FA867F917F8AE8226。
