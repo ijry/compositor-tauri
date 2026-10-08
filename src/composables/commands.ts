@@ -8,7 +8,7 @@ import {
   addLayerMask, applyLayerMask, createAdjustmentLayer, createBlankLayer, createGroupLayer, createPixelLayer,
   descendantsOf,
   duplicateLayer as duplicateLayerCore, flipCanvas, groupLayers as groupLayersCore, insertLayer as insertLayerCore,
-  invertLayerMask, maskFromSelection, mergeDown as mergeDownCore, mergeGroup as mergeGroupCore,
+  maskFromSelection, mergeDown as mergeDownCore, mergeGroup as mergeGroupCore,
   mergeLayers as mergeLayersCore, flattenVisible as flattenCore, nudgeLayerOrder, removeLayers as removeLayersCore,
   cropDocument, resizeCanvas, resizeImage, rotateCanvas, trimDocument, ungroupLayers as ungroupCore, uuid,
 } from '@/core/document';
@@ -18,9 +18,10 @@ import {
 } from '@/core/filters/creative';
 import { applyAddNoise } from '@/core/filters/adjust';
 import { compositeDocument, compositeInto, flattenDocument } from '@/core/engine/compositor';
-import { createBuffer } from '@/core/pixels';
+import { createBuffer, cloneBuffer } from '@/core/pixels';
 import { captureClipboard, pasteClipboard, type ClipboardPayload } from '@/core/clipboard';
-import { resolveEditTarget, fillEditTarget } from '@/core/engine/editTarget';
+import { resolveEditTarget, fillEditTarget, projectEditSelection, blendFilterResult, invertEditTarget } from '@/core/engine/editTarget';
+import { createMaskSampler } from '@/core/engine/maskGeometry';
 import { combineSelection, createSelection, gaussianBlurMask, invertSelection } from '@/core/selection';
 import { applyColorRange, applySelectionOperation, transformSelectionOutline } from '@/tools/selection';
 import { magicWand, selectSubject } from '@/core/ops/selectionOps';
@@ -86,46 +87,30 @@ export function createCommands(api: EditorApi) {
     api.pushHistory(label, () => apply(before), () => apply(after), bytes);
   };
 
-  /** 破坏性滤镜：作用在当前像素层，受选区限制 */
-  const applyToActiveLayer = (label: string, apply: (pixels: PixelBuffer, layer: Layer) => void): void => {
-    const layer = api.activeLayer();
-    if (!layer) {
-      setStatusSafe('请先选择一个图层');
-      return;
-    }
-    if (layer.kind !== 'pixel' || layer.locked || layer.mask?.target === 'mask') {
-      setStatusSafe('该滤镜需要作用在像素图层上');
-      return;
-    }
-    const before = api.snapshotLayer(layer.id);
-    if (!before?.pixels) return;
-    apply(layer.pixels, layer);
-    layer.contentKey += 1;
-    api.markLayerDirty(layer.id);
-    const after = api.snapshotLayer(layer.id);
-    if (!after) return;
-    api.pushHistory(
-      label,
-      () => { if (before) api.restoreLayer(layer.id, before); },
-      () => { if (after) api.restoreLayer(layer.id, after); },
-      (before.pixels?.data.length ?? 0) * 2,
-    );
-  };
+  /** 标量属性历史按所属文档和 ID 回放，结构快照替换对象后仍然有效。 */
+  function recordLayerProperty<T>(label:string,layer:Layer,before:T,after:T,write:(target:Layer,value:T)=>void):void {
+    const document=api.doc,id=layer.id;
+    const apply=(value:T)=>{const current=document.layers.find(item=>item.id===id);if(!current)return;write(current,value);current.contentKey+=1;api.invalidate();};
+    apply(after);api.pushHistory(label,()=>apply(before),()=>apply(after),64);
+  }
 
+  /** 所有破坏性滤镜先计算完整结果，再统一按目标选区混合，不让各内核自行猜测坐标。 */
+  const applyToActiveLayer = (label:string,apply:(pixels:PixelBuffer,layer:Layer)=>PixelBuffer|void):void => {
+    const target=resolveEditTarget(api.activeLayer());
+    if(!target || target.onMask){setStatusSafe('该滤镜需要未锁定的图像像素目标');return;}
+    const coverage=projectEditSelection(api.doc,target);
+    if(coverage && !coverage.some(value=>value>0))return;
+    const layer=target.layer,before=api.snapshotLayer(layer.id);
+    if(!before)return;
+    const working=cloneBuffer(target.buffer),result=apply(working,layer)??working;
+    if(!blendFilterResult(target,result,coverage))return;
+    api.markLayerDirty(layer.id);
+    const after=api.snapshotLayer(layer.id);
+    api.pushHistory(label,()=>{api.restoreLayer(layer.id,before);},()=>{if(after)api.restoreLayer(layer.id,after);},
+      ((before.pixels?.data.length??0)+(before.mask?.data.length??0))*2);
+  };
   const setStatusSafe = (message: string): void => {
     api.status(message);
-  };
-
-  /** 选区覆盖率数组（供滤镜使用） */
-  const selectionCoverage = (): Uint8Array | null => {
-    const selection = api.doc.selection;
-    if (!selection || isEmpty(selection)) return null;
-    return selection.data;
-  };
-
-  const isEmpty = (selection: { data: Uint8Array<ArrayBuffer> }): boolean => {
-    for (let i = 0; i < selection.data.length; i += 1) if (selection.data[i]! > 0) return false;
-    return true;
   };
 
   /** 这些命令在没有打开文档时也能执行（启动页可用） */
@@ -273,19 +258,10 @@ export function createCommands(api: EditorApi) {
         break;
       }
       case 'toggleVisibility': {
-        const layer = api.activeLayer();
-        if (!layer) break;
-        const before = layer.isVisible;
-        layer.isVisible = !before;
-        api.pushHistory(
-          before ? '显示图层' : '隐藏图层',
-          () => { layer.isVisible = before; api.invalidate(); },
-          () => { layer.isVisible = !before; api.invalidate(); },
-          16,
-        );
+        const layer=api.activeLayer();if(!layer)break;
+        recordLayerProperty(layer.isVisible?'隐藏图层':'显示图层',layer,layer.isVisible,!layer.isVisible,(target,value)=>{target.isVisible=value;});
         break;
-      }
-      case 'toggleLock': {
+      }      case 'toggleLock': {
         const layer = api.activeLayer();
         if (!layer) break;
         const before = layer.locked;
@@ -293,19 +269,10 @@ export function createCommands(api: EditorApi) {
         break;
       }
       case 'toggleClipping': {
-        const layer = api.activeLayer();
-        if (!layer) break;
-        const before = layer.clipping;
-        layer.clipping = !before;
-        api.pushHistory(
-          '剪贴蒙版',
-          () => { layer.clipping = before; api.invalidate(); },
-          () => { layer.clipping = !before; api.invalidate(); },
-          16,
-        );
+        const layer=api.activeLayer();if(!layer)break;
+        recordLayerProperty('剪贴蒙版',layer,layer.clipping,!layer.clipping,(target,value)=>{target.clipping=value;});
         break;
-      }
-      case 'group': {
+      }      case 'group': {
         const ids = (payload as string[] | undefined) ?? doc.layers.filter((item) => item.parentId === doc.activeLayerId && item.isVisible).slice(-3).map((item) => item.id);
         if (ids.length === 0) break;
         const beforeStructure = captureStructure();
@@ -376,21 +343,16 @@ export function createCommands(api: EditorApi) {
         break;
       }
       case 'maskFromSelection': {
-        const layer = api.activeLayer();
-        if (!layer || !doc.selection) break;
-        const before = api.snapshotLayer(layer.id);
-        maskFromSelection(layer, doc.selection.data, doc.width, doc.height);
-        if (layer.mask) layer.mask.target = 'mask';
-        const after = api.snapshotLayer(layer.id);
-        api.pushHistory(
-          '从选区生成蒙版',
-          () => { if (before) api.restoreLayer(layer.id, before); },
-          () => { if (after) api.restoreLayer(layer.id, after); },
-          512,
-        );
+        const layer=api.activeLayer();if(!layer || layer.locked || !doc.selection)break;
+        const before=api.snapshotLayer(layer.id),selection=api.selectionSnapshot();
+        maskFromSelection(layer,doc.selection.data,doc.width,doc.height);
+        api.setSelection(null);api.markLayerDirty(layer.id);
+        const after=api.snapshotLayer(layer.id);
+        api.pushHistory('从选区生成蒙版',()=>{if(before)api.restoreLayer(layer.id,before);api.restoreSelection(selection);},
+          ()=>{if(after)api.restoreLayer(layer.id,after);api.restoreSelection(null);},
+          (before?.pixels?.data.length??0)+(before?.mask?.data.length??0)+(after?.pixels?.data.length??0)+(after?.mask?.data.length??0)+(selection?.data.length??0));
         break;
-      }
-      case 'applyMask': {
+      }      case 'applyMask': {
         const layer = api.activeLayer();
         if (!layer?.mask) break;
         const before = api.snapshotLayer(layer.id);
@@ -418,27 +380,11 @@ export function createCommands(api: EditorApi) {
         );
         break;
       }
-      case 'invertMask': {
-        const layer = api.activeLayer();
-        if (!layer?.mask) break;
-        const before = api.snapshotLayer(layer.id);
-        invertLayerMask(layer);
-        const after = api.snapshotLayer(layer.id);
-        api.pushHistory(
-          '反相蒙版',
-          () => { if (before) api.restoreLayer(layer.id, before); },
-          () => { if (after) api.restoreLayer(layer.id, after); },
-          512,
-        );
-        break;
-      }
       case 'toggleMask': {
-        const layer = api.activeLayer();
-        if (!layer?.mask) break;
-        layer.mask.enabled = !layer.mask.enabled;
+        const layer=api.activeLayer();if(!layer?.mask)break;
+        recordLayerProperty(layer.mask.enabled?'禁用蒙版':'启用蒙版',layer,layer.mask.enabled,!layer.mask.enabled,(target,value)=>{if(target.mask)target.mask.enabled=value;});
         break;
-      }
-      case 'maskTarget': {
+      }      case 'maskTarget': {
         const layer = api.activeLayer();
         if (!layer?.mask) break;
         layer.mask.target = layer.mask.target === 'mask' ? 'image' : 'mask';
@@ -447,38 +393,18 @@ export function createCommands(api: EditorApi) {
       }
 
       /* ---------------- 反相 ---------------- */
+      case 'invertMask':
       case 'invertPixels': {
-        const layer = api.activeLayer();
-        if (!layer) break;
-        // 正在编辑蒙版时反相蒙版，否则反相像素
-        if (layer.mask && layer.mask.target === 'mask') {
-          invertLayerMask(layer);
-          api.markLayerDirty(layer.id);
-          break;
-        }
-        if (layer.kind !== 'pixel' || !layer.pixels) {
-          commands.run('addAdjustment', 'Invert');
-          break;
-        }
-        const snapshot = api.snapshotLayer(layer.id);
-        const pixels = layer.pixels;
-        for (let i = 0; i < pixels.data.length; i += 4) {
-          pixels.data[i] = 255 - pixels.data[i]!;
-          pixels.data[i + 1] = 255 - pixels.data[i + 1]!;
-          pixels.data[i + 2] = 255 - pixels.data[i + 2]!;
-        }
-        layer.contentKey += 1;
-        api.markLayerDirty(layer.id);
-        const after = api.snapshotLayer(layer.id);
-        api.pushHistory(
-          '反相',
-          () => { if (snapshot) api.restoreLayer(layer.id, snapshot); },
-          () => { if (after) api.restoreLayer(layer.id, after); },
-          (snapshot?.pixels?.data.length ?? 0) * 2,
-        );
+        const target=resolveEditTarget(api.activeLayer(),name==='invertMask'?'mask':'auto');
+        if(!target){api.status('当前目标不可反相，请检查图层锁定和蒙版状态');break;}
+        const before=api.snapshotLayer(target.layer.id);
+        if(!before || !invertEditTarget(api.doc,target))break;
+        api.markLayerDirty(target.layer.id);
+        const after=api.snapshotLayer(target.layer.id),id=target.layer.id;
+        api.pushHistory(target.onMask?'反相蒙版':'反相像素',()=>{api.restoreLayer(id,before);},()=>{if(after)api.restoreLayer(id,after);},
+          ((before.pixels?.data.length??0)+(before.mask?.data.length??0))*2);
         break;
-      }
-      /* ---------------- 调整层 ---------------- */
+      }      /* ---------------- 调整层 ---------------- */
       case 'addAdjustment': {
         const kind = payload as AdjustmentKind;
         const beforeStructure = captureStructure();
@@ -570,13 +496,9 @@ export function createCommands(api: EditorApi) {
         const layer = api.activeLayer();
         if (!layer?.mask) break;
         const selection = createSelection(doc.width, doc.height, 0);
-        for (let y = 0; y < doc.height; y += 1) {
-          for (let x = 0; x < doc.width; x += 1) {
-            const mx = Math.min(layer.mask.pixels.width - 1, Math.floor((x / Math.max(1, doc.width)) * layer.mask.pixels.width));
-            const my = Math.min(layer.mask.pixels.height - 1, Math.floor((y / Math.max(1, doc.height)) * layer.mask.pixels.height));
-            selection.data[y * doc.width + x] = layer.mask.pixels.data[my * layer.mask.pixels.width + mx]!;
-          }
-        }
+        // 加载的是蒙版覆盖率，而非当前开关状态；不把小蒙版拉伸到整张文档。
+        const sample=createMaskSampler({...layer,mask:{...layer.mask,enabled:true}});
+        for(let y=0;y<doc.height;y++)for(let x=0;x<doc.width;x++)selection.data[y*doc.width+x]=Math.round(sample(x+0.5,y+0.5)*255);
         const before = api.selectionSnapshot();
         api.setSelection(selection, 'replace');
         pushSelectionHistory(before, api.selectionSnapshot(), '由蒙版建立选区');
@@ -702,8 +624,8 @@ export function createCommands(api: EditorApi) {
       /* ---------------- 滤镜（破坏性） ---------------- */
       case 'filterAddNoise':
         applyToActiveLayer('添加杂色', (pixels) => {
-          const coverage = selectionCoverage();
-          applyAddNoise(pixels, Number((payload as { amount?: number })?.amount ?? 10), true, false, 7, coverage);
+
+          applyAddNoise(pixels, Number((payload as { amount?: number })?.amount ?? 10), true, false, 7);
         });
         break;
       case 'filterVignette':
@@ -713,17 +635,17 @@ export function createCommands(api: EditorApi) {
             midpoint: 50, roundness: 0, feather: 60,
             color: api.background,
             blendMode: 'Multiply',
-          }, selectionCoverage());
+          });
         });
         break;
       case 'filterBloom':
         applyToActiveLayer('辉光', (pixels) => {
-          applyBloom(pixels, { radius: 12, intensity: 40, threshold: 65, color: [255, 240, 220], blendMode: 'Screen' }, selectionCoverage());
+          applyBloom(pixels, { radius: 12, intensity: 40, threshold: 65, color: [255, 240, 220], blendMode: 'Screen' });
         });
         break;
       case 'filterTonalContrast':
         applyToActiveLayer('色调反差', (pixels) => {
-          applyTonalContrast(pixels, { shadows: 40, highlights: -30, color: true, protectMidtones: true }, selectionCoverage());
+          applyTonalContrast(pixels, { shadows: 40, highlights: -30, color: true, protectMidtones: true });
         });
         break;
       case 'filterLensCorrection':
@@ -731,30 +653,16 @@ export function createCommands(api: EditorApi) {
           applyLensCorrection(pixels, { distortion: 20, chromaticAberration: 30, vignette: 0, correction: true });
         });
         break;
-      case 'filterRemoveBackground': {
-        const layer = api.activeLayer();
-        if (!layer || layer.kind !== 'pixel' || !layer.pixels) break;
-        const snapshot = api.snapshotLayer(layer.id);
-        layer.pixels = removeBackground(layer.pixels, Number((payload as { sensitivity?: number })?.sensitivity ?? 50));
-        layer.contentKey += 1;
-        api.markLayerDirty(layer.id);
-        const after = api.snapshotLayer(layer.id);
-        api.pushHistory(
-          '移除背景',
-          () => { if (snapshot) api.restoreLayer(layer.id, snapshot); },
-          () => { if (after) api.restoreLayer(layer.id, after); },
-          (snapshot?.pixels?.data.length ?? 0) * 2,
-        );
-        break;
-      }
-      case 'filterSharpen':
+      case 'filterRemoveBackground':
+        applyToActiveLayer('移除背景',pixels=>removeBackground(pixels,Number((payload as {sensitivity?:number})?.sensitivity??50)));
+        break;      case 'filterSharpen':
         applyToActiveLayer('USM 锐化', (pixels) => {
-          applySharpen(pixels, { amount: 80, radius: 1.2, threshold: 0 }, selectionCoverage());
+          applySharpen(pixels, { amount: 80, radius: 1.2, threshold: 0 });
         });
         break;
       case 'filterDenoise':
         applyToActiveLayer('降噪', (pixels) => {
-          applyDenoise(pixels, { luminance: 30, color: 40, radius: 1 }, selectionCoverage());
+          applyDenoise(pixels, { luminance: 30, color: 40, radius: 1 });
         });
         break;
       case 'filterDither':

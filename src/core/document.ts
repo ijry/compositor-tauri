@@ -12,6 +12,9 @@ import {
   cloneBuffer, cloneMask, createBuffer, createMask, resizeBuffer, resizeMask,
 } from '@/core/pixels';
 import { BLEND_MODES } from '@/types/document';
+import { hierarchyRows } from '@/core/layerHierarchy';
+import { layerMatrix } from '@/core/geometry';
+import { selectionCoverageAt } from '@/core/engine/editTarget';
 import type {
   AdjustmentKind, AdjustmentLayer, AdjustmentRecord, BlendMode, CompDocument, GridSettings, Layer,
   LayerTransform, MaskBuffer, PixelBuffer, Point, Rect, SamplingMode, SnapSettings,
@@ -362,21 +365,21 @@ export function moveLayer(document: CompDocument, id: string, index: number, par
 
 /** 上移/下移一层（保持同级） */
 export function nudgeLayerOrder(document: CompDocument, id: string, direction: 1 | -1): void {
-  const index = layerIndex(document, id);
-  if (index < 0) return;
-  const parentId = document.layers[index]?.parentId ?? null;
-  const siblings = document.layers
-    .map((item, position) => ({ item, position }))
-    .filter((entry) => (entry.item.parentId ?? null) === parentId);
-  const siblingIndex = siblings.findIndex((entry) => entry.item.id === id);
-  const target = siblings[siblingIndex + direction];
-  if (!target) return;
-  const [moved] = document.layers.splice(index, 1);
-  const insertAt = target.position > index ? target.position - 1 : target.position;
-  document.layers.splice(Math.max(0, Math.min(document.layers.length, insertAt)), 0, moved!);
-  document.updatedAt = Date.now();
+  const layer=findLayer(document,id);if(!layer)return;
+  const siblings=document.layers.filter(item=>item.parentId===layer.parentId);
+  const index=siblings.findIndex(item=>item.id===id),target=siblings[index+direction];
+  if(!target)return;
+  const movingIds=new Set([id,...descendantsOf(document,id).map(child=>child.id)]);
+  const targetIds=new Set([target.id,...descendantsOf(document,target.id).map(child=>child.id)]);
+  const ordered=hierarchyRows(document.layers).map(row=>row.layer);
+  const moving=ordered.filter(item=>movingIds.has(item.id)),remaining=ordered.filter(item=>!movingIds.has(item.id));
+  if(!moving.length)return;
+  const targetStart=remaining.findIndex(item=>item.id===target.id);
+  if(targetStart<0)return;
+  // 上移放到目标子树之后，下移放到目标子树之前；整组子孙不能留在旧位置。
+  const insertion=direction>0?remaining.reduce((last,item,i)=>targetIds.has(item.id)?i+1:last,targetStart):targetStart;
+  remaining.splice(insertion,0,...moving);document.layers=remaining;document.updatedAt=Date.now();
 }
-
 /** 把若干图层打组（组插入到最高层的上方） */
 export function groupLayers(document: CompDocument, ids: string[]): Layer | null {
   const set = new Set(ids);
@@ -505,21 +508,15 @@ export function invertLayerMask(layer: Layer): void {
 
 /** 从选区生成蒙版 */
 export function maskFromSelection(layer: Layer, selection: Uint8Array, width: number, height: number): void {
-  const targetWidth = layer.kind === 'pixel' && layer.pixels ? layer.pixels.width : width;
-  const targetHeight = layer.kind === 'pixel' && layer.pixels ? layer.pixels.height : height;
-  const mask = createMask(targetWidth, targetHeight, 0);
-  const sx = width > 0 ? width / targetWidth : 1;
-  const sy = height > 0 ? height / targetHeight : 1;
-  for (let y = 0; y < targetHeight; y += 1) {
-    for (let x = 0; x < targetWidth; x += 1) {
-      const px = Math.min(width - 1, Math.max(0, Math.floor(x * sx)));
-      const py = Math.min(height - 1, Math.max(0, Math.floor(y * sy)));
-      mask.data[y * targetWidth + x] = selection.length > 0 ? selection[py * width + px] : 255;
-    }
-  }
-  layer.mask = { pixels: mask, enabled: true, linked: true, placement: null, target: 'mask', inverted: false };
+  const targetWidth=layer.kind==='pixel'&&layer.pixels?layer.pixels.width:width;
+  const targetHeight=layer.kind==='pixel'&&layer.pixels?layer.pixels.height:height;
+  // 无图像像素的组/调整层以文档网格承载新蒙版，不沿用缺省 1×1 的占位变换。
+  if(layer.kind!=='pixel')layer.transform=defaultTransform(width,height);
+  const mask=createMask(targetWidth,targetHeight,0),matrix=layerMatrix(layer.transform,targetWidth,targetHeight);
+  const source={width,height,data:selection};
+  for(let y=0;y<targetHeight;y++)for(let x=0;x<targetWidth;x++)mask.data[y*targetWidth+x]=Math.round(selectionCoverageAt(source,matrix,x,y)*255);
+  layer.mask={pixels:mask,enabled:true,linked:true,placement:null,target:'mask',inverted:false};
 }
-
 /* ------------------------------ 画布操作 ------------------------------ */
 
 /** 变换锚点（九宫格） */

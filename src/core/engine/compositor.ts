@@ -11,6 +11,7 @@
  *  - previewScale < 1 时整体降采样，保证大图在缩小时依然流畅。
  */
 import { blendFunction, compositePixel } from '@/core/blend';
+import { hierarchyRows } from '@/core/layerHierarchy';
 import { createMaskSampler, applyPixelMask } from './maskGeometry';
 import { applyAdjustment } from '@/core/filters/adjust';
 import { bakeEffects, type Surface } from '@/core/engine/effects';
@@ -173,7 +174,7 @@ export function compositeInto(
   scale: number,
   options: CompositeOptions = {},
 ): void {
-  const layers = document.layers;
+  const layers = hierarchyRows(document.layers).map(row=>row.layer);
   const selection = options.limitAdjustmentsBySelection === false ? null : document.selection;
   const selectionSample = selectionSampler(selection);
   const width = target.width;

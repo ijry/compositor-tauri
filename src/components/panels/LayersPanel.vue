@@ -11,6 +11,7 @@ import { computed, watch, ref } from 'vue';
 import { api, commands, currentDocument, thumbnailTick } from '@/composables/useEditor';
 import { renderLayerThumbnail } from '@/core/engine/compositor';
 import type { Layer } from '@/types/document';
+import { hierarchyRows } from '@/core/layerHierarchy';
 
 /** 缩略图缓存（按图层 id + 内容版本） */
 const cache = new Map<string, string>();
@@ -25,17 +26,7 @@ const rows = computed<Row[]>(() => {
   void thumbnailTick();
   const document = currentDocument.value;
   if (!document) return [];
-  const result: Row[] = [];
-  const walk = (parentId: string | null, depth: number): void => {
-    const children = document.layers.filter((layer) => (layer.parentId ?? null) === parentId);
-    for (let i = children.length - 1; i >= 0; i -= 1) {
-      const layer = children[i]!;
-      result.push({ layer, depth });
-      if (layer.kind === 'group' && layer.expanded) walk(layer.id, depth + 1);
-    }
-  };
-  walk(null, 0);
-  return result;
+  return hierarchyRows(document.layers,{topFirst:true,respectCollapsed:true});
 });
 
 /** 缩略图 */
