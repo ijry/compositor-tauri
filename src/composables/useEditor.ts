@@ -7,7 +7,7 @@
  *  - 实现 EditorApi，工具与面板只依赖它；
  *  - 汇总所有命令（菜单、快捷键、面板共用同一套实现）。
  */
-import { computed, reactive, ref, shallowRef, triggerRef } from 'vue';
+import { computed, reactive, ref, shallowRef, triggerRef, toRaw } from 'vue';
 import { History, recommendedBudget } from '@/core/engine/history';
 import { CanvasRenderer, nextZoom, type Viewport } from '@/core/engine/renderer';
 import { setPaintDocument } from '@/core/engine/paint';
@@ -24,6 +24,8 @@ import type { ToolDefinition, ToolPointerEvent } from '@/tools/types';
 import type { EditorApi, LayerSnapshot } from '@/types/editor';
 import type { CompDocument, Layer, PixelBuffer, SelectionMask } from '@/types/document';
 import { createCommands } from '@/composables/commands';
+import { confirmMessage } from '@/platform/host';
+import { stopWatchingDocument, type ReloadGuard, type ReloadResult } from '@/composables/commands-io';
 
 /** 全局状态（单例） */
 /** 打开的文档列表 */
@@ -112,28 +114,76 @@ export function openDocument(document: CompDocument): void {
   statusMessage.value = `已打开 ${document.name}`;
 }
 
-/** 热重载只替换仍打开的原工程，不新增标签，不抢走当前标签焦点。 */
-export function reloadDocument(document: CompDocument): void {
-  const index = documents.value.findIndex(item => item.packagePath && item.packagePath === document.packagePath);
-  if (index < 0) return;
-  const old = documents.value[index];
-  document.id = old.id;
-  if (old.width === document.width && old.height === document.height) document.selection = old.selection;
-  if (document.layers.some(layer => layer.id === old.activeLayerId)) document.activeLayerId = old.activeLayerId;
-  for (const layer of document.layers) { const previous = old.layers.find(item => item.id === layer.id); if (previous) layer.expanded = previous.expanded; }
-  histories.delete(old.id);
-  documents.value[index] = document;
-  invalidate();
+/** 内容修订号不受视口重绘影响，用于异步保存/重载的并发保护。 */
+const revisions = new WeakMap<CompDocument, number>();
+let interactionDocument: CompDocument | null = null;
+const pendingReloads = new Set<string>();
+export function documentRevision(document: CompDocument): number { return revisions.get(toRaw(document)) ?? 0; }
+function markDocumentModified(document: CompDocument): void {
+  revisions.set(toRaw(document), documentRevision(document) + 1);
+  document.dirty = true;
+  document.updatedAt = Date.now();
+}
+export function findOpenProject(path: string): CompDocument | undefined {
+  return documents.value.find(document => document.packagePath === path);
+}
+export function canReloadDocument(document: CompDocument): boolean {
+  return !document.saving && !pendingCloses.has(document.id) && interactionDocument?.id !== document.id;
+}
+/** 先确认未保存内容，再复核文档身份和修订号；用户等待时的新编辑绝不被覆盖。 */
+export async function reloadDocument(document: CompDocument, guard?: ReloadGuard): Promise<ReloadResult> {
+  const old = findOpenProject(document.packagePath ?? '');
+  if (!old || guard?.isCurrent?.() === false) return 'closed';
+  if (guard && (old !== guard.target || documentRevision(old) !== guard.revision)) return 'retry';
+  if (!canReloadDocument(old) || pendingReloads.has(old.id)) return 'retry';
+  const revision = documentRevision(old), wasDirty = old.dirty;
+  pendingReloads.add(old.id);
+  try {
+    if (old.dirty && !await confirmMessage('「' + old.name + '」已被外部修改。重新载入将丢弃尚未保存的编辑，是否继续？', '工程发生外部修改')) return 'kept';
+    const index = documents.value.indexOf(old);
+    if (index < 0 || guard?.isCurrent?.() === false) return 'closed';
+    if (documentRevision(old) !== revision || old.dirty !== wasDirty || !canReloadDocument(old)) {
+      setStatus('等待期间文档发生变化，已保留本地内容');
+      return 'kept';
+    }
+    document.id = old.id;
+    if (old.width === document.width && old.height === document.height) document.selection = old.selection;
+    if (document.layers.some(layer => layer.id === old.activeLayerId)) document.activeLayerId = old.activeLayerId;
+    for (const layer of document.layers) {
+      const previous = old.layers.find(item => item.id === layer.id);
+      if (previous) layer.expanded = previous.expanded;
+    }
+    histories.delete(old.id);
+    historyVersion.value += 1;
+    documents.value[index] = document;
+    invalidate();
+    return 'reloaded';
+  } finally { pendingReloads.delete(old.id); }
 }
 
-/** 关闭标签页 */
-export function closeDocument(id: string): void {
+/** 统一关闭入口：菜单与标签按钮均确认未保存内容，始终按原文档 ID 关闭。 */
+const pendingCloses = new Set<string>();
+export async function closeDocument(id: string): Promise<boolean> {
+  const target = documents.value.find(item => item.id === id);
+  if (!target || pendingCloses.has(id) || target.saving) return false;
+  pendingCloses.add(id);
+  const revision = documentRevision(target);
+  try {
+    if (target.dirty && !await confirmMessage('「' + target.name + '」有未保存的修改，确定关闭吗？', '关闭文档')) return false;
+    if (documentRevision(target) !== revision || target.saving) return false;
+    return removeDocument(target);
+  } finally { pendingCloses.delete(id); }
+}
+function removeDocument(target: CompDocument): boolean {
+  const id = target.id;
   const index = documents.value.findIndex((item) => item.id === id);
-  if (index < 0) return;
+  if (index < 0 || documents.value[index] !== target) return false;
+  stopWatchingDocument(id);
   documents.value.splice(index, 1);
   histories.delete(id);
   delete viewports[id];
   activeIndex.value = Math.max(0, Math.min(documents.value.length - 1, activeIndex.value - (index <= activeIndex.value ? 1 : 0)));
+  return true;
 }
 
 /** 切换标签页 */
@@ -317,22 +367,26 @@ export const api: EditorApi = {
   touch() {
     const document = currentDocument.value;
     if (document) {
-      document.dirty = true;
-      document.updatedAt = Date.now();
+      markDocumentModified(document);
     }
   },
   pushHistory(label, undo, redo, bytes = 4096, mergeKey) {
     const document = currentDocument.value;
     if (!document) return;
-    historyOf(document).push({ label, undo, redo, bytes, mergeKey });
+    // 所有历史提交与回放都标记实际所属文档，不能依赖各面板自行记得 touch。
+    const modified = (): void => markDocumentModified(document);
+    historyOf(document).push({ label, undo: () => { undo(); modified(); }, redo: () => { redo(); modified(); }, bytes, mergeKey });
+    modified();
     historyVersion.value += 1;
     invalidate();
   },
   beginInteraction() {
+    interactionDocument = currentDocument.value;
     /* 交互快照由工具自己维护，这里仅保证文档指针最新 */
     setPaintDocument(currentDocument.value ?? null);
   },
   endInteraction() {
+    interactionDocument = null;
     setPaintDocument(currentDocument.value ?? null);
   },
   activeLayer(): Layer | null {
@@ -487,10 +541,10 @@ export function toggleUi(key: 'rulers' | 'grid' | 'guides' | 'transformControls'
 }
 
 /** 关闭当前文档 */
-export function closeCurrent(): void {
+export async function closeCurrent(): Promise<boolean> {
   const document = currentDocument.value;
-  if (!document) return;
-  closeDocument(document.id);
+  if (!document) return false;
+  return closeDocument(document.id);
 }
 
 /** 命令对象（延迟创建，避免循环初始化） */

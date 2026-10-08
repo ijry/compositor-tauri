@@ -28,7 +28,7 @@ import { importPsd } from '@/io/psd';
 
 
 import { createIoCommands } from '@/composables/commands-io';
-import { actualPixels, closeCurrent, currentHistory, fitCanvas, hasDocument, invalidate, openDialog, openDocument, reloadDocument, toggleUi, zoomStep } from '@/composables/useEditor';
+import { actualPixels, closeCurrent, currentHistory, fitCanvas, hasDocument, invalidate, openDialog, openDocument, reloadDocument, findOpenProject, documentRevision, canReloadDocument, toggleUi, zoomStep } from '@/composables/useEditor';
 import type { EditorApi } from '@/types/editor';
 import type { AdjustmentKind, CompDocument, Layer, PixelBuffer } from '@/types/document';
 
@@ -54,65 +54,34 @@ export function createCommands(api: EditorApi) {
       return true;
     },
   });
-  /** 记录一条「图层集合」类操作的历史 */
-  /** 图层结构快照：只记录 id 顺序与父级，避免把像素写进历史 */
+  /** 结构历史保留独立快照，防止画布/像素历史交错后污染先前记录。 */
   interface Structure {
-    ids: string[];
+    layers: Layer[];
     parents: Record<string, string | null>;
+    activeLayerId: string | null;
   }
-
-  /** 捕获当前图层结构 */
   const captureStructure = (): Structure => ({
-    ids: doc.layers.map((layer) => layer.id),
-    parents: Object.fromEntries(doc.layers.map((layer) => [layer.id, layer.parentId ?? null])),
+    layers: cloneCanvasValue(doc.layers),
+    parents: Object.fromEntries(doc.layers.map(layer => [layer.id, layer.parentId ?? null])),
+    activeLayerId: doc.activeLayerId,
   });
+  const sameStructure = (a: Structure, b: Structure): boolean =>
+    a.layers.length === b.layers.length && a.activeLayerId === b.activeLayerId &&
+    a.layers.every((layer, index) => layer.id === b.layers[index]?.id && a.parents[layer.id] === b.parents[layer.id]);
 
-  /** 结构是否相同 */
-  const sameStructure = (a: Structure, b: Structure): boolean => {
-    if (a.ids.length !== b.ids.length) return false;
-    for (let i = 0; i < a.ids.length; i += 1) if (a.ids[i] !== b.ids[i]) return false;
-    for (const id of a.ids) if ((a.parents[id] ?? null) !== (b.parents[id] ?? null)) return false;
-    return true;
-  };
-
-  /** 按结构重排图层；drop 中的图层会被移出数组（撤销新增 / 重做删除） */
-  const applyStructure = (structure: Structure, drop: Set<string>): void => {
-    const map = new Map(doc.layers.map((layer) => [layer.id, layer]));
-    const known = new Set(structure.ids);
-    const next: Layer[] = [];
-    for (const id of structure.ids) {
-      if (drop.has(id)) continue;
-      const layer = map.get(id);
-      if (!layer) continue;
-      layer.parentId = structure.parents[id] ?? null;
-      next.push(layer);
-    }
-    // 快照里没有的图层（例如被撤销的新增图层）保持原样放回末尾，避免丢失数据
-    for (const layer of doc.layers) {
-      if (known.has(layer.id) || drop.has(layer.id)) continue;
-      next.push(layer);
-    }
-    doc.layers = next;
-    if (!doc.layers.some((layer) => layer.id === doc.activeLayerId)) {
-      doc.activeLayerId = doc.layers[doc.layers.length - 1]?.id ?? null;
-    }
-    api.invalidate();
-  };
-
-  /**
-   * 结构类操作的历史：撤销/重做只重排 id 与 parentId，
-   * 对比旧的 JSON 快照可以避免把像素数据写进历史（那会导致内存爆炸）。
-   */
-  const pushStructureHistory = (label: string, before: Structure, after: Structure, bytes = 512): void => {
+  const pushStructureHistory = (label: string, before: Structure, after: Structure): void => {
     if (sameStructure(before, after)) return;
-    const droppedInBefore = new Set(before.ids.filter((id) => !after.ids.includes(id)));
-    const addedInBefore = new Set(after.ids.filter((id) => !before.ids.includes(id)));
-    api.pushHistory(
-      label,
-      () => applyStructure(before, addedInBefore),
-      () => applyStructure(after, droppedInBefore),
-      bytes,
-    );
+    // 捕获所属文档，异步切换标签或后续操作不会改变历史的目标。
+    const target = api.doc;
+    const apply = (snapshot: Structure): void => {
+      target.layers = cloneCanvasValue(snapshot.layers);
+      for (const layer of target.layers) layer.parentId = snapshot.parents[layer.id] ?? null;
+      target.activeLayerId = snapshot.activeLayerId;
+      api.invalidate();
+    };
+    const retained = new Set([...before.layers, ...after.layers]);
+    const bytes = [...retained].reduce((sum, layer) => sum + (layer.pixels?.data.byteLength ?? 0) + (layer.mask?.pixels.data.byteLength ?? 0) + 256, 0);
+    api.pushHistory(label, () => apply(before), () => apply(after), bytes);
   };
 
   /** 破坏性滤镜：作用在当前像素层，受选区限制 */
@@ -160,7 +129,7 @@ export function createCommands(api: EditorApi) {
   /** 这些命令在没有打开文档时也能执行（启动页可用） */
   const DOCUMENT_FREE = new Set(['newCanvas', 'openImage', 'openPsd', 'openRaw', 'openComp', 'openRecent', 'recentList', 'shortcuts', 'about', 'setTheme', 'sample']);
 
-  const run = (name: string, payload?: unknown): void => {
+  const run = async (name: string, payload?: unknown): Promise<void> => {
     if (!hasDocument() && !DOCUMENT_FREE.has(name)) {
       setStatusSafe('请先新建或打开一个画布');
       return;
@@ -179,10 +148,14 @@ export function createCommands(api: EditorApi) {
         const layer = api.activeLayer();
         if (!layer) break;
         const beforeStructure = captureStructure();
-        const copy = duplicateLayerCore(layer);
-        const index = doc.layers.findIndex((item) => item.id === layer.id);
-        doc.layers.splice(index + 1, 0, copy);
-        doc.activeLayerId = copy.id;
+        const included = new Set([layer.id, ...descendantsOf(doc, layer.id).map(child => child.id)]);
+        const originals = doc.layers.filter(item => included.has(item.id));
+        const copies = originals.map(item => duplicateLayerCore(item, item.id === layer.id ? ' 副本' : ''));
+        const mapping = new Map(originals.map((item, index) => [item.id, copies[index]!.id]));
+        for (const copy of copies) copy.parentId = copy.parentId ? mapping.get(copy.parentId) ?? copy.parentId : null;
+        const index = doc.layers.findIndex(item => item.id === layer.id);
+        doc.layers.splice(index + 1, 0, ...copies);
+        doc.activeLayerId = mapping.get(layer.id)!;
         pushStructureHistory('复制图层', beforeStructure, captureStructure());
         break;
       }
@@ -190,28 +163,8 @@ export function createCommands(api: EditorApi) {
         const ids = (payload as string[] | undefined) ?? (doc.activeLayerId ? [doc.activeLayerId] : []);
         if (ids.length === 0) break;
         const beforeStructure = captureStructure();
-        const beforeActive = doc.activeLayerId;
-        // \u5220\u9664\u9700\u8981\u4fdd\u7559\u88ab\u5220\u56fe\u5c42\u5bf9\u8c61\uff0c\u5426\u5219\u64a4\u9500\u65f6\u50cf\u7d20\u4f1a\u4e22\u5931
-        const removed = removeLayersCore(doc, ids);
-        const afterStructure = captureStructure();
-        const removedIds = removed.map((item) => item.id);
-        api.pushHistory(
-          '删除图层',
-          () => {
-            for (const layer of removed) {
-              if (!doc.layers.some((item) => item.id === layer.id)) doc.layers.push(layer);
-            }
-            applyStructure(beforeStructure, new Set());
-            doc.activeLayerId = beforeActive;
-            api.invalidate();
-          },
-          () => {
-            removeLayersCore(doc, removedIds);
-            applyStructure(afterStructure, new Set());
-            api.invalidate();
-          },
-          256,
-        );
+        removeLayersCore(doc, ids);
+        pushStructureHistory('删除图层', beforeStructure, captureStructure());
         break;
       }
       case 'moveLayerUp':
@@ -855,7 +808,7 @@ export function createCommands(api: EditorApi) {
 
       default: {
         // 文件与视图类命令在 commands-io 中实现
-        void ioCommands.run(name, payload);
+        await ioCommands.run(name, payload);
         break;
       }
     }
@@ -938,6 +891,9 @@ export function createCommands(api: EditorApi) {
   const ioCommands = createIoCommands(api, {
     openDocument,
     reloadDocument,
+    findOpenProject,
+    documentRevision,
+    canReloadDocument,
     currentHistory,
     closeCurrent,
     setViewport: (patch) => api.setViewport(patch),

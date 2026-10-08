@@ -7,7 +7,7 @@
  *   拖到列表空白处移动到根层最底部，Option(⌥) 拖拽复制；
  * - 拖到收起的组中部会自动展开，便于继续放入子图层。
  */
-import { computed, ref } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { api, commands, currentDocument, thumbnailTick } from '@/composables/useEditor';
 import { renderLayerThumbnail } from '@/core/engine/compositor';
 import type { Layer } from '@/types/document';
@@ -57,6 +57,11 @@ function thumbnail(layer: Layer): string {
 const renaming = ref<string | null>(null);
 const renameText = ref('');
 const selectedIds = ref<string[]>([]);
+// 文档切换或撤销删除后丢弃失效选择，不让旧文档 ID 影响新文档。
+watch(() => currentDocument.value?.id, () => { selectedIds.value = []; });
+watch(() => currentDocument.value?.layers.map(layer => layer.id), ids => {
+  selectedIds.value = selectedIds.value.filter(id => ids?.includes(id));
+});
 
 /** 选中图层（支持 ⇧/⌃ 多选） */
 function select(layer: Layer, event: MouseEvent): void {
@@ -78,7 +83,9 @@ function select(layer: Layer, event: MouseEvent): void {
 function runOnSelection(command: string): void {
   const document = currentDocument.value;
   if (!document) return;
-  const ids = selectedIds.value.length > 0 ? selectedIds.value : document.layers.map((item) => item.id);
+  const valid = selectedIds.value.filter(id => document.layers.some(layer => layer.id === id));
+  const ids = valid.length ? valid : document.activeLayerId ? [document.activeLayerId] : [];
+  if (!ids.length) return;
   commands.run(command, ids);
 }
 
@@ -88,10 +95,32 @@ function startRename(layer: Layer): void {
   renameText.value = layer.name;
 }
 
+/** 按文档和 ID 回放属性，不持有会被结构/画布快照替换的图层对象。 */
+function changeProperty<K extends 'name' | 'isVisible'>(layer: Layer, key: K, next: Layer[K], label: string): void {
+  const document = currentDocument.value;
+  if (!document) return;
+  const id = layer.id, previous = layer[key];
+  if (previous === next) return;
+  const apply = (value: Layer[K]): void => {
+    const target = document.layers.find(item => item.id === id);
+    if (target) target[key] = value;
+  };
+  apply(next);
+  api.pushHistory(label, () => apply(previous), () => apply(next));
+}
 function commitRename(layer: Layer): void {
-  layer.name = renameText.value.trim() || layer.name;
+  changeProperty(layer, 'name', renameText.value.trim() || layer.name, '重命名图层');
   renaming.value = null;
-  api.invalidate();
+}
+/** 行菜单显式绑定目标层，不能让菜单操作继续作用于别的活动层。 */
+function runOnRow(layer: Layer, command: string): void {
+  if (!currentDocument.value?.layers.some(item => item.id === layer.id)) return;
+  currentDocument.value.activeLayerId = layer.id;
+  selectedIds.value = [layer.id];
+  void commands.run(command);
+}
+function toggleVisibility(layer: Layer): void {
+  changeProperty(layer, 'isVisible', !layer.isVisible, '图层可见性');
 }
 
 /* ------------------------------ 拖拽排序 ------------------------------ */
@@ -234,7 +263,7 @@ function isDragging(layer: Layer): boolean {
         @drop.prevent.stop="onDrop($event, row.layer.id)"
         @dragend="onDragEnd"
       >
-        <button class="icon-btn" @click.stop="row.layer.isVisible = !row.layer.isVisible; api.invalidate()">
+        <button class="icon-btn" @click.stop="toggleVisibility(row.layer)">
           {{ row.layer.isVisible ? '👁' : '—' }}
         </button>
         <button v-if="row.layer.kind === 'group'" class="icon-btn" @click.stop="row.layer.expanded = !row.layer.expanded">
@@ -252,7 +281,7 @@ function isDragging(layer: Layer): boolean {
         />
         <span v-else class="name">{{ row.layer.name }}<span v-if="row.layer.kind === 'group' && !row.layer.name.endsWith('组')" class="kind">组</span></span>
         <span v-if="row.layer.mask" class="badge" title="含图层蒙版" />
-        <el-dropdown trigger="click" @command="(cmd: string) => commands.run(cmd)">
+        <el-dropdown trigger="click" @command="(cmd: string) => runOnRow(row.layer, cmd)">
           <span class="more" @click.stop>⋯</span>
           <template #dropdown>
             <el-dropdown-menu>

@@ -158,6 +158,7 @@ function onPointerDown(event: PointerEvent): void {
     return;
   }
   if (event.button !== 0) return;
+  api.beginInteraction('画布交互');
   // 标尺上按下 -> 拖出参考线
   const rulerHit = hitRuler(event);
   if (rulerHit) {
@@ -200,15 +201,11 @@ function onPointerMove(event: PointerEvent): void {
 
 /** 指针抬起 */
 function onPointerUp(event: PointerEvent): void {
-  if (panState.active) {
-    panState.active = false;
-    return;
-  }
-  if (guideDrag) {
-    guideDrag = null;
-    return;
-  }
-  dispatchPointer('up', toToolEvent(event));
+  try {
+    if (panState.active) { panState.active = false; return; }
+    if (guideDrag) { guideDrag = null; api.touch(); return; }
+    dispatchPointer('up', toToolEvent(event));
+  } finally { api.endInteraction(); }
 }
 
 /** 双击 */
@@ -312,6 +309,7 @@ void getStageSize;
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"
     @pointerup="onPointerUp"
+    @pointercancel="onPointerUp"
     @pointerleave="onPointerUp"
     @dblclick="onDblClick"
     @wheel="onWheel"

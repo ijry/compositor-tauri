@@ -11,6 +11,7 @@ import {
   createDocument, createGroupLayer, createPixelLayer, defaultAdjustment, uuid,
 } from '@/core/document';
 import { createBuffer, createMask } from '@/core/pixels';
+import { decodeEffects, encodeEffects, decodeText, encodeText, decodeMaskPlacement, encodeMaskPlacement } from './projectCodecs';
 import { decodeImageBytes, encodeImage } from '@/io/imageIO';
 import { canRenameHostEntry, renameHostEntry, removeTemporaryEntry, fileExtension, joinPath, listDirectory, readFile, writeFile } from '@/platform/host';
 import type {
@@ -57,11 +58,11 @@ interface ManifestLayer {
   maskInverted?: boolean;
   maskFile?: string;
   maskEnabled?: boolean;
-  maskPlacement?: { x: number; y: number; width: number; height: number };
+  maskPlacement?: unknown;
   maskLinked?: boolean;
   adjustment?: Record<string, unknown> & { kind: AdjustmentKind };
-  effects?: LayerEffects;
-  text?: TextMeta;
+  effects?: unknown;
+  text?: unknown;
   shape?: ShapeMeta;
 }
 
@@ -120,7 +121,7 @@ async function writeProjectFiles(document: CompDocument, directory: string, onPr
       const ok = await writeFile(joinPath(imagesDir, fileName), await bufferToPngBytes(layer.pixels));
       if (!ok) return null;
       entry.imageFile = fileName;
-      if (layer.text) entry.text = layer.text;
+      if (layer.text) entry.text = encodeText(layer.text);
       if (layer.shape) entry.shape = layer.shape;
     } else if (layer.kind === 'adjustment' && layer.adjustment) {
       entry.adjustment = layer.adjustment as unknown as ManifestLayer['adjustment'];
@@ -135,14 +136,14 @@ async function writeProjectFiles(document: CompDocument, directory: string, onPr
       entry.maskLinked = layer.mask.linked;
       if (!layer.mask.linked && layer.mask.placement) {
         entry.maskLinked = false;
-        entry.maskPlacement = layer.mask.placement;
+        entry.maskPlacement = encodeMaskPlacement(layer.mask.placement);
       }
     }
     if (layer.clipping) {
       const previous = document.layers.slice(0,index-1).reverse().find(candidate => candidate.parentId === layer.parentId && !candidate.clipping && candidate.kind === 'pixel');
       if (previous) entry.maskSourceID = previous.id;
     }
-    if (layer.effects) entry.effects = layer.effects;
+    if (layer.effects) entry.effects = encodeEffects(layer.effects);
     layers.push(entry);
   }
   const manifest: ProjectManifest = {
@@ -285,9 +286,9 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
     sampling: (entry.transform?.sampling ?? 'High quality') as 'High quality' | 'Smooth' | 'Nearest',
     warp: entry.transform?.warp ?? null,
   };
-  layer.text = entry.text ?? null;
+  layer.text = decodeText(entry.text);
   layer.shape = entry.shape ?? null;
-  layer.effects = entry.effects ?? null;
+  layer.effects = decodeEffects(entry.effects);
   if (entry.maskFile) {
     const maskBuffer = await readFile(joinPath(joinPath(directory, 'images'), entry.maskFile));
     if (!maskBuffer) throw new Error('工程蒙版读取失败：' + entry.maskFile);
@@ -299,7 +300,7 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
         pixels: mask,
         enabled: entry.maskEnabled !== false,
         linked: entry.maskLinked !== false,
-        placement: entry.maskPlacement ?? null,
+        placement: decodeMaskPlacement(entry.maskPlacement),
         target: 'image',
         inverted: entry.maskInverted === true,
       };
@@ -313,6 +314,8 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
 /** 监视器句柄 */
 export interface CompWatcher {
   stop: () => void;
+  /** 自身保存成功后更新基线，避免把自己的写入当成外部修改。 */
+  acknowledge: () => Promise<void>;
 }
 
 /**
@@ -321,27 +324,41 @@ export interface CompWatcher {
  */
 export function watchCompProject(
   directory: string,
-  onChange: () => void,
+  onChange: () => void | boolean | Promise<void | boolean>,
   onError?: (error: Error) => void,
 ): CompWatcher {
   let timer: ReturnType<typeof setTimeout> | null = null;
-  let stopped=false, accepted='', candidate='';
-  const poll=async (): Promise<void> => {
+  let stopped = false, accepted = '', candidate = '', epoch = 0;
+  const signature = async (): Promise<string> => {
+    const bytes = await readFile(joinPath(directory, 'manifest.json'));
+    if (!bytes) throw new Error('工程清单暂不可读');
+    const entries = await listDirectory(joinPath(directory, 'images'));
+    return new TextDecoder().decode(bytes) + '|' + entries.filter(e => e.kind === 'file').map(e => e.name + ':' + e.size).sort().join('|');
+  };
+  const poll = async (): Promise<void> => {
+    const started = epoch;
     try {
-      const bytes=await readFile(joinPath(directory,'manifest.json'));
-      if (!bytes) throw new Error('工程清单暂不可读');
-      const entries=await listDirectory(joinPath(directory,'images'));
-      const next=new TextDecoder().decode(bytes)+'|'+entries.filter(e=>e.kind==='file').map(e=>`${e.name}:${e.size}`).sort().join('|');
-      if (stopped) return;
-      if (!accepted) accepted=next;
-      else if (next===accepted) candidate='';
-      else if (candidate===next) {accepted=next;candidate='';await onChange();}
-      else candidate=next;
-    } catch(error) {if(!stopped)onError?.(error as Error);}
-    finally {if(!stopped)timer=setTimeout(()=>void poll(),340);}
+      const next = await signature();
+      if (stopped || started !== epoch) return;
+      if (!accepted) accepted = next;
+      else if (next === accepted) candidate = '';
+      else if (candidate === next) {
+        // false 表示忙碌或半成品；不消费通知，下轮继续重试。
+        const handled = await onChange();
+        if (!stopped && started === epoch && handled !== false) { accepted = next; candidate = ''; }
+      } else candidate = next;
+    } catch (error) { if (!stopped) onError?.(error as Error); }
+    finally { if (!stopped) timer = setTimeout(() => void poll(), 340); }
   };
   void poll();
-  return {stop:()=>{stopped=true;if(timer!==null)clearTimeout(timer);timer=null;}};
+  return {
+    stop: () => { stopped = true; epoch++; if (timer !== null) clearTimeout(timer); timer = null; },
+    acknowledge: async () => {
+      const started = ++epoch;
+      const next = await signature();
+      if (!stopped && started === epoch) { accepted = next; candidate = ''; }
+    },
+  };
 }
 
 /** 判断文件是否是工程包目录的 manifest */

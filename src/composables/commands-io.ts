@@ -24,12 +24,18 @@ import type { ExportFormat } from '@/io/imageIO';
 export async function loadRecentProjects(): Promise<string[]> {
   return loadState<string[]>(RECENT_KEY, []);
 }
+export interface ReloadGuard { target: CompDocument; revision: number; isCurrent?: () => boolean }
+export type ReloadResult = 'reloaded' | 'kept' | 'retry' | 'closed';
+
 /** 依赖：由 useEditor 注入的宿主函数 */
 export interface IoDependencies {
   openDocument(document: CompDocument): void;
-  reloadDocument(document: CompDocument): void;
+  reloadDocument(document: CompDocument, guard?: ReloadGuard): Promise<ReloadResult>;
+  findOpenProject(path: string): CompDocument | undefined;
+  documentRevision(document: CompDocument): number;
+  canReloadDocument(document: CompDocument): boolean;
   currentHistory(): { undo(): string | null; redo(): string | null; clear(): void } | null;
-  closeCurrent(): void;
+  closeCurrent(): Promise<boolean>;
   setViewport(patch: { zoom?: number; centerX?: number; centerY?: number }): void;
   fitCanvas(): void;
   actualPixels(): void;
@@ -42,8 +48,12 @@ export interface IoDependencies {
 /** 最近工程（保存在宿主本地状态里） */
 const RECENT_KEY = 'compositor.recent';
 
-/** 当前打开工程的监视器 */
-let watcher: CompWatcher | null = null;
+/** 每个文档独立监视，关闭一个标签不会停止另一个标签的监视器。 */
+const watchers = new Map<string, CompWatcher>();
+export function stopWatchingDocument(id: string): void {
+  watchers.get(id)?.stop();
+  watchers.delete(id);
+}
 
 export function createIoCommands(api: EditorApi, deps: IoDependencies) {
   /** 记录最近工程 */
@@ -163,10 +173,10 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         if (target.saving) return;
         if (!target.packagePath) {await run('saveCompAs');return;}
         target.saving=true;deps.invalidate();
-        const stamp=target.updatedAt;
+        const stamp=deps.documentRevision(target);
         try {
           const result=await exportCompProject(target,target.packagePath);
-          if(result){if(target.updatedAt===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
+          if(result){await watchers.get(target.id)?.acknowledge();if(deps.documentRevision(target)===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
           else api.status('保存失败：旧工程未替换，请检查宿主目录权限');
         } catch(error){api.status(`保存失败：${(error as Error).message}`);}
         finally{target.saving=false;deps.invalidate();}
@@ -175,33 +185,44 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
       case 'saveCompAs': {
         const target=api.doc;const directory=await pickDirectory('保存 .comp 工程包');
         if(!directory || target.saving)break;
-        target.saving=true;deps.invalidate();const stamp=target.updatedAt;
+        target.saving=true;deps.invalidate();const stamp=deps.documentRevision(target);
         try {
           const result=await exportCompProject(target,directory);
-          if(result){target.packagePath=result;target.name=fileName(result);if(target.updatedAt===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
+          if(result){if(target.packagePath!==result)stopWatchingDocument(target.id);else await watchers.get(target.id)?.acknowledge();target.packagePath=result;target.name=fileName(result);if(deps.documentRevision(target)===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
           else api.status('另存失败，原工程路径保持不变');
         }catch(error){api.status(`保存失败：${(error as Error).message}`);}
         finally{target.saving=false;deps.invalidate();}
         break;
       }
       case 'watchComp': {
-        const path = doc.packagePath;
+        const target = api.doc, path = target.packagePath;
         if (!path) break;
-        watcher?.stop();
-        watcher = watchCompProject(path, async () => {
+        stopWatchingDocument(target.id);
+        const watcher = watchCompProject(path, async () => {
+          const current = deps.findOpenProject(path);
+          if (watchers.get(target.id) !== watcher || !current || current.id !== target.id) return true;
+          if (!deps.canReloadDocument(current)) return false;
+          const dirty = current.dirty;
+          const guard = { target: current, revision: deps.documentRevision(current),
+            isCurrent: () => watchers.get(target.id) === watcher && current.dirty === dirty };
           try {
             const reloaded = await importCompProject(path);
-            deps.reloadDocument(reloaded);
-            api.status('工程已从磁盘重新载入');
+            // stop 发生在异步读取期间时，迟到结果不能再替换文档。
+            if (watchers.get(target.id) !== watcher) return true;
+            const result = await deps.reloadDocument(reloaded, guard);
+            if (result === 'reloaded') api.status('工程已从磁盘重新载入');
+            else if (result === 'kept') api.status('已保留本地内容，未重新载入');
+            return result !== 'retry';
           } catch {
             api.status('检测到工程变化，但文件尚不可用（可能仍在写入）');
+            return false;
           }
         }, () => undefined);
+        watchers.set(target.id, watcher);
         break;
       }
       case 'unwatchComp': {
-        watcher?.stop();
-        watcher = null;
+        stopWatchingDocument(api.doc.id);
         break;
       }
 
@@ -283,13 +304,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
       case 'about': deps.openDialog('about'); break;
       case 'recentList': deps.openDialog('recent', { items: await recentProjects() }); break;
       case 'closeDocument': {
-        if (doc.dirty) {
-          const ok = await confirmMessage(`「${doc.name}」有未保存的修改，确定关闭吗？`, '关闭文档');
-          if (!ok) break;
-        }
-        watcher?.stop();
-        watcher = null;
-        deps.closeCurrent();
+        await deps.closeCurrent();
         break;
       }
       case 'applyRawDevelop': {

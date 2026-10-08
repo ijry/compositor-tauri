@@ -140,3 +140,7 @@ OIDC 还需要平台管理员配置 GitHub OAuth Client ID/Secret 和固定 PC H
 ### Review 修复回归（2026-10-08）
 
 新增 review-core.spec.ts、review-document.spec.ts、review-project.spec.ts：核心像素断言、真实浏览器文字/撤销、工程往返与存储故障注入、热重载停止等。文件交互测试仅在独立开发服务器 5194 中使用固定内存宿主，既有布局与打包回归仍基于正式构建的 4191 预览服务器；测试模拟代码不进入插件 dist。
+
+## 第二轮数据安全与工程兼容回归
+
+`review-safety.spec.ts` 覆盖结构历史、交错历史、关闭确认、删除范围、行菜单、脏状态和嵌套组复制；`review-reload.spec.ts` 覆盖确认、取消、编辑冲突、自身保存、迟到确认和交互期重试；`review-codecs.spec.ts` 用上游 v11 与旧插件字段验证效果、文字和独立蒙版的读写/像素行为。宿主边界由 `helpers/project-host.ts` 提供内存文件系统，仅在测试浏览器中加载。

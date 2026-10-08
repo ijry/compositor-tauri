@@ -17,7 +17,7 @@ import { api, closeDocument, commands, currentDocument, documents, handleKeyDown
 import { toHex } from '@/core/color';
 
 /** 菜单定义 */
-const menus = [
+const menus: { label: string; items: { label?: string; key?: string; divider?: boolean; run?: () => void | Promise<void> }[] }[] = [
   {
     label: '文件',
     items: [

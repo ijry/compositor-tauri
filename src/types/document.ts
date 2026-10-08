@@ -120,7 +120,7 @@ export interface LayerMask {
   /** 是否跟随图层变换；false 时使用自己的 maskPlacement */
   linked: boolean;
   /** 未链接蒙版在文档空间的矩形 */
-  placement: Rect | null;
+  placement: (Rect & { rotation?: number; flipX?: boolean; flipY?: boolean; sampling?: SamplingMode }) | null;
   /** 会话内选择的目标：图像像素还是蒙版 */
   target: 'image' | 'mask';
   inverted: boolean;

@@ -51,17 +51,11 @@ export function maskSampler(
   layer: Layer,
   matrix: Matrix,
 ): CoverageSampler {
-  const inverse = invertMatrix(matrix);
+  let inverse = invertMatrix(matrix);
   if (!layer.mask?.linked && layer.mask?.placement) {
-    const placement = layer.mask.placement;
-    const sx = mask.width / placement.width;
-    const sy = mask.height / placement.height;
-    return (x, y) => {
-      const mx = Math.floor((x - placement.x) * sx);
-      const my = Math.floor((y - placement.y) * sy);
-      if (mx < 0 || my < 0 || mx >= mask.width || my >= mask.height) return 0;
-      return mask.data[my * mask.width + mx] / 255;
-    };
+    const p = layer.mask.placement;
+    inverse = invertMatrix(layerMatrix({ origin: [p.x,p.y], size: [p.width,p.height], rotation: p.rotation ?? 0,
+      flipX: p.flipX ?? false, flipY: p.flipY ?? false, sampling: p.sampling ?? 'Nearest' }, mask.width, mask.height));
   }
   return (x, y) => {
     const local = applyMatrix(inverse, x, y);
