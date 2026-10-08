@@ -130,7 +130,7 @@ export function isNonSeparable(mode: BlendMode): boolean {
 
 /**
  * 把一个图层区域混合进目标缓冲。
- * 公式：Co = (1 - as) * Cb * (1 - ab) + as * [ (1 - ab) * B(Cb, Cs) + ab * Cs ]（Porter-Duff 源在上）
+ * 公式：Co = [ab*(1-as)*Cb + as*((1-ab)*Cs + ab*B(Cb,Cs))] / ao
  * 这里 as 已经乘上蒙版/不透明度/剪贴蒙版覆盖率。
  */
 export function compositeRegion(
@@ -140,33 +140,33 @@ export function compositeRegion(
   count: number,
   blend: (cb: [number, number, number], cs: [number, number, number]) => [number, number, number],
 ): void {
-  for (let i = 0; i < count; i += 1) {
-    const di = i * 4;
-    const as = src[di + 3] / 255;
-    if (as <= 0) continue;
-    const ab = dst[di + 3] / 255;
-    if (as === 1 && ab === 0) {
-      dst[di] = src[di]; dst[di + 1] = src[di + 1]; dst[di + 2] = src[di + 2]; dst[di + 3] = 255;
-      continue;
-    }
-    const blended = blend(
-      [dst[di], dst[di + 1], dst[di + 2]],
-      [src[di], src[di + 1], src[di + 2]],
-    );
-    const outA = as + ab * (1 - as);
-    if (outA <= 0) {
-      dst[di] = 0; dst[di + 1] = 0; dst[di + 2] = 0; dst[di + 3] = 0;
-      continue;
-    }
-    dst[di] = (blended[0] * as + dst[di] * ab * (1 - as)) / outA;
-    dst[di + 1] = (blended[1] * as + dst[di + 1] * ab * (1 - as)) / outA;
-    dst[di + 2] = (blended[2] * as + dst[di + 2] * ab * (1 - as)) / outA;
-    dst[di + 3] = outA * 255;
-  }
+  void dstWidth;
+  for(let i=0;i<count;i++)compositePixel(dst,i*4,src,i*4,1,blend);
 }
 
 /** 生成某个混合模式的混合函数 */
 export function blendFunction(mode: BlendMode): (cb: [number, number, number], cs: [number, number, number]) => [number, number, number] {
   if (mode === 'Normal') return (_cb, cs) => cs;
   return (cb, cs) => blendPixel(cb, cs, mode);
+}
+/** 8 位非预乘 RGBA 的 W3C 源覆盖合成；颜色混合仅作用于双方重叠部分。 */
+export function compositePixel(
+  dst: Uint8ClampedArray, di: number, src: ArrayLike<number>, si: number, opacity = 1,
+  blend?: (cb:[number,number,number],cs:[number,number,number])=>[number,number,number],
+): void {
+  const as=src[si+3]/255*Math.max(0,Math.min(1,opacity));
+  if(as<=0)return;
+  const ab=dst[di+3]/255;
+  if(ab<=0 || (!blend && as>=1)) {
+    for(let c=0;c<3;c++)dst[di+c]=src[si+c];
+    dst[di+3]=as*255;return;
+  }
+  const outA=as+ab*(1-as);
+  const mixed=blend?.([dst[di],dst[di+1],dst[di+2]],[src[si],src[si+1],src[si+2]]);
+  for(let c=0;c<3;c++) {
+    const source=src[si+c],backdrop=dst[di+c];
+    const blended=mixed?Math.max(0,Math.min(255,mixed[c])):source;
+    dst[di+c]=(backdrop*ab*(1-as)+as*((1-ab)*source+ab*blended))/outA;
+  }
+  dst[di+3]=outA*255;
 }

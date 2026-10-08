@@ -7,6 +7,9 @@
  *  - 按下时开始交互（记录快照），松开时提交为一条历史记录。
  */
 import { spotHeal } from '@/core/filters/contentAware';
+import { cloneBuffer, maskToBuffer } from '@/core/pixels';
+import { applyMatrix } from '@/core/geometry';
+import { resolveEditTarget, editSelectionCoverage } from '@/core/engine/editTarget';
 import { boxBlurRegion } from '@/core/filters/blur';
 import { dabAlongLine, makeLayerMapping, paintDab, readLocalPixel, setPaintDocument, smudgeDab, warpRegion } from '@/core/engine/paint';
 import type { PaintTarget } from '@/core/engine/paint';
@@ -43,11 +46,8 @@ const state: PaintState = {
 
 /** 取当前绘制目标 */
 export function currentPaintTarget(editor: EditorApi): PaintTarget | null {
-  const layer = editor.activeLayer();
-  if (!layer || layer.locked) return null;
-  // 组和调整层没有图像像素，但其启用的蒙版可以成为绘制目标。
-  if (layer.mask?.target === 'mask') return layer.mask.enabled ? { layer, onMask: true } : null;
-  return layer.kind === 'pixel' ? { layer, onMask: false } : null;
+  const target=resolveEditTarget(editor.activeLayer());
+  return target?{layer:target.layer,onMask:target.onMask}:null;
 }
 
 /** 前景色（带 alpha 的画笔颜色） */
@@ -58,10 +58,16 @@ function brushColor(editor: EditorApi, erase: boolean): [number, number, number,
 }
 
 /** 启动一次绘画 */
-function startPaint(editor: EditorApi, point: Point): void {
-  const target = currentPaintTarget(editor);
+function startPaint(editor: EditorApi, point: Point, preference: 'auto'|'mask' = 'auto'): void {
+  const resolved=resolveEditTarget(editor.activeLayer(),preference);
+  const target=resolved?{layer:resolved.layer,onMask:resolved.onMask}:null;
+  if(target?.onMask && !['brush','eraser','blur'].includes(editor.toolId)) {
+    state.active=false;state.target=null;state.snapshot=null;
+    editor.status('此修复工具暂不支持蒙版，请使用画笔或模糊工具；原图未修改');return;
+  }
   if (!target) {
-    editor.status('请先选择一个像素图层（新建或切换到像素图层）');
+    state.active=false;state.target=null;state.snapshot=null;
+    editor.status('当前绘制目标不可用，请检查图层锁定及蒙版是否启用');
     return;
   }
   setPaintDocument(editor.doc);
@@ -351,7 +357,7 @@ export const blurTool: ToolDefinition = {
     { key: 'target', label: '目标', type: 'select', options: [{ value: 'pixels', label: '像素' }, { value: 'mask', label: '蒙版' }] },
   ],
   onDown(editor, event) {
-    startPaint(editor, event.doc);
+    startPaint(editor,event.doc,editor.option<string>('target','pixels')==='mask'?'mask':'auto');
     applyBlur(editor, event.doc);
   },
   onMove(editor, event) {
@@ -367,73 +373,35 @@ export const blurTool: ToolDefinition = {
   },
 };
 
-/** 模糊落笔（按笔尖分块处理，避免整图模糊） */
+/** 模糊只修改明确选中的网格；临时 RGBA 用于复用预乘滤波内核。 */
 function applyBlur(editor: EditorApi, point: Point): void {
-  const target = state.target;
-  if (!target) return;
-  const layer = target.layer;
-  if (layer.kind !== 'pixel' || !layer.pixels) return;
-  const mapping = makeLayerMapping(layer);
-  const local = mapping.toLocal(point);
-  const radius = Math.max(1, editor.option<number>('size', 40) / 2 / mapping.scale);
-  const box = Math.max(1, Math.round(radius * editor.option<number>('strength', 50) / 50));
-  const rect = {
-    x: Math.round(local.x - radius),
-    y: Math.round(local.y - radius),
-    width: Math.round(radius * 2),
-    height: Math.round(radius * 2),
-  };
-  const snapshot = new Uint8ClampedArray(layer.pixels.data);
-  boxBlurRegion(layer.pixels, rect, box);
-  // 限制在笔尖范围内并按选区限制
-  applyBrushLimit(editor, layer.pixels, snapshot, local, radius, mapping.toLocal);
-  layer.contentKey += 1;
-}
-
-/** 只保留笔尖范围内的变化 */
-function applyBrushLimit(
-  editor: EditorApi,
-  pixels: import('@/types/document').PixelBuffer,
-  snapshot: Uint8ClampedArray,
-  center: Point,
-  radius: number,
-  toLocal: (p: Point) => Point,
-): void {
-  const hardness = editor.option<number>('hardness', 50) / 100;
-  const selection = editor.doc.selection;
-  const origin = toLocal({ x: 0, y: 0 });
-  void origin;
-  for (let y = 0; y < pixels.height; y += 1) {
-    for (let x = 0; x < pixels.width; x += 1) {
-      const distance = Math.hypot(x - center.x, y - center.y);
-      if (distance > radius) {
-        const i = (y * pixels.width + x) * 4;
-        pixels.data[i] = snapshot[i]!;
-        pixels.data[i + 1] = snapshot[i + 1]!;
-        pixels.data[i + 2] = snapshot[i + 2]!;
-        pixels.data[i + 3] = snapshot[i + 3]!;
-        continue;
-      }
-      const falloff = distance <= radius * hardness ? 1 : 1 - (distance - radius * hardness) / Math.max(1, radius * (1 - hardness));
-      const i = (y * pixels.width + x) * 4;
-      pixels.data[i] = snapshot[i]! * (1 - falloff) + pixels.data[i]! * falloff;
-      pixels.data[i + 1] = snapshot[i + 1]! * (1 - falloff) + pixels.data[i + 1]! * falloff;
-      pixels.data[i + 2] = snapshot[i + 2]! * (1 - falloff) + pixels.data[i + 2]! * falloff;
-      pixels.data[i + 3] = snapshot[i + 3]! * (1 - falloff) + pixels.data[i + 3]! * falloff;
-      if (selection) {
-        const doc = toLocal({ x, y });
-        const sx = Math.floor(doc.x);
-        const sy = Math.floor(doc.y);
-        const coverage = sx < 0 || sy < 0 || sx >= selection.width || sy >= selection.height ? 0 : selection.data[sy * selection.width + sx]! / 255;
-        if (coverage <= 0) {
-          pixels.data[i] = snapshot[i]!;
-          pixels.data[i + 1] = snapshot[i + 1]!;
-          pixels.data[i + 2] = snapshot[i + 2]!;
-          pixels.data[i + 3] = snapshot[i + 3]!;
-        }
-      }
+  if(!state.target)return;
+  const target=resolveEditTarget(state.target.layer,state.target.onMask?'mask':'pixels');
+  if(!target)return;
+  const strength=Math.max(0,Math.min(1,editor.option<number>('strength',.5)));
+  if(strength<=0)return;
+  const mapping=makeLayerMapping(target.layer,target.onMask),local=mapping.toLocal(point);
+  const docRadius=Math.max(.5,editor.option<number>('size',40)/2),radius=Math.max(.5,docRadius/mapping.scale);
+  const work=target.onMask?maskToBuffer(target.buffer):cloneBuffer(target.buffer);
+  const x0=Math.max(0,Math.floor(local.x-radius)),y0=Math.max(0,Math.floor(local.y-radius));
+  const x1=Math.min(work.width,Math.ceil(local.x+radius)),y1=Math.min(work.height,Math.ceil(local.y+radius));
+  boxBlurRegion(work,{x:x0,y:y0,width:x1-x0,height:y1-y0},Math.max(1,Math.round(radius*strength)));
+  const hardness=Math.max(0,Math.min(1,editor.option<number>('hardness',.5)));
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++) {
+    const doc=applyMatrix(target.matrix,x+.5,y+.5),distance=Math.hypot(doc.x-point.x,doc.y-point.y)/docRadius;
+    if(distance>1)continue;
+    const taper=distance<=hardness?1:(1-distance)/Math.max(1e-6,1-hardness);
+    const k=taper*editSelectionCoverage(editor.doc,target,x,y);if(k<=0)continue;
+    const i=(y*work.width+x)*4;
+    if(target.onMask) {
+      const j=y*work.width+x;target.buffer.data[j]=Math.round(target.buffer.data[j]*(1-k)+work.data[i]*k);
+    } else {
+      const data=target.buffer.data,ab=data[i+3]/255,af=work.data[i+3]/255,alpha=ab*(1-k)+af*k;
+      for(let c=0;c<3;c++)data[i+c]=alpha>0?(data[i+c]*ab*(1-k)+work.data[i+c]*af*k)/alpha:0;
+      data[i+3]=alpha*255;
     }
   }
+  editor.markLayerDirty(target.layer.id);
 }
 
 /** 涂抹工具 */

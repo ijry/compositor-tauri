@@ -161,59 +161,36 @@ export function boxBlurRegion(
   rect: { x: number; y: number; width: number; height: number },
   radius: number,
 ): void {
-  const { width, height } = buffer;
-  const x0 = Math.max(0, Math.floor(rect.x));
-  const y0 = Math.max(0, Math.floor(rect.y));
-  const x1 = Math.min(width, Math.ceil(rect.x + rect.width));
-  const y1 = Math.min(height, Math.ceil(rect.y + rect.height));
-  const window = radius * 2 + 1;
-  const temp = new Float32Array((x1 - x0) * (y1 - y0) * 4);
-  const out = new Float32Array(temp.length);
-  const rw = x1 - x0;
-  const rh = y1 - y0;
-  for (let y = 0; y < rh; y += 1) {
-    const sums = [0, 0, 0, 0];
-    for (let c = 0; c < 4; c += 1) {
-      let sum = 0;
-      for (let i = -radius; i <= radius; i += 1) {
-        const sx = Math.min(x1 - 1, Math.max(x0, x0 + i));
-        sum += buffer.data[(y * width + sx) * 4 + c];
-      }
-      sums[c] = sum;
-    }
-    for (let x = 0; x < rw; x += 1) {
-      for (let c = 0; c < 4; c += 1) {
-        temp[(y * rw + x) * 4 + c] = sums[c] / window;
-        const addIndex = (y * width + Math.min(x1 - 1, x0 + x + radius + 1)) * 4 + c;
-        const subIndex = (y * width + Math.max(x0, x0 + x - radius)) * 4 + c;
-        sums[c] += buffer.data[addIndex] - buffer.data[subIndex];
+  const {width,height}=buffer;
+  if(!Number.isFinite(radius) || radius<=0 || width<=0 || height<=0)return;
+  const x0=Math.max(0,Math.floor(rect.x)),y0=Math.max(0,Math.floor(rect.y));
+  const x1=Math.min(width,Math.ceil(rect.x+rect.width)),y1=Math.min(height,Math.ceil(rect.y+rect.height));
+  if(x1<=x0 || y1<=y0)return;
+  const r=Math.min(Math.max(width,height),Math.max(1,Math.round(radius))),size=r*2+1;
+  const rw=x1-x0,rh=y1-y0;
+  // 只分配编辑区域及上下 halo；横向读取全图，纵向只使用局部行号。
+  const temp=new Float32Array(rw*(rh+2*r)*4);
+  const clampX=(x:number)=>Math.max(0,Math.min(width-1,x));
+  for(let ty=0;ty<rh+2*r;ty++) {
+    const y=Math.max(0,Math.min(height-1,y0-r+ty));
+    for(let c=0;c<4;c++) {
+      const channel=(x:number)=>{const i=(y*width+clampX(x))*4;return c===3?buffer.data[i+3]:buffer.data[i+c]*buffer.data[i+3]/255;};
+      let sum=0;for(let k=-r;k<=r;k++)sum+=channel(x0+k);
+      for(let x=0;x<rw;x++) {
+        temp[(ty*rw+x)*4+c]=sum/size;
+        if(x+1<rw)sum+=channel(x0+x+r+1)-channel(x0+x-r);
       }
     }
   }
-  for (let x = 0; x < rw; x += 1) {
-    const sums = [0, 0, 0, 0];
-    for (let c = 0; c < 4; c += 1) {
-      let sum = 0;
-      for (let i = -radius; i <= radius; i += 1) {
-        const sy = Math.min(y1 - 1, Math.max(y0, y0 + i));
-        sum += temp[(sy * rw + x) * 4 + c];
-      }
-      sums[c] = sum;
-    }
-    for (let y = 0; y < rh; y += 1) {
-      for (let c = 0; c < 4; c += 1) {
-        out[(y * rw + x) * 4 + c] = sums[c] / window;
-        const addIndex = (Math.min(y1 - 1, y0 + y + radius + 1) * rw + x) * 4 + c;
-        const subIndex = (Math.max(y0, y0 + y - radius) * rw + x) * 4 + c;
-        sums[c] += temp[addIndex] - temp[subIndex];
-      }
-    }
-  }
-  for (let y = 0; y < rh; y += 1) {
-    for (let x = 0; x < rw; x += 1) {
-      for (let c = 0; c < 4; c += 1) {
-        buffer.data[((y + y0) * width + (x + x0)) * 4 + c] = out[(y * rw + x) * 4 + c];
-      }
+  for(let x=0;x<rw;x++) {
+    const sums=[0,0,0,0];
+    for(let y=0;y<size;y++)for(let c=0;c<4;c++)sums[c]+=temp[(y*rw+x)*4+c];
+    for(let y=0;y<rh;y++) {
+      const i=((y+y0)*width+x+x0)*4,alpha=sums[3]/size;
+      // 滤波阶段使用预乘颜色，写回时还原非预乘，透明邻域不染黑边。
+      for(let c=0;c<3;c++)buffer.data[i+c]=alpha>0?(sums[c]/size)*255/alpha:0;
+      buffer.data[i+3]=alpha;
+      if(y+1<rh)for(let c=0;c<4;c++)sums[c]+=temp[((y+size)*rw+x)*4+c]-temp[(y*rw+x)*4+c];
     }
   }
 }

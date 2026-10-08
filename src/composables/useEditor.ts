@@ -7,7 +7,7 @@
  *  - 实现 EditorApi，工具与面板只依赖它；
  *  - 汇总所有命令（菜单、快捷键、面板共用同一套实现）。
  */
-import { computed, reactive, ref, shallowRef, triggerRef, toRaw } from 'vue';
+import { computed, reactive, ref, shallowRef, triggerRef, toRaw, watch } from 'vue';
 import { History, recommendedBudget } from '@/core/engine/history';
 import { CanvasRenderer, nextZoom, type Viewport } from '@/core/engine/renderer';
 import { setPaintDocument } from '@/core/engine/paint';
@@ -67,6 +67,13 @@ let stageSize = { width: 1200, height: 800 };
 
 /** 当前文档 */
 export const currentDocument = computed<CompDocument | null>(() => documents.value[activeIndex.value] ?? null);
+/** 切换图层/标签后同步模糊目标，避免沿用上一层的“蒙版”参数。 */
+watch(() => [currentToolId.value,currentDocument.value?.id,currentDocument.value?.activeLayerId,
+  currentDocument.value?.layers.find(layer=>layer.id===currentDocument.value?.activeLayerId)?.mask?.target], () => {
+  if(currentToolId.value!=='blur' || !toolOptions.blur)return;
+  const layer=currentDocument.value?.layers.find(item=>item.id===currentDocument.value?.activeLayerId);
+  toolOptions.blur.target=layer?.mask?.target==='mask'?'mask':'pixels';
+});
 
 /** 历史栈 */
 function historyOf(document: CompDocument): History {
@@ -498,6 +505,11 @@ export const api: EditorApi = {
     const id = currentToolId.value;
     if (!toolOptions[id]) toolOptions[id] = {};
     toolOptions[id]![key] = value;
+    // 模糊参数栏与图层面板的目标选择保持一致，避免界面选蒙版却写到图像。
+    if(id==='blur' && key==='target') {
+      const layer=this.activeLayer();
+      if(layer?.mask)layer.mask.target=value==='mask'?'mask':'image';
+    }
     invalidate();
   },
   option<T>(key: string, fallback: T): T {

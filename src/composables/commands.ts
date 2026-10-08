@@ -19,6 +19,8 @@ import {
 import { applyAddNoise } from '@/core/filters/adjust';
 import { compositeDocument, compositeInto, flattenDocument } from '@/core/engine/compositor';
 import { createBuffer } from '@/core/pixels';
+import { captureClipboard, pasteClipboard, type ClipboardPayload } from '@/core/clipboard';
+import { resolveEditTarget, fillEditTarget } from '@/core/engine/editTarget';
 import { combineSelection, createSelection, gaussianBlurMask, invertSelection } from '@/core/selection';
 import { applyColorRange, applySelectionOperation, transformSelectionOutline } from '@/tools/selection';
 import { magicWand, selectSubject } from '@/core/ops/selectionOps';
@@ -33,7 +35,7 @@ import type { EditorApi } from '@/types/editor';
 import type { AdjustmentKind, CompDocument, Layer, PixelBuffer } from '@/types/document';
 
 /** 剪贴板（内部实现） */
-const clipboard: { pixels: PixelBuffer | null; document: Layer | null } = { pixels: null, document: null };
+let clipboard: ClipboardPayload | null = null;
 
 /** 命令实现 */
 export function createCommands(api: EditorApi) {
@@ -91,7 +93,7 @@ export function createCommands(api: EditorApi) {
       setStatusSafe('请先选择一个图层');
       return;
     }
-    if (layer.kind !== 'pixel') {
+    if (layer.kind !== 'pixel' || layer.locked || layer.mask?.target === 'mask') {
       setStatusSafe('该滤镜需要作用在像素图层上');
       return;
     }
@@ -583,56 +585,23 @@ export function createCommands(api: EditorApi) {
 
       /* ---------------- 填充 / 编辑 ---------------- */
       case 'fillForeground':
-      case 'fillBackground': {
-        const color = name === 'fillForeground' ? api.foreground : api.background;
-        const layer = api.activeLayer();
-        if (!layer) break;
-        const snapshot = api.snapshotLayer(layer.id);
-        applyFill(layer, doc, color);
-        const after = api.snapshotLayer(layer.id);
-        api.pushHistory(
-          '填充',
-          () => { if (snapshot) api.restoreLayer(layer.id, snapshot); },
-          () => { if (after) api.restoreLayer(layer.id, after); },
-          (snapshot?.pixels?.data.length ?? 0) * 2,
-        );
-        break;
-      }
+      case 'fillBackground':
       case 'clearSelection': {
-        const layer = api.activeLayer();
-        if (!layer || layer.kind !== 'pixel' || !layer.pixels) break;
-        const snapshot = api.snapshotLayer(layer.id);
-        const selection = doc.selection;
-        const pixels = layer.pixels;
-        for (let y = 0; y < pixels.height; y += 1) {
-          for (let x = 0; x < pixels.width; x += 1) {
-            const dx = Math.round(x + layer.transform.origin[0]);
-            const dy = Math.round(y + layer.transform.origin[1]);
-            const coverage = selection
-              ? (dx < 0 || dy < 0 || dx >= selection.width || dy >= selection.height ? 0 : selection.data[dy * selection.width + dx]! / 255)
-              : 1;
-            if (coverage <= 0) continue;
-            const i = (y * pixels.width + x) * 4;
-            pixels.data[i] = pixels.data[i]! * (1 - coverage);
-            pixels.data[i + 1] = pixels.data[i + 1]! * (1 - coverage);
-            pixels.data[i + 2] = pixels.data[i + 2]! * (1 - coverage);
-            pixels.data[i + 3] = pixels.data[i + 3]! * (1 - coverage);
-          }
-        }
-        layer.contentKey += 1;
+        const target=resolveEditTarget(api.activeLayer());
+        if(!target){api.status('当前目标不可编辑，请检查锁定状态和蒙版是否启用');break;}
+        const layer=target.layer,before=api.snapshotLayer(layer.id);
+        const color=name==='fillForeground'?api.foreground:api.background;
+        if(!fillEditTarget(api.doc,target,color,name==='clearSelection' && !target.onMask))break;
         api.markLayerDirty(layer.id);
-        const after = api.snapshotLayer(layer.id);
-        api.pushHistory(
-          '清除',
-          () => { if (snapshot) api.restoreLayer(layer.id, snapshot); },
-          () => { if (after) api.restoreLayer(layer.id, after); },
-          (snapshot?.pixels?.data.length ?? 0) * 2,
-        );
+        const after=api.snapshotLayer(layer.id);
+        api.pushHistory(name==='clearSelection'?'清除':'填充',
+          ()=>{if(before)api.restoreLayer(layer.id,before);},()=>{if(after)api.restoreLayer(layer.id,after);},
+          ((before?.pixels?.data.length??0)+(before?.mask?.data.length??0))*2);
         break;
       }
       case 'contentAwareFill': {
         const layer = api.activeLayer();
-        if (!layer || layer.kind !== 'pixel' || !layer.pixels) break;
+        if (!layer || layer.kind !== 'pixel' || !layer.pixels || layer.locked || layer.mask?.target === 'mask') break;
         const selection = doc.selection;
         const hole = new Uint8Array(layer.pixels.width * layer.pixels.height);
         for (let y = 0; y < layer.pixels.height; y += 1) {
@@ -658,39 +627,27 @@ export function createCommands(api: EditorApi) {
         );
         break;
       }
-      case 'copy': {
-        const composite = compositeDocument(doc, doc.width, doc.height, { scale: 1, limitAdjustmentsBySelection: false }).buffer;
-        clipboard.pixels = cropToSelection(composite, doc);
-        setStatusSafe('已复制像素');
-        break;
-      }
+      case 'copy':
+      case 'copyLayer':
       case 'copyMerged': {
-        clipboard.pixels = flattenDocument(doc);
-        setStatusSafe('已复制合并像素');
-        break;
-      }
-      case 'copyLayer': {
-        const layer = api.activeLayer();
-        if (layer) clipboard.document = layer;
+        const captured=captureClipboard(api.doc,api.activeLayer(),name==='copyMerged');
+        if(captured){clipboard=captured;setStatusSafe('已复制');}
+        else setStatusSafe('当前目标或选区没有可复制内容');
         break;
       }
       case 'cut': {
-        commands.run('copy');
-        commands.run('clearSelection');
+        if(!doc.selection)break;
+        const captured=captureClipboard(api.doc,api.activeLayer());
+        if(!captured)break;
+        clipboard=captured;
+        await run('clearSelection');
         break;
       }
       case 'paste': {
-        if (clipboard.document) {
-          const beforeStructure = captureStructure();
-          const copy = duplicateLayerCore(clipboard.document);
-          insertLayerCore(doc, copy);
-          pushStructureHistory('粘贴图层', beforeStructure, captureStructure());
-        } else if (clipboard.pixels) {
-          const beforeStructure = captureStructure();
-          const layer = createPixelLayer('粘贴的像素', clipboard.pixels);
-          insertLayerCore(doc, layer);
-          pushStructureHistory('粘贴', beforeStructure, captureStructure());
-        }
+        if(!clipboard)break;
+        const before=captureStructure();
+        pasteClipboard(api.doc,clipboard);
+        pushStructureHistory('粘贴',before,captureStructure());
         break;
       }
       case 'flattenClipboard': break;
@@ -847,45 +804,6 @@ export function createCommands(api: EditorApi) {
       (before?.data.length ?? 0) + (after?.data.length ?? 0),
     );
     api.touch();
-  }
-
-  /** 填充当前图层（受选区限制） */
-  function applyFill(layer: Layer, document: typeof api.doc, color: [number, number, number]): void {
-    if (layer.kind !== 'pixel' || !layer.pixels) return;
-    const selection = document.selection;
-    const pixels = layer.pixels;
-    for (let y = 0; y < pixels.height; y += 1) {
-      for (let x = 0; x < pixels.width; x += 1) {
-        const dx = Math.round(x + layer.transform.origin[0]);
-        const dy = Math.round(y + layer.transform.origin[1]);
-        const coverage = selection
-          ? (dx < 0 || dy < 0 || dx >= selection.width || dy >= selection.height ? 0 : selection.data[dy * selection.width + dx]! / 255)
-          : 1;
-        if (coverage <= 0) continue;
-        const i = (y * pixels.width + x) * 4;
-        pixels.data[i] = pixels.data[i]! * (1 - coverage) + color[0] * coverage;
-        pixels.data[i + 1] = pixels.data[i + 1]! * (1 - coverage) + color[1] * coverage;
-        pixels.data[i + 2] = pixels.data[i + 2]! * (1 - coverage) + color[2] * coverage;
-        pixels.data[i + 3] = Math.min(255, pixels.data[i + 3]! + coverage * 255);
-      }
-    }
-    layer.contentKey += 1;
-    api.markLayerDirty(layer.id);
-  }
-
-  /** 按选区裁剪复制内容 */
-  function cropToSelection(buffer: PixelBuffer, document: typeof api.doc): PixelBuffer {
-    const selection = document.selection;
-    if (!selection) return buffer;
-    const out = createBuffer(selection.width, selection.height);
-    for (let i = 0; i < selection.data.length; i += 1) {
-      const coverage = selection.data[i]! / 255;
-      out.data[i * 4] = buffer.data[i * 4]!;
-      out.data[i * 4 + 1] = buffer.data[i * 4 + 1]!;
-      out.data[i * 4 + 2] = buffer.data[i * 4 + 2]!;
-      out.data[i * 4 + 3] = Math.round(buffer.data[i * 4 + 3]! * coverage);
-    }
-    return out;
   }
 
   const ioCommands = createIoCommands(api, {

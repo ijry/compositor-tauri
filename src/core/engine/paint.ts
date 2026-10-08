@@ -10,6 +10,7 @@
 import { applyMatrix, invertMatrix, layerMatrix } from '@/core/geometry';
 import { sampleScalar } from '@/core/sampler';
 import { maskToDocument } from './maskGeometry';
+import { compositePixel } from '@/core/blend';
 import type { CompDocument, Layer, MaskBuffer, PixelBuffer, Point } from '@/types/document';
 
 /** 绘制目标：图层 + 当前编辑面（图像或蒙版） */
@@ -113,13 +114,7 @@ function paintIntoPixels(
       if (options.erase) {
         pixels.data[i + 3] = pixels.data[i + 3]! * (1 - k);
       } else {
-        // 内部存储非预乘 RGBA：先合成覆盖率，再除以输出 alpha 得到颜色。
-        const sourceAlpha = k * options.color[3] / 255;
-        const destinationAlpha = pixels.data[i + 3] / 255;
-        const outAlpha = sourceAlpha + destinationAlpha * (1 - sourceAlpha);
-        if (outAlpha <= 0) continue;
-        for (let c = 0; c < 3; c++) pixels.data[i + c] = (options.color[c] * sourceAlpha + pixels.data[i + c] * destinationAlpha * (1 - sourceAlpha)) / outAlpha;
-        pixels.data[i + 3] = outAlpha * 255;
+        compositePixel(pixels.data,i,options.color,0,k);
       }
     }
   }

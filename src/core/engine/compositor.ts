@@ -10,7 +10,7 @@
  *  - 图层效果（在表面烘焙，见 effects.ts）；
  *  - previewScale < 1 时整体降采样，保证大图在缩小时依然流畅。
  */
-import { blendFunction } from '@/core/blend';
+import { blendFunction, compositePixel } from '@/core/blend';
 import { createMaskSampler, applyPixelMask } from './maskGeometry';
 import { applyAdjustment } from '@/core/filters/adjust';
 import { bakeEffects, type Surface } from '@/core/engine/effects';
@@ -225,13 +225,59 @@ export function compositeInto(
     return sampler;
   };
 
+  // 与普通通过式组不同，连续剪贴层共享基础层 alpha；颜色先合成，轮廓只恢复一次。
+  const stacks = new Map<string, Layer[]>(), stacked = new Set<string>();
+  if (!options.onlyLayers) {
+    const siblings = new Map<string | null, Layer[]>();
+    for (const layer of layers) {
+      const parent=layer.parentId??null,list=siblings.get(parent)??[];
+      list.push(layer);siblings.set(parent,list);
+    }
+    for (const list of siblings.values()) for(let i=0;i<list.length;i++) {
+      const base=list[i]!;
+      if(base.kind!=='pixel' || base.clipping)continue;
+      const children:Layer[]=[];
+      for(let j=i+1;j<list.length;j++) {
+        const child=list[j]!;
+        if(!child.clipping || child.kind==='group')break;
+        children.push(child);
+      }
+      if(children.length){stacks.set(base.id,children);for(const child of children)stacked.add(child.id);}
+    }
+  }
+  const drawStack = (base:Layer,children:Layer[],context:ReturnType<typeof contextFor>): void => {
+    const surface=buildLayerSurface(base,scale);if(!surface)return;
+    const group=createBuffer(width,height);
+    blitSurface(group,surface,[],base.opacity*context.opacity,'Normal',scale);
+    const alpha=new Uint8Array(width*height);
+    for(let i=0;i<alpha.length;i++){alpha[i]=group.data[i*4+3];group.data[i*4+3]=255;}
+    for(const child of children) {
+      if(!child.isVisible || child.opacity<=0)continue;
+      const opacity=child.opacity*context.opacity;
+      if(child.kind==='adjustment' && child.adjustment) {
+        const mask=child.mask?.enabled?createMaskSampler(child):null;
+        applyAdjustment(group,child.adjustment,buildCoverage(width,height,[mask,selectionSample],opacity));
+      } else {
+        const drawn=buildLayerSurface(child,scale);
+        if(drawn)blitSurface(group,drawn,[],opacity,child.blendMode,scale);
+      }
+    }
+    for(let i=0;i<alpha.length;i++) {
+      group.data[i*4+3]=alpha[i];
+      if(!alpha[i])group.data.fill(0,i*4,i*4+3);
+    }
+    blitSurface(target,{buffer:group,rect:{x:0,y:0,width:document.width,height:document.height},scale},context.masks,1,base.blendMode,scale);
+  };
   for (const layer of layers) {
+    if (stacked.has(layer.id)) continue;
     if (options.onlyLayers && !options.onlyLayers.has(layer.id)) continue;
     if (!layer.isVisible) continue;
     if (layer.opacity <= 0) continue;
     if (layer.kind === 'group') continue;
     const context = contextFor(layer);
     if (context.opacity <= 0) continue;
+    const children=stacks.get(layer.id);
+    if(children){drawStack(layer,children,context);continue;}
     const alpha = layer.opacity * context.opacity;
     const maskSample = layer.mask && layer.mask.enabled
       ? maskSampler(layer.mask.pixels, layer, layerMaskMatrix(layer))
@@ -334,31 +380,7 @@ export function blitSurface(
       }
       if (as <= 0) continue;
       const di = (y * target.width + x) * 4;
-      const ab = target.data[di + 3] / 255;
-      if (blendMode === 'Normal') {
-        if (as >= 1 && ab <= 0) {
-          target.data[di] = buffer.data[si];
-          target.data[di + 1] = buffer.data[si + 1];
-          target.data[di + 2] = buffer.data[si + 2];
-          target.data[di + 3] = 255;
-          continue;
-        }
-        const outA = as + ab * (1 - as);
-        if (outA <= 0) continue;
-        target.data[di] = (buffer.data[si] * as + target.data[di] * ab * (1 - as)) / outA;
-        target.data[di + 1] = (buffer.data[si + 1] * as + target.data[di + 1] * ab * (1 - as)) / outA;
-        target.data[di + 2] = (buffer.data[si + 2] * as + target.data[di + 2] * ab * (1 - as)) / outA;
-        target.data[di + 3] = outA * 255;
-        continue;
-      }
-      // 混合模式：按 W3C 合成公式
-      const outA = as + ab * (1 - as);
-      if (outA <= 0) continue;
-      const blended = blend([target.data[di], target.data[di + 1], target.data[di + 2]], [buffer.data[si], buffer.data[si + 1], buffer.data[si + 2]]);
-      target.data[di] = (blended[0] * as + target.data[di] * ab * (1 - as)) / outA;
-      target.data[di + 1] = (blended[1] * as + target.data[di + 1] * ab * (1 - as)) / outA;
-      target.data[di + 2] = (blended[2] * as + target.data[di + 2] * ab * (1 - as)) / outA;
-      target.data[di + 3] = outA * 255;
+      compositePixel(target.data,di,buffer.data,si,as/(buffer.data[si+3]/255),blendMode==='Normal'?undefined:blend);
     }
   }
 }
