@@ -38,7 +38,7 @@ export function rectToPath(rect: Rect): Point[] {
 }
 
 /** 椭圆选区：rect 为外接矩形 */
-export function selectionFromEllipse(width: number, height: number, rect: Rect): SelectionMask {
+export function selectionFromEllipse(width: number, height: number, rect: Rect, antialias=false): SelectionMask {
   const selection = createSelection(width, height, 0);
   const rx = rect.width / 2;
   const ry = rect.height / 2;
@@ -52,7 +52,8 @@ export function selectionFromEllipse(width: number, height: number, rect: Rect):
     for (let x = x0; x < x1; x += 1) {
       const nx = (x + 0.5 - cx) / Math.max(1e-6, rx);
       const ny = (y + 0.5 - cy) / Math.max(1e-6, ry);
-      if (nx * nx + ny * ny <= 1) selection.data[y * width + x] = 255;
+      if(!antialias){if(nx*nx+ny*ny<=1)selection.data[y*width+x]=255;}
+      else{let hits=0;for(let sy=0;sy<4;sy++)for(let sx=0;sx<4;sx++){const dx=(x+(sx+.5)/4-cx)/Math.max(1e-6,rx),dy=(y+(sy+.5)/4-cy)/Math.max(1e-6,ry);if(dx*dx+dy*dy<=1)hits++;}selection.data[y*width+x]=Math.round(hits/16*255);}
     }
   }
   selection.outline = ellipseToPath(rect, 64);

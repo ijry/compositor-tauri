@@ -287,7 +287,7 @@ export function dabAlongLine(
       ...options,
       x: from.x + (to.x - from.x) * t,
       y: from.y + (to.y - from.y) * t,
-      opacity: options.opacity / Math.max(1, steps * 0.35),
+      opacity: options.opacity,
     });
   }
 }

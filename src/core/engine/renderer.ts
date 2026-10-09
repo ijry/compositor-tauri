@@ -146,13 +146,13 @@ export class CanvasRenderer {
     ctx.strokeRect(x + 0.5, y + 0.5, drawWidth - 1, drawHeight - 1);
 
     // 放大到 800% 以上时显示像素网格
-    if (options.showPixelGrid && zoom >= 6) {
+    if (options.showPixelGrid && zoom >= 8) {
       ctx.strokeStyle = 'rgba(120,120,120,0.5)';
       ctx.beginPath();
-      const startX = Math.max(0, Math.floor(-topLeft.x));
-      const endX = Math.min(doc.width, Math.ceil((-topLeft.x + width / zoom)));
-      const startY = Math.max(0, Math.floor(-topLeft.y));
-      const endY = Math.min(doc.height, Math.ceil((-topLeft.y + height / zoom)));
+      const startX = Math.max(0, Math.floor(-topLeft.x/zoom));
+      const endX = Math.min(doc.width, Math.ceil((width-topLeft.x)/zoom));
+      const startY = Math.max(0, Math.floor(-topLeft.y/zoom));
+      const endY = Math.min(doc.height, Math.ceil((height-topLeft.y)/zoom));
       if ((endX - startX) * (endY - startY) < 200000) {
         for (let column = startX; column <= endX; column += 1) {
           const sx = x + column * zoom * devicePixelRatio;

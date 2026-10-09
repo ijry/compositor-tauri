@@ -1,0 +1,17 @@
+<script setup lang="ts">
+/** RAW显影八组控件，与导入/普通图层滤镜共用；只编辑设置，不直接更改源像素。 */
+import CurveEditor from './CurveEditor.vue';
+import type { CameraRawSettings } from '@/types/document';
+const props=defineProps<{modelValue:CameraRawSettings}>(),emit=defineEmits<{'update:modelValue':[value:CameraRawSettings]}>();
+const groups=[{title:'光效',fields:['exposure','brightness','contrast','highlights','shadows','whites','blacks']},{title:'颜色',fields:['temperature','tint','vibrance','saturation','clarity','dehaze']},{title:'细节',fields:['sharpening','radius','detail','denoise']},{title:'光学',fields:['removeCA','distortion','defringe','vignette','grain']},{title:'几何',fields:['cropLeft','cropTop','cropRight','cropBottom']}];
+const labels:Record<string,string>={exposure:'曝光',brightness:'亮度',contrast:'对比度',highlights:'高光',shadows:'阴影',whites:'白色',blacks:'黑色',temperature:'色温',tint:'色调',vibrance:'自然饱和度',saturation:'饱和度',clarity:'清晰度',dehaze:'去朦胧',sharpening:'锐化',radius:'半径',detail:'细节',denoise:'降噪',removeCA:'色差校正',distortion:'畸变',defringe:'去色边',vignette:'渐晕',grain:'颗粒',cropLeft:'左裁剪',cropTop:'上裁剪',cropRight:'右裁剪',cropBottom:'下裁剪',hue:'色相',luminance:'明度',red:'红色',orange:'橙色',yellow:'黄色',green:'绿色',aqua:'青色',blue:'蓝色',purple:'紫色',magenta:'洋红'};
+function set(path:string,value:unknown){const next=JSON.parse(JSON.stringify(props.modelValue));let target=next;const keys=path.split('.');for(const k of keys.slice(0,-1))target=target[k];target[keys.at(-1)!]=value;emit('update:modelValue',next);}
+const positive=['sharpening','radius','detail','denoise','removeCA','defringe','grain'];
+</script>
+<template><div class="raw-controls">
+ <div v-for="group in groups" :key="group.title" class="raw-group"><h4>{{group.title}}</h4><label v-for="key in group.fields" :key="key">{{labels[key]}}<input type="number" :min="key.startsWith('crop')||positive.includes(key)?0:key==='exposure'?-5:-100" :max="key.startsWith('crop')?10000:key==='exposure'?5:100" :step="key==='exposure'||key==='radius'?.1:1" :value="(modelValue as any)[key]" @input="set(key,Number(($event.target as HTMLInputElement).value))"/></label></div>
+ <div class="raw-group"><h4>曲线</h4><CurveEditor :model-value="modelValue.curvePoints" @update:model-value="set('curvePoints',$event)"/></div>
+ <div class="raw-group"><h4>颜色混合</h4><label v-for="key in Object.keys(modelValue.colorMixer[0]??{})" :key="key">{{labels[key]??key}}<input type="number" min="-100" max="100" :value="(modelValue.colorMixer[0] as any)[key]" @input="set('colorMixer.0.'+key,Number(($event.target as HTMLInputElement).value))"/></label></div>
+ <div class="raw-group"><h4>颜色分级</h4><fieldset v-for="(key,i) in (['shadows','mids','highlights'] as const)" :key="key"><legend>{{['阴影','中间调','高光'][i]}}</legend><label v-for="(channel,j) in ['红','绿','蓝']" :key="channel">{{channel}}<input type="number" min="-100" max="100" :value="modelValue.colorGrading[key][j]" @input="set('colorGrading.'+key+'.'+j,Number(($event.target as HTMLInputElement).value))"/></label></fieldset></div>
+</div></template>
+<style scoped>.raw-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.raw-group{padding:8px;border:1px solid var(--cmp-border)}h4{margin:0 0 8px}label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0}input{width:85px;color:var(--cmp-text);background:var(--cmp-panel-2);border:1px solid var(--cmp-border);padding:3px}fieldset{border:1px solid var(--cmp-border)}</style>

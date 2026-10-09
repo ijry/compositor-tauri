@@ -1,0 +1,60 @@
+{
+  "businessSha": "b508f9a8d1d5ee74a1b0bec6c308338c4987dc91",
+  "date": "2026-10-08",
+  "results": [
+    {
+      "command": "pnpm typecheck",
+      "status": "通过",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm build",
+      "status": "通过",
+      "exitCode": 0,
+      "transformedModules": 1739
+    },
+    {
+      "command": "pnpm exec playwright test --workers=2",
+      "status": "通过",
+      "exitCode": 0,
+      "total": 147,
+      "passed": 147,
+      "duration": "2.1m"
+    },
+    {
+      "command": "node --test scripts/*.test.mjs",
+      "status": "通过",
+      "exitCode": 0,
+      "total": 14,
+      "passed": 14
+    },
+    {
+      "command": "python scripts/verify-plugin.py dist-pack --packid otools-compositor --version 0.1.0",
+      "status": "通过",
+      "exitCode": 0,
+      "note": "校验现有dist-pack；本轮未发布或部署到真实宿主。"
+    }
+  ],
+  "conditions": {
+    "HOST-OTOOLS": {
+      "status": "未实测",
+      "note": "仅使用内存OTools桥接替身，本轮未完成真实窗口/安装验证。"
+    },
+    "VALIDATION-STRUCTURE": {
+      "status": "通过",
+      "checked": [
+        "src/types",
+        "src/core",
+        "src/io",
+        "src/tools",
+        "src/composables",
+        "src/components"
+      ],
+      "note": "本轮静态目录/中文注释结构核查，不代表功能通过。"
+    },
+    "VALIDATION-README": {
+      "status": "部分通过",
+      "note": "README存在，功能完成声明需要按本报告修订。"
+    }
+  }
+}

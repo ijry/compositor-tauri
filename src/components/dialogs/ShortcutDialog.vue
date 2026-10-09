@@ -44,7 +44,7 @@ function onKeyDown(event: KeyboardEvent): void {
   if (event.key === 'Enter' && pending.value) {
     event.preventDefault();
     const conflict = setShortcut(recording.value, pending.value);
-    if (conflict) ElMessage.warning(`与「${conflict}」冲突，两条命令会同时触发`);
+    if (conflict) ElMessage.warning(`与「${conflict}」冲突，未保存本次设置`);
     else ElMessage.success('快捷键已更新');
     cancelRecording();
     return;

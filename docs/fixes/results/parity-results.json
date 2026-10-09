@@ -1,0 +1,1380 @@
+[
+  {
+    "id": "PARITY-opacity-0",
+    "title": "原版透明度数字键 0",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 1,
+    "expected": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-1",
+    "title": "原版透明度数字键 1",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.1,
+    "expected": 0.1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-2",
+    "title": "原版透明度数字键 2",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.2,
+    "expected": 0.2,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-3",
+    "title": "原版透明度数字键 3",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.3,
+    "expected": 0.3,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-4",
+    "title": "原版透明度数字键 4",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.4,
+    "expected": 0.4,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-5",
+    "title": "原版透明度数字键 5",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.5,
+    "expected": 0.5,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-6",
+    "title": "原版透明度数字键 6",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.6,
+    "expected": 0.6,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-7",
+    "title": "原版透明度数字键 7",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.7,
+    "expected": 0.7,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-8",
+    "title": "原版透明度数字键 8",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.8,
+    "expected": 0.8,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-opacity-9",
+    "title": "原版透明度数字键 9",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": 0.9,
+    "expected": 0.9,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Left-false-false",
+    "title": "微移图层 Left 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          15,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Left-false-true",
+    "title": "移动选区像素 Left 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "cc6e9b5"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Left-true-false",
+    "title": "微移图层 Left 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          6,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Left-true-true",
+    "title": "移动选区像素 Left 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "457578ed"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Right-false-false",
+    "title": "微移图层 Right 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          17,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Right-false-true",
+    "title": "移动选区像素 Right 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "89bb59bd"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Right-true-false",
+    "title": "微移图层 Right 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          26,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Right-true-true",
+    "title": "移动选区像素 Right 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "7bdc1811"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Up-false-false",
+    "title": "微移图层 Up 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          15
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Up-false-true",
+    "title": "移动选区像素 Up 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df63e1bd"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Up-true-false",
+    "title": "微移图层 Up 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          6
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Up-true-true",
+    "title": "移动选区像素 Up 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "b85b70d5"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Down-false-false",
+    "title": "微移图层 Down 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          17
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Down-false-true",
+    "title": "移动选区像素 Down 1px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "bd9d4a39"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Down-true-false",
+    "title": "微移图层 Down 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          26
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-arrow-Down-true-true",
+    "title": "移动选区像素 Down 10px",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "df42a16b"
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": "73ef6975"
+    },
+    "historyDelta": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-ctrl-t",
+    "title": "Ctrl+T 应开始变换，不应新增反相调整层",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 2,
+    "after": [
+      {
+        "kind": "pixel",
+        "name": "背景"
+      },
+      {
+        "kind": "pixel",
+        "name": "前景"
+      }
+    ],
+    "dialog": null,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-adjust-Curves",
+    "title": "原版 Ctrl+M 打开破坏性 Curves 编辑器",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 2,
+    "after": [
+      {
+        "kind": "pixel",
+        "name": "背景"
+      },
+      {
+        "kind": "pixel",
+        "name": "前景"
+      }
+    ],
+    "dialog": "filterDialog",
+    "note": "本地新增同名调整层不是原版 Image 菜单的破坏性编辑流程。",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-adjust-Levels",
+    "title": "原版 Ctrl+L 打开破坏性 Levels 编辑器",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 2,
+    "after": [
+      {
+        "kind": "pixel",
+        "name": "背景"
+      },
+      {
+        "kind": "pixel",
+        "name": "前景"
+      }
+    ],
+    "dialog": "filterDialog",
+    "note": "本地新增同名调整层不是原版 Image 菜单的破坏性编辑流程。",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-adjust-Hue/Saturation",
+    "title": "原版 Ctrl+U 打开破坏性 Hue/Saturation 编辑器",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 2,
+    "after": [
+      {
+        "kind": "pixel",
+        "name": "背景"
+      },
+      {
+        "kind": "pixel",
+        "name": "前景"
+      }
+    ],
+    "dialog": "filterDialog",
+    "note": "本地新增同名调整层不是原版 Image 菜单的破坏性编辑流程。",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-jpeg-shortcut",
+    "title": "原版 Ctrl+Shift+Alt+S 打开 JPEG 预览",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "dialog": "exportDialog",
+    "note": "本地注册为 Ctrl+Alt+S，且现有对话框默认 PNG。",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-shift-delete",
+    "title": "原版 Shift+Delete 进入内容识别而非直接清空像素",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "width": 32,
+      "height": 32,
+      "hash": "df42a16b",
+      "visible": 1024,
+      "first": [
+        30,
+        25,
+        35,
+        255
+      ]
+    },
+    "after": {
+      "width": 32,
+      "height": 32,
+      "hash": "df42a16b",
+      "visible": 1024,
+      "first": [
+        30,
+        25,
+        35,
+        255
+      ]
+    },
+    "dialog": "filterDialog",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-delete",
+    "title": "Delete 删除当前图层",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 2,
+    "after": 1,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-layer-via-copy",
+    "title": "有选区时 Ctrl+J 仅复制选区内像素",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "created": {
+      "id": "cce35450-f943-4819-a750-6ae2142a8dca",
+      "kind": "pixel",
+      "name": "粘贴的像素",
+      "visible": true,
+      "opacity": 1,
+      "parent": null,
+      "clipping": false,
+      "transform": {
+        "origin": [
+          24,
+          24
+        ],
+        "size": [
+          8,
+          8
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "High quality",
+        "warp": null
+      },
+      "pixels": {
+        "width": 8,
+        "height": 8,
+        "hash": "d7140bab",
+        "visible": 64,
+        "first": [
+          158,
+          169,
+          211,
+          255
+        ]
+      },
+      "mask": null,
+      "text": null,
+      "effects": null,
+      "adjustment": null
+    },
+    "expectedVisiblePixels": 64,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-cycle-marquee",
+    "title": "重复 M 循环 marquee 的模式",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": "rect",
+    "after": "ellipse",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-cycle-lasso",
+    "title": "重复 L 循环 lasso 的模式",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": "free",
+    "after": "polygon",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-cycle-wand",
+    "title": "重复 W 循环 wand 的模式",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": "wand",
+    "after": "objectSelect",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-cycle-blur",
+    "title": "重复 R 循环 blur 的模式",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": "blur",
+    "after": "smudge",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-blend-cycle--1",
+    "title": "Shift+- 循环图层混合模式",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": "Luminosity",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-blend-cycle-1",
+    "title": "Shift++ 循环图层混合模式",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "actual": "Darken",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-shape-cycle",
+    "title": "Shift+U 循环形状类型",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": "rectangle",
+    "after": "roundedRectangle",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-select-tool",
+    "title": "A 键切换独立选择工具",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "tool": "select",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Left-false",
+    "title": "文字 Alt+Left 修改 tracking",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 19,
+    "expected": 19,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Left-true",
+    "title": "文字 Alt+Shift+Left 修改 tracking",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 10,
+    "expected": 10,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Right-false",
+    "title": "文字 Alt+Right 修改 tracking",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 21,
+    "expected": 21,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Right-true",
+    "title": "文字 Alt+Shift+Right 修改 tracking",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 30,
+    "expected": 30,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Up-false",
+    "title": "文字 Alt+Up 修改 lineSpacing",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 19,
+    "expected": 19,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Up-true",
+    "title": "文字 Alt+Shift+Up 修改 lineSpacing",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 10,
+    "expected": 10,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Down-false",
+    "title": "文字 Alt+Down 修改 lineSpacing",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 21,
+    "expected": 21,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-text-Down-true",
+    "title": "文字 Alt+Shift+Down 修改 lineSpacing",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": 20,
+    "after": 30,
+    "expected": 30,
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-mask-link-ui",
+    "title": "蒙版链接/解除链接 UI 入口",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "status": "部分通过",
+    "text": "变换\nX\nY\n宽\n高\n角度\n采样\n高质量\n平滑\n邻近\n水平翻转\n垂直翻转\n旋转 90°\n复位\n外观\n不透明度 100% \n混合模式\n正常\n变暗\n正片叠底\n颜色加深\n线性加深\n变亮\n滤色\n颜色减淡\n线性减淡（添加）\n叠加\n柔光\n强光\n亮光\n线性光\n点光\n实色混合\n差值\n排除\n减去\n划分\n色相\n饱和度\n颜色\n明度\n剪贴蒙版\n图层蒙版\n 启用\n链接图像\n编辑图像\n反相\n应用\n删除\n图层效果\n添加效果",
+    "note": "数据模型有 linked 和 placement；此项只判断用户能否操作链接状态。"
+  },
+  {
+    "id": "PARITY-mask-transform",
+    "title": "选中独立蒙版后移动应只改变蒙版位置",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "origin": [
+        16,
+        16
+      ],
+      "size": [
+        32,
+        32
+      ],
+      "rotation": 0,
+      "flipX": false,
+      "flipY": false,
+      "sampling": "Nearest",
+      "warp": null
+    },
+    "after": {
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "mask": {
+        "x": 8,
+        "y": 6,
+        "width": 64,
+        "height": 64,
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest"
+      }
+    },
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-outline-move",
+    "title": "选区工具在已有选区内拖动只移动轮廓",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": {
+      "width": 64,
+      "height": 64,
+      "hash": "6aaa16c5",
+      "gray": false,
+      "count": 256
+    },
+    "after": {
+      "width": 64,
+      "height": 64,
+      "hash": "d86286c5",
+      "gray": false,
+      "count": 256
+    },
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-adjust-selection",
+    "title": "已存在调整层不随临时选区变化改变外观",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "before": "1241a563",
+    "after": "1241a563",
+    "note": "对照上游合成路径：已落地调整层应由其图层蒙版限制，临时选区用于编辑预览。",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-psd-before-apply",
+    "title": "PSD 转换报告在应用前确认，可取消导入",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "documents": [
+      1,
+      1,
+      1
+    ],
+    "dialog": "psdReport",
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-cross-doc-copy",
+    "title": "复制整组到另一个标签页保留层级、像素和独立 ID",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "source": [
+      {
+        "id": "1ace775e-3714-4fe3-b176-86325d27ff21",
+        "parent": "be2b5426-cbff-42af-9880-7fc59cafd8f3"
+      },
+      {
+        "id": "013cede0-f84b-4104-8143-98ff2ee07c54",
+        "parent": "be2b5426-cbff-42af-9880-7fc59cafd8f3"
+      },
+      {
+        "id": "be2b5426-cbff-42af-9880-7fc59cafd8f3",
+        "parent": null
+      }
+    ],
+    "target": [
+      {
+        "id": "24e27572-a6d4-42a5-b307-1fc83a69e2f8",
+        "parent": "c3319b8c-c902-4eb0-a1d0-57180ca9d907",
+        "hash": "57947dc5"
+      },
+      {
+        "id": "9ad559e3-b22a-4e2e-8605-ceabc8aba744",
+        "parent": "c3319b8c-c902-4eb0-a1d0-57180ca9d907",
+        "hash": "df42a16b"
+      },
+      {
+        "id": "c3319b8c-c902-4eb0-a1d0-57180ca9d907",
+        "parent": null,
+        "hash": null
+      }
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-cross-doc-drag",
+    "title": "拖动图层到另一个项目标签转移/复制到目标项目",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "documents": [
+      {
+        "name": "验收临时工程",
+        "layers": 2
+      },
+      {
+        "name": "目标工程",
+        "layers": 1
+      }
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "PARITY-layer-lock-ui",
+    "title": "图层面板有锁定/解锁入口",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": true,
+    "status": "部分通过",
+    "text": "新建\n复制\n编组\n合并\n删除\n○\n👁\n前景\n⋯\n○\n👁\n背景\n⋯",
+    "hints": [
+      "锁定",
+      "锁定"
+    ],
+    "note": "toggleLock 命令和锁定渲染保护存在，但不等于有界面入口。"
+  },
+  {
+    "id": "PARITY-raw-filter-entry",
+    "title": "普通 PNG 图层可以进入 Camera Raw Filter",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": false,
+    "status": "未实现",
+    "entries": [],
+    "note": "现有入口只导入 RAW 文件，不是对普通图层的 Camera Raw Filter。"
+  },
+  {
+    "id": "PARITY-psd-large-fallback",
+    "title": "大 PSD 图层超出内存时裁到画布的降级路径",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": false,
+    "status": "未实现",
+    "hasMemoryBudget": false,
+    "note": "PSD 导入先完整 readPsd/useImageData，没有上游按预算裁层降级路径；为避免耗尽内存未分配巨型样本。"
+  },
+  {
+    "id": "PARITY-pixel-grid-toggle",
+    "title": "用户可以开关像素网格",
+    "kind": "parity",
+    "scope": "按固定上游源码语义验证本地实现；不是上游 macOS 实机执行",
+    "pass": false,
+    "status": "未实现",
+    "entries": [],
+    "note": "渲染器有高倍率像素网格，但 CanvasStage 固定 showPixelGrid:true，无用户开关。"
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "RAW-neutral-normalization",
+    "title": "RAW 解码归一化不应重复乘255",
+    "kind": "raw-contract",
+    "pass": false,
+    "actual": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "expected": "16位灰度64/255、无额外曝光或矩阵时不应全部剪裁为255",
+    "scope": "RAW解码器接受的灰度TIFF必要数值合同；不是厂商RAW互操作样本",
+    "status": "失败"
+  },
+  {
+    "id": "RAW-neutral-bayer",
+    "title": "均匀 Bayer 的去马赛克颜色中性",
+    "kind": "raw-contract",
+    "pass": false,
+    "actual": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        255,
+        255
+      ],
+      [
+        0,
+        0,
+        255
+      ]
+    ],
+    "expected": "均匀中性 Bayer 样本内部各 CFA 相位均为中性颜色，不出现空通道",
+    "scope": "独立合成CFA必要数值合同，不代替真实相机质量验收",
+    "status": "失败"
+  }
+]

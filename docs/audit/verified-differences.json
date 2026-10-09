@@ -1,0 +1,18 @@
+[
+  {
+    "id": "ISSUE-019",
+    "priority": "P2",
+    "title": "投影角度的 UI/API 约定与上游光源方向相反",
+    "selectors": [
+      "FX-shadow-angle"
+    ],
+    "file": "src/core/engine/effects.ts",
+    "needle": "Math.cos",
+    "explanation": "angle=0 在本地向右投影，上游光从右来应向左。工程 codec 已有角度转换，因此此项不声称所有保存后投影都错误。",
+    "status": "已适配，非缺陷",
+    "evidence": [
+      "FX-shadow-angle"
+    ],
+    "reason": "测试预期应经过decodeEffects/encodeEffects。原来直接把内部角度与上游光源角同值比较不成立。已修改审计用例并重跑，无业务改动。"
+  }
+]

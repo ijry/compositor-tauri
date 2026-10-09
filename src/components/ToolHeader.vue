@@ -2,7 +2,7 @@
 /** 工具选项头：随当前工具自动切换，数值标签支持拖拽擦洗（scrub） */
 import { computed, ref } from 'vue';
 import { api, currentTool } from '@/composables/useEditor';
-import { updateTextLayer } from '@/tools/transform';
+import { updateTextLayer, updateShapeLayer, updateGradientLayer } from '@/tools/transform';
 
 const scrubbing = ref<{ key: string; startX: number; startValue: number } | null>(null);
 
@@ -22,6 +22,8 @@ function setValue(key: string, next: unknown): void {
   api.setToolOption(key, normalized);
   const layer = api.activeLayer();
   if (api.toolId === 'type' && layer?.text) updateTextLayer(api, layer.id, { [key]: normalized });
+  if(api.toolId==='shape'&&layer?.shape)updateShapeLayer(api,layer.id,{[key==='fill'?'fillEnabled':key]:normalized});
+  if(api.toolId==='gradient'&&layer?.gradient)updateGradientLayer(api,layer.id,{[key]:key==='opacity'?Number(normalized)/100:normalized});
 }
 
 /** 数字标签拖拽擦洗 */
@@ -56,7 +58,7 @@ function isTextOption(key: string): boolean {
     <span class="tool-name">{{ currentTool?.name }}</span>
     <template v-for="spec in specs" :key="spec.key">
       <label class="option">
-        <span class="label">{{ spec.label }}</span>
+        <span class="label" @mousedown="startScrub($event,spec.key)">{{ spec.label }}</span>
         <el-select
           v-if="spec.type === 'select' && !isTextOption(spec.key)"
           size="small"

@@ -40,13 +40,13 @@ test('关闭未保存标签取消时保留，确认时只关闭原标签',async(
  await page.locator('.tabs .close').click();await expect(page.locator('.tabs .tab')).toHaveCount(1);
  await page.evaluate(()=>{(window as any).otools.dialog.confirm=()=>new Promise(resolve=>{(window as any).answerClose=resolve;});});
  await page.locator('.tabs .close').click();await expect.poll(()=>page.evaluate(()=>typeof (window as any).answerClose)).toBe('function');
- await page.locator('.add-tab').click();await page.evaluate(()=>{(window as any).answerClose(true);});
+ await page.locator('.add-tab').click();await page.getByRole('button',{name:'创建',exact:true}).click();await page.evaluate(()=>{(window as any).answerClose(true);});
  await expect(page.locator('.tabs .tab')).toHaveCount(1);await expect(page.locator('.tabs .tab')).not.toContainText('审查临时文档');
 });
 test('面板缺省只删除活动层，切换文档不沿用旧选择',async({page})=>{
  await setup(page);await page.locator('.layers-panel .panel-bar').getByRole('button',{name:'删除',exact:true}).click();
  await expect(page.locator('.layer-row')).toHaveCount(1);await expect(page.locator('.layer-row')).toContainText('底层');
- await page.locator('.layer-row').click();await page.locator('.add-tab').click();
+ await page.locator('.layer-row').click();await page.locator('.add-tab').click();await page.getByRole('button',{name:'创建',exact:true}).click();
  await page.locator('.layers-panel .panel-bar').getByRole('button',{name:'删除',exact:true}).click();
  await expect(page.locator('.layer-row')).toHaveCount(0);
 });

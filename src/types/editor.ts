@@ -8,10 +8,12 @@ import type { PixelBuffer, Point, Rect } from '@/types/document';
 
 /** 图层快照（撤销用） */
 export interface LayerSnapshot {
+  gradient?: import('@/types/document').GradientMeta | null;
   pixels: PixelBuffer | null;
   mask: { width: number; height: number; data: Uint8Array<ArrayBuffer> } | null;
   maskState?: Omit<NonNullable<Layer['mask']>, 'pixels'> | null;
   clipping?: boolean;
+  maskSourceId?:string|null;
   transform: Layer['transform'];
   opacity: number;
   blendMode: Layer['blendMode'];
@@ -44,6 +46,8 @@ export interface EditorApi {
     guides: boolean;
     transformControls: boolean;
     selection: boolean;
+    canvasOnly: boolean;
+    pixelGrid: boolean;
   };
 
   /** 当前指针的文档坐标（画笔类工具用于绘制笔尖光标） */

@@ -1,0 +1,1684 @@
+[
+  {
+    "id": "FLOW-canvas-width",
+    "title": "画布大小只改宽度不应篡改高度",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "actual": [
+      80,
+      32
+    ],
+    "uiHeight": "32",
+    "expected": [
+      80,
+      32
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-image-aspect",
+    "title": "非正方形图像改宽度应保持比例",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "actual": [
+      80,
+      40
+    ],
+    "uiHeight": "40",
+    "expected": [
+      80,
+      40
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-marquee-feather",
+    "title": "框选羽化必须保留非空覆盖率并生成软边",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "selection": {
+      "width": 64,
+      "height": 64,
+      "hash": "4e6540cd",
+      "gray": true,
+      "count": 484
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-brush-shift",
+    "title": "Shift 点击连接上次画笔端点为直线",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "midpoint": [
+      0,
+      255,
+      0,
+      255
+    ],
+    "expected": [
+      0,
+      255,
+      0,
+      255
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-group-move",
+    "title": "移动组必须连同组内像素内容一起移动",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": [
+      {
+        "name": "背景",
+        "t": {
+          "origin": [
+            0,
+            0
+          ],
+          "size": [
+            64,
+            64
+          ],
+          "rotation": 0,
+          "flipX": false,
+          "flipY": false,
+          "sampling": "Nearest",
+          "warp": null
+        }
+      },
+      {
+        "name": "前景",
+        "t": {
+          "origin": [
+            16,
+            16
+          ],
+          "size": [
+            32,
+            32
+          ],
+          "rotation": 0,
+          "flipX": false,
+          "flipY": false,
+          "sampling": "Nearest",
+          "warp": null
+        }
+      },
+      {
+        "name": "移动组",
+        "t": {
+          "origin": [
+            0,
+            0
+          ],
+          "size": [
+            64,
+            64
+          ],
+          "rotation": 0,
+          "flipX": false,
+          "flipY": false,
+          "sampling": "High quality",
+          "warp": null
+        }
+      }
+    ],
+    "after": [
+      {
+        "name": "背景",
+        "t": {
+          "origin": [
+            0,
+            0
+          ],
+          "size": [
+            64,
+            64
+          ],
+          "rotation": 0,
+          "flipX": false,
+          "flipY": false,
+          "sampling": "Nearest",
+          "warp": null
+        }
+      },
+      {
+        "name": "前景",
+        "t": {
+          "origin": [
+            24,
+            22
+          ],
+          "size": [
+            32,
+            32
+          ],
+          "rotation": 0,
+          "flipX": false,
+          "flipY": false,
+          "sampling": "Nearest",
+          "warp": null
+        }
+      },
+      {
+        "name": "移动组",
+        "t": {
+          "origin": [
+            8,
+            6
+          ],
+          "size": [
+            64,
+            64
+          ],
+          "rotation": 0,
+          "flipX": false,
+          "flipY": false,
+          "sampling": "High quality",
+          "warp": null
+        }
+      }
+    ],
+    "compositeChanged": true,
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-multiselect-move",
+    "title": "多选两个图层后移动应同时移动选中的图层",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": [
+      [
+        0,
+        0
+      ],
+      [
+        16,
+        16
+      ]
+    ],
+    "after": [
+      [
+        8,
+        6
+      ],
+      [
+        24,
+        22
+      ]
+    ],
+    "selectedRows": 2,
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-nested-drag-false",
+    "title": "真实拖拽嵌套组保留后代层级",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "layers": [
+      {
+        "id": "358624a6-2673-45bd-a7aa-abc128d0bf8d",
+        "name": "背景",
+        "parent": null
+      },
+      {
+        "id": "22d9d39c-1a8d-42c1-acd4-26a0832ccac9",
+        "name": "前景",
+        "parent": null
+      },
+      {
+        "id": "7187007a-00f0-4937-92dd-efa32a6bb352",
+        "name": "目标组",
+        "parent": null
+      },
+      {
+        "id": "fae7910a-e088-4986-a8a0-65edd640c94c",
+        "name": "叶子",
+        "parent": "1a4a2dfb-c313-4a1c-84b1-b8b4d3ce4abb"
+      },
+      {
+        "id": "1a4a2dfb-c313-4a1c-84b1-b8b4d3ce4abb",
+        "name": "内层组",
+        "parent": "0ae93c87-2f44-41e0-af0b-1eb51636d351"
+      },
+      {
+        "id": "0ae93c87-2f44-41e0-af0b-1eb51636d351",
+        "name": "外层组",
+        "parent": "7187007a-00f0-4937-92dd-efa32a6bb352"
+      }
+    ],
+    "ids": {
+      "root": "0ae93c87-2f44-41e0-af0b-1eb51636d351",
+      "sub": "1a4a2dfb-c313-4a1c-84b1-b8b4d3ce4abb",
+      "leaf": "fae7910a-e088-4986-a8a0-65edd640c94c",
+      "dest": "7187007a-00f0-4937-92dd-efa32a6bb352"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-nested-drag-true",
+    "title": "Alt 拖拽复制组保留后代层级",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "layers": [
+      {
+        "id": "10157dd5-3b7b-45f7-8cdb-970374fe0a9b",
+        "name": "背景",
+        "parent": null
+      },
+      {
+        "id": "f04880a6-2496-4330-b8ba-899e72f4771c",
+        "name": "前景",
+        "parent": null
+      },
+      {
+        "id": "108637cb-694f-470a-a2b8-925b827fe311",
+        "name": "叶子",
+        "parent": "9022599d-e227-4216-9b00-57c84982a194"
+      },
+      {
+        "id": "9022599d-e227-4216-9b00-57c84982a194",
+        "name": "内层组",
+        "parent": "0b22a0ef-4b42-4cbe-bb01-a1274e35dc28"
+      },
+      {
+        "id": "0b22a0ef-4b42-4cbe-bb01-a1274e35dc28",
+        "name": "外层组",
+        "parent": null
+      },
+      {
+        "id": "317fc270-25bc-4676-82da-dd9045a96dd1",
+        "name": "目标组",
+        "parent": null
+      },
+      {
+        "id": "9927c72f-5c8f-4b95-9e9e-1782abe471b2",
+        "name": "叶子 副本",
+        "parent": "64f5e7b5-f1c2-40c0-8743-c63f37775bf9"
+      },
+      {
+        "id": "64f5e7b5-f1c2-40c0-8743-c63f37775bf9",
+        "name": "内层组 副本",
+        "parent": "73c0989a-b2d4-4b47-962e-c4e1fc691790"
+      },
+      {
+        "id": "73c0989a-b2d4-4b47-962e-c4e1fc691790",
+        "name": "外层组 副本",
+        "parent": "317fc270-25bc-4676-82da-dd9045a96dd1"
+      }
+    ],
+    "ids": {
+      "root": "0b22a0ef-4b42-4cbe-bb01-a1274e35dc28",
+      "sub": "9022599d-e227-4216-9b00-57c84982a194",
+      "leaf": "108637cb-694f-470a-a2b8-925b827fe311",
+      "dest": "317fc270-25bc-4676-82da-dd9045a96dd1"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-nested-command",
+    "title": "嵌套移动命令独立验证：仅根节点换父组",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "layers": [
+      {
+        "name": "背景",
+        "id": "b3c83a20-6dd3-4590-8a28-acb256e124b2",
+        "parent": null
+      },
+      {
+        "name": "前景",
+        "id": "a91b85c1-5d4a-424a-8a9a-625c324120e6",
+        "parent": null
+      },
+      {
+        "name": "目标组",
+        "id": "4de00e1d-22ca-4aea-a6af-cf6e87afdfa4",
+        "parent": null
+      },
+      {
+        "name": "叶子",
+        "id": "a217a7dd-bae1-4136-969d-4963de1a32ae",
+        "parent": "e7f8c524-8484-490f-b8e8-247525c1d92c"
+      },
+      {
+        "name": "内层组",
+        "id": "e7f8c524-8484-490f-b8e8-247525c1d92c",
+        "parent": "77da4b72-2af8-4939-96dc-fd4c4fa8e105"
+      },
+      {
+        "name": "外层组",
+        "id": "77da4b72-2af8-4939-96dc-fd4c4fa8e105",
+        "parent": "4de00e1d-22ca-4aea-a6af-cf6e87afdfa4"
+      }
+    ],
+    "ids": {
+      "root": "77da4b72-2af8-4939-96dc-fd4c4fa8e105",
+      "sub": "e7f8c524-8484-490f-b8e8-247525c1d92c",
+      "leaf": "a217a7dd-bae1-4136-969d-4963de1a32ae",
+      "dest": "4de00e1d-22ca-4aea-a6af-cf6e87afdfa4"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-selection-move-false",
+    "title": "移动工具只移动选区内像素而非整层",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "id": "836eeae2-41ae-414a-b44c-61072feba823",
+      "kind": "pixel",
+      "name": "前景",
+      "visible": true,
+      "opacity": 1,
+      "parent": null,
+      "clipping": false,
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": {
+        "width": 32,
+        "height": 32,
+        "hash": "df42a16b",
+        "visible": 1024,
+        "first": [
+          30,
+          25,
+          35,
+          255
+        ]
+      },
+      "mask": null,
+      "text": null,
+      "effects": null,
+      "adjustment": null
+    },
+    "after": {
+      "id": "836eeae2-41ae-414a-b44c-61072feba823",
+      "kind": "pixel",
+      "name": "前景",
+      "visible": true,
+      "opacity": 1,
+      "parent": null,
+      "clipping": false,
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": {
+        "width": 32,
+        "height": 32,
+        "hash": "21fb9f95",
+        "visible": 960,
+        "first": [
+          30,
+          25,
+          35,
+          255
+        ]
+      },
+      "mask": null,
+      "text": null,
+      "effects": null,
+      "adjustment": null
+    },
+    "note": "上游有选区像素移动/复制分支，本地应区别于整层平移。",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-selection-move-true",
+    "title": "Alt 拖动复制选区内像素，保留原图层其余像素",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "id": "fdaf05da-a41a-48fb-b6cd-3546b0fd55f0",
+      "kind": "pixel",
+      "name": "前景",
+      "visible": true,
+      "opacity": 1,
+      "parent": null,
+      "clipping": false,
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": {
+        "width": 32,
+        "height": 32,
+        "hash": "df42a16b",
+        "visible": 1024,
+        "first": [
+          30,
+          25,
+          35,
+          255
+        ]
+      },
+      "mask": null,
+      "text": null,
+      "effects": null,
+      "adjustment": null
+    },
+    "after": {
+      "id": "fdaf05da-a41a-48fb-b6cd-3546b0fd55f0",
+      "kind": "pixel",
+      "name": "前景",
+      "visible": true,
+      "opacity": 1,
+      "parent": null,
+      "clipping": false,
+      "transform": {
+        "origin": [
+          16,
+          16
+        ],
+        "size": [
+          32,
+          32
+        ],
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "sampling": "Nearest",
+        "warp": null
+      },
+      "pixels": {
+        "width": 32,
+        "height": 32,
+        "hash": "25d53af1",
+        "visible": 1024,
+        "first": [
+          30,
+          25,
+          35,
+          255
+        ]
+      },
+      "mask": null,
+      "text": null,
+      "effects": null,
+      "adjustment": null
+    },
+    "note": "上游有选区像素移动/复制分支，本地应区别于整层平移。",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-nudge-history",
+    "title": "方向键微调一次只增加一条历史且一次撤销恢复",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "history": [
+      -1,
+      0,
+      -1
+    ],
+    "origins": [
+      [
+        16,
+        16
+      ],
+      [
+        17,
+        16
+      ],
+      [
+        16,
+        16
+      ]
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-warp-shift",
+    "title": "Meta+Shift 拖动扭曲角点应锁轴",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "warp": [
+      {
+        "x": -0.25,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 1
+      }
+    ],
+    "note": "Meta 用于触发当前实现的扭曲；Windows Ctrl 单独已有失败用例。",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-shape-edit",
+    "title": "形状绘制后修改描边宽度仍可编辑已有形状",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "shape": {
+        "kind": "rectangle",
+        "color": [
+          0,
+          255,
+          0
+        ],
+        "cornerRadius": 0,
+        "fillEnabled": true,
+        "strokeWidth": 0,
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          1,
+          1
+        ]
+      },
+      "hash": "17d8d445"
+    },
+    "after": {
+      "shape": {
+        "kind": "rectangle",
+        "color": [
+          0,
+          255,
+          0
+        ],
+        "cornerRadius": 0,
+        "fillEnabled": true,
+        "strokeWidth": 6,
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          1,
+          1
+        ]
+      },
+      "hash": "a761e75",
+      "option": 6
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-gradient-edit",
+    "title": "渐变绘制后反向控件应更新已有渐变",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": "7a778b0c",
+    "after": "13848774",
+    "option": true,
+    "note": "当前工具只保存拖动瞬态起止点，没有持久可编辑渐变元数据。",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-mask-delete",
+    "title": "编辑蒙版时图层面板删除按钮只删除蒙版",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": [
+      {
+        "id": "1bbc1f96-fb05-42c5-aeb9-4226f65bd1da",
+        "mask": null
+      },
+      {
+        "id": "4d28742c-f85b-47f9-8d4a-fa589ad4439d",
+        "mask": {
+          "hash": "422f51c5",
+          "enabled": true,
+          "target": "mask"
+        }
+      }
+    ],
+    "after": [
+      {
+        "id": "1bbc1f96-fb05-42c5-aeb9-4226f65bd1da",
+        "mask": null
+      },
+      {
+        "id": "4d28742c-f85b-47f9-8d4a-fa589ad4439d",
+        "mask": null
+      }
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-open-image-dirty",
+    "title": "导入位图应标脏并能一次撤销",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "layers": 2,
+      "dirty": false,
+      "history": -1
+    },
+    "after": {
+      "layers": 3,
+      "dirty": true,
+      "history": 0
+    },
+    "undo": {
+      "layers": 2,
+      "dirty": true,
+      "history": -1
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-start-openImage",
+    "title": "欢迎页直接打开 / openImage",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "state": {
+      "documents": 1,
+      "width": 16,
+      "height": 16,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 16,
+        "centerX": 0.5,
+        "centerY": 0.5
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "aeec6d8b-1c8e-49ec-a163-b9cb5f8e2079",
+          "kind": "pixel",
+          "name": "input",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              16,
+              16
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "High quality",
+            "warp": null
+          },
+          "pixels": {
+            "width": 16,
+            "height": 16,
+            "hash": "f8435c5",
+            "visible": 256,
+            "first": [
+              200,
+              60,
+              20,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 16,
+        "height": 16,
+        "hash": "f8435c5",
+        "visible": 256,
+        "first": [
+          200,
+          60,
+          20,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 导入图片"
+    },
+    "messages": [],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-start-openRaw",
+    "title": "欢迎页直接打开 / openRaw",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "state": {
+      "documents": 1,
+      "width": 16,
+      "height": 16,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 16,
+        "centerX": 8,
+        "centerY": 8
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "a4807574-e705-4e79-96dd-a07c49d44bde",
+          "kind": "pixel",
+          "name": "RAW · 未知相机",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              16,
+              16
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "High quality",
+            "warp": null
+          },
+          "pixels": {
+            "width": 16,
+            "height": 16,
+            "hash": "e109ed2",
+            "visible": 256,
+            "first": [
+              30,
+              39,
+              48,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 16,
+        "height": 16,
+        "hash": "e109ed2",
+        "visible": 256,
+        "first": [
+          30,
+          39,
+          48,
+          255
+        ]
+      },
+      "dialog": "rawDevelop",
+      "status": "已打开 相机RAW"
+    },
+    "messages": [],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-start-openPsd",
+    "title": "欢迎页直接打开 / openPsd",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": false,
+    "state": {
+      "documents": 0,
+      "empty": true
+    },
+    "messages": [],
+    "status": "失败"
+  },
+  {
+    "id": "FLOW-start-openComp",
+    "title": "欢迎页直接打开 / openComp",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "state": {
+      "documents": 1,
+      "width": 16,
+      "height": 16,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 16,
+        "centerX": 8,
+        "centerY": 8
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "11111111-1111-4111-8111-111111111111",
+          "kind": "pixel",
+          "name": "参考层",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              16,
+              16
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 16,
+            "height": 16,
+            "hash": "f8435c5",
+            "visible": 256,
+            "first": [
+              200,
+              60,
+              20,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 16,
+        "height": 16,
+        "hash": "f8435c5",
+        "visible": 256,
+        "first": [
+          200,
+          60,
+          20,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开工程 project.comp"
+    },
+    "messages": [],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-jpeg-format",
+    "title": "JPEG 快捷键打开后格式必须为 JPEG 并可预览",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "status": "未验证",
+    "error": "locator.textContent: Timeout 6000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.el-dialog:visible').locator('.el-select__selected-item').first()\u001b[22m\n",
+    "note": "脚本或前置条件异常，不直接算产品缺陷，须人工归因。"
+  },
+  {
+    "id": "FLOW-effects-ui",
+    "title": "六种图层效果均有颜色/大小/强度参数编辑入口",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "status": "部分通过",
+    "controls": [
+      {
+        "type": "text",
+        "value": ""
+      },
+      {
+        "type": "color",
+        "value": "#00ff00"
+      },
+      {
+        "type": "number",
+        "value": "3"
+      },
+      {
+        "type": "number",
+        "value": "1"
+      },
+      {
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "type": "color",
+        "value": "#000000"
+      },
+      {
+        "type": "number",
+        "value": "1"
+      },
+      {
+        "type": "number",
+        "value": "45"
+      },
+      {
+        "type": "number",
+        "value": "5"
+      },
+      {
+        "type": "number",
+        "value": "3"
+      },
+      {
+        "type": "color",
+        "value": "#0000ff"
+      },
+      {
+        "type": "number",
+        "value": "0.5"
+      },
+      {
+        "type": "color",
+        "value": "#000000"
+      },
+      {
+        "type": "number",
+        "value": "1"
+      },
+      {
+        "type": "number",
+        "value": "45"
+      },
+      {
+        "type": "number",
+        "value": "3"
+      },
+      {
+        "type": "number",
+        "value": "2"
+      },
+      {
+        "type": "color",
+        "value": "#00ff00"
+      },
+      {
+        "type": "number",
+        "value": "3"
+      },
+      {
+        "type": "number",
+        "value": "1"
+      },
+      {
+        "type": "color",
+        "value": "#00ff00"
+      },
+      {
+        "type": "number",
+        "value": "3"
+      },
+      {
+        "type": "number",
+        "value": "1"
+      },
+      {
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "text": "图层效果\n添加效果\n描边\n颜色\n大小\n不透明度\n内部描边\n投影\n颜色\n不透明度\n方向\n距离\n模糊\n颜色叠加\n颜色\n不透明度\n内阴影\n颜色\n不透明度\n方向\n距离\n模糊\n外发光\n颜色\n大小\n不透明度\n内发光\n颜色\n大小\n不透明度\n 描边\n移除\n 投影\n移除\n 内阴影\n移除\n 颜色叠加\n移除\n 外发光\n移除\n 内发光\n移除"
+  },
+  {
+    "id": "FLOW-filter-preview",
+    "title": "破坏性滤镜具有参数和确认/取消实时预览流程",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": false,
+    "dialog": null,
+    "history": [
+      -1,
+      0
+    ],
+    "pixelChanged": true,
+    "note": "直接落盘修改不等于带确认/取消的实时预览面板。",
+    "status": "失败"
+  },
+  {
+    "id": "FLOW-grid-enable",
+    "title": "网格设置中的启用开关应立即显示网格",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "flags": {
+      "doc": true,
+      "ui": true
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-grid-subdivisions",
+    "title": "网格 subdivisions 改动应产生细分线",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": "81313f0",
+    "after": "73c27cfc",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-move-controls",
+    "title": "移动工具头部显示变换控件开关实际控制显示",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": "c0eddfef",
+    "after": "c7492905",
+    "flags": {
+      "ui": true,
+      "option": false
+    },
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-guide-move",
+    "title": "画布内已有参考线可以拖动调整位置",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "actual": [
+      {
+        "id": "guide-test",
+        "axis": "vertical",
+        "position": 14
+      }
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-guide-history",
+    "title": "从标尺新建参考线可撤销",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "beforeUndo": {
+      "guides": [
+        {
+          "id": "guide-muzs4bj7",
+          "axis": "horizontal",
+          "position": 11
+        }
+      ],
+      "dirty": true,
+      "history": 0
+    },
+    "after": [],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-opacity-digits",
+    "title": "单数字与连续两位数字正确设置图层透明度",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "fifty": 0.5,
+    "seventyFive": 0.75,
+    "expected": [
+      0.5,
+      0.75
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-tab-tool",
+    "title": "Tab 循环当前分组工具而非仅转移焦点",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": "brush",
+    "after": "gradient",
+    "activeElement": "<body>\n    <div id=\"app\" data-v-app=\"\"><div class=\"cmp-app\"><!--v-if--><!--v-if--><!-- 菜单栏 --><header class=\"menu-bar\"><div class=\"el-dropdown\"><span class=\"menu-title el-tooltip__",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-command-palette",
+    "title": "Ctrl+F 命令面板入口",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "status": "部分通过",
+    "dialog": "commandPalette",
+    "candidateNodes": 2,
+    "note": "上游 1.4.6 README 的 Command Palette，不是浏览器内置查找。"
+  },
+  {
+    "id": "FLOW-canvas-only",
+    "title": "F 切换仅画布模式",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "status": "通过",
+    "toolbarBefore": true,
+    "toolbarAfter": false
+  },
+  {
+    "id": "FLOW-label-scrub",
+    "title": "拖动数值标签擦洗值，而不是必须拖输入框",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "actual": 70,
+    "expected": "标签拖拽30px后数值改变",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-layer-context",
+    "title": "图层行右键出现图层操作菜单",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "status": "通过",
+    "menuCount": 1,
+    "note": "存在 ⋯ 左键菜单不等于右键菜单。"
+  },
+  {
+    "id": "FLOW-toolbar-longpress",
+    "title": "工具栏长按弹出同组工具选择",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "status": "部分通过",
+    "menus": 1,
+    "note": "当前工具全量展开可点击，但未实现声明的长按组内弹出。"
+  },
+  {
+    "id": "FLOW-panel-dock",
+    "title": "浮动/拖动/缩放/左侧停靠与持久化",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "moved": {
+      "x": 565,
+      "y": 172,
+      "width": 280,
+      "height": 460,
+      "area": "right"
+    },
+    "resized": {
+      "x": 565,
+      "y": 172,
+      "width": 330,
+      "height": 510,
+      "area": "right"
+    },
+    "area": "left",
+    "persisted": "left",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-panel-edge",
+    "title": "浮动面板拖到窗口右边缘松开自动停靠",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "area": "right",
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-panel-doubleclick",
+    "title": "停靠面板双击标题切换为浮动（原计划说明）",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "area": "float",
+    "collapsed": false,
+    "status": "通过"
+  },
+  {
+    "id": "FLOW-theme-persistence",
+    "title": "主题切换并重载保留",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "before": "light",
+    "after": "light",
+    "status": "通过"
+  },
+  {
+    "id": "COLOR-roundtrips",
+    "title": "sRGB/线性、HSL、HSV、Lab 数值往返",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "checks": [
+      {
+        "name": "HSL",
+        "rgb": [
+          0,
+          0,
+          0
+        ],
+        "out": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "error": 0
+      },
+      {
+        "name": "HSV",
+        "rgb": [
+          0,
+          0,
+          0
+        ],
+        "out": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "error": 0
+      },
+      {
+        "name": "Lab",
+        "rgb": [
+          0,
+          0,
+          0
+        ],
+        "out": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "error": 0
+      },
+      {
+        "name": "sRGB",
+        "value": 0,
+        "error": 0
+      },
+      {
+        "name": "sRGB",
+        "value": 0,
+        "error": 0
+      },
+      {
+        "name": "sRGB",
+        "value": 0,
+        "error": 0
+      },
+      {
+        "name": "HSL",
+        "rgb": [
+          255,
+          255,
+          255
+        ],
+        "out": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        },
+        "error": 0
+      },
+      {
+        "name": "HSV",
+        "rgb": [
+          255,
+          255,
+          255
+        ],
+        "out": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        },
+        "error": 0
+      },
+      {
+        "name": "Lab",
+        "rgb": [
+          255,
+          255,
+          255
+        ],
+        "out": {
+          "r": 254.99998940693285,
+          "g": 254.99999999999997,
+          "b": 254.99999736707582
+        },
+        "error": 0.000010593067145237
+      },
+      {
+        "name": "sRGB",
+        "value": 255,
+        "error": 2.842170943040401e-14
+      },
+      {
+        "name": "sRGB",
+        "value": 255,
+        "error": 2.842170943040401e-14
+      },
+      {
+        "name": "sRGB",
+        "value": 255,
+        "error": 2.842170943040401e-14
+      },
+      {
+        "name": "HSL",
+        "rgb": [
+          255,
+          0,
+          0
+        ],
+        "out": {
+          "r": 255,
+          "g": 0,
+          "b": 0
+        },
+        "error": 0
+      },
+      {
+        "name": "HSV",
+        "rgb": [
+          255,
+          0,
+          0
+        ],
+        "out": {
+          "r": 255,
+          "g": 0,
+          "b": 0
+        },
+        "error": 0
+      },
+      {
+        "name": "Lab",
+        "rgb": [
+          255,
+          0,
+          0
+        ],
+        "out": {
+          "r": 254.99997925881814,
+          "g": 0.0004342721637980301,
+          "b": 0
+        },
+        "error": 0.0004342721637980301
+      },
+      {
+        "name": "sRGB",
+        "value": 255,
+        "error": 2.842170943040401e-14
+      },
+      {
+        "name": "sRGB",
+        "value": 0,
+        "error": 0
+      },
+      {
+        "name": "sRGB",
+        "value": 0,
+        "error": 0
+      },
+      {
+        "name": "HSL",
+        "rgb": [
+          20,
+          80,
+          160
+        ],
+        "out": {
+          "r": 19.999999999999986,
+          "g": 79.99999999999987,
+          "b": 160
+        },
+        "error": 1.2789769243681803e-13
+      },
+      {
+        "name": "HSV",
+        "rgb": [
+          20,
+          80,
+          160
+        ],
+        "out": {
+          "r": 19.999999999999986,
+          "g": 79.9999999999999,
+          "b": 160
+        },
+        "error": 9.947598300641403e-14
+      },
+      {
+        "name": "Lab",
+        "rgb": [
+          20,
+          80,
+          160
+        ],
+        "out": {
+          "r": 20.000039629492928,
+          "g": 79.99999896382928,
+          "b": 160.000001483298
+        },
+        "error": 0.00003962949292812823
+      },
+      {
+        "name": "sRGB",
+        "value": 20,
+        "error": 0
+      },
+      {
+        "name": "sRGB",
+        "value": 80,
+        "error": 0
+      },
+      {
+        "name": "sRGB",
+        "value": 160,
+        "error": 0
+      },
+      {
+        "name": "HSL",
+        "rgb": [
+          120,
+          90,
+          200
+        ],
+        "out": {
+          "r": 119.99999999999996,
+          "g": 89.99999999999996,
+          "b": 200.00000000000003
+        },
+        "error": 4.263256414560601e-14
+      },
+      {
+        "name": "HSV",
+        "rgb": [
+          120,
+          90,
+          200
+        ],
+        "out": {
+          "r": 119.99999999999997,
+          "g": 90,
+          "b": 200
+        },
+        "error": 2.842170943040401e-14
+      },
+      {
+        "name": "Lab",
+        "rgb": [
+          120,
+          90,
+          200
+        ],
+        "out": {
+          "r": 119.99999949636178,
+          "g": 90.0000079059678,
+          "b": 200.0000015199288
+        },
+        "error": 0.000007905967805754699
+      },
+      {
+        "name": "sRGB",
+        "value": 120,
+        "error": 1.4210854715202004e-14
+      },
+      {
+        "name": "sRGB",
+        "value": 90,
+        "error": 0
+      },
+      {
+        "name": "sRGB",
+        "value": 200,
+        "error": 0
+      }
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "UI-layout-1440",
+    "title": "工作区布局可见性 / 1440",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "bounds": {
+      "page": [
+        1440,
+        1440
+      ],
+      "stage": {
+        "x": 52,
+        "y": 96,
+        "width": 1100,
+        "height": 631
+      },
+      "body": [
+        1440,
+        1440
+      ]
+    },
+    "screenshot": "screenshots/layout-1440.png",
+    "note": "仅代表这些分辨率结构不溢出，不替代 OTools 宿主/DPI/字体外观验收。",
+    "status": "通过"
+  },
+  {
+    "id": "UI-layout-960",
+    "title": "工作区布局可见性 / 960",
+    "kind": "contract",
+    "scope": "独立浏览器的真实 UI 或业务模块合同；OTools 文件服务为内存替身",
+    "pass": true,
+    "bounds": {
+      "page": [
+        960,
+        960
+      ],
+      "stage": {
+        "x": 52,
+        "y": 96,
+        "width": 658.40625,
+        "height": 631
+      },
+      "body": [
+        960,
+        960
+      ]
+    },
+    "screenshot": "screenshots/layout-960.png",
+    "note": "仅代表这些分辨率结构不溢出，不替代 OTools 宿主/DPI/字体外观验收。",
+    "status": "通过"
+  }
+]

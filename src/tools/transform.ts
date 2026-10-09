@@ -5,8 +5,12 @@
  * 因此图层缩放到 5% 仍保持原始分辨率。
  */
 import { reactive } from 'vue';
-import { cropDocument } from '@/core/document';
-import { snapPoint } from '@/core/engine/snapping';
+import { cloneBuffer } from '@/core/pixels';
+import { compositeDocument } from '@/core/engine/compositor';
+import { cropDocument, uuid, descendantsOf } from '@/core/document';
+import { beginSelectionMove, updateSelectionMove, endSelectionMove, nudgeSelectionPixels } from './selectionMove';
+import { placementTransform } from '@/core/engine/maskGeometry';
+import { snapPoint, snapTranslation } from '@/core/engine/snapping';
 import { defaultTextMeta, renderText } from '@/core/engine/text';
 import { beginInteraction, drawHandles, endInteraction, hitHandle, hitRect, rectFromPoints, snapshotBytes } from '@/tools/helpers';
 import type { EditorApi } from '@/types/editor';
@@ -21,10 +25,13 @@ interface TransformState {
   ids: string[];
   center: Point;
   startAngle: number;
+  rect: Rect;
+  basis:LayerTransform|null;
+  masks:Set<string>;
 }
 
 const transformState: TransformState = {
-  mode: 'idle', handle: -1, start: { x: 0, y: 0 }, origins: new Map(), ids: [], center: { x: 0, y: 0 }, startAngle: 0,
+  mode: 'idle', handle: -1, start: { x: 0, y: 0 }, origins: new Map(), ids: [], center: { x: 0, y: 0 }, startAngle: 0, rect:{x:0,y:0,width:1,height:1},basis:null,masks:new Set(),
 };
 
 /** 图层在文档空间的四个角（含旋转与翻转） */
@@ -72,6 +79,15 @@ function invertSimple(transform: LayerTransform): (p: Point) => Point {
   };
 }
 
+/** 独立蒙版的变换映射到placement，不改动原图像。 */
+function readTransform(layer:import('@/types/document').Layer):LayerTransform {
+  return layer.mask?.target==='mask'&&!layer.mask.linked&&layer.mask.placement?placementTransform(layer.mask.placement):layer.transform;
+}
+function writeTransform(layer:import('@/types/document').Layer,t:LayerTransform,mask=layer.mask?.target==='mask'&&!layer.mask.linked):void {
+  if(mask&&layer.mask?.placement)layer.mask.placement={x:t.origin[0],y:t.origin[1],width:t.size[0],height:t.size[1],rotation:t.rotation,flipX:t.flipX,flipY:t.flipY,sampling:t.sampling};
+  else layer.transform=t;
+}
+
 /** 移动 / 变换工具 */
 export const moveTool: ToolDefinition = {
   id: 'move',
@@ -88,18 +104,24 @@ export const moveTool: ToolDefinition = {
   ],
   onDown(editor, event) {
     const layer = editor.activeLayer();
-    if (!layer) return;
-    const ids = editor.option<boolean>('transformAll', false)
+    if (!layer || layer.locked) return;
+    if(beginSelectionMove(editor,event.doc,event.alt)){transformState.mode='idle';return;}
+    let ids = editor.option<boolean>('transformAll', false)
       ? editor.doc.layers.filter((item) => item.isVisible).map((item) => item.id)
-      : [layer.id];
-    const rect = cornersRect(layerCorners(layer));
+      : [...new Set((editor.doc.selectedLayerIds?.includes(layer.id)?editor.doc.selectedLayerIds:[layer.id]).flatMap(id=>{const item=editor.findLayer(id);return item?.kind==='group'?[id,...descendantsOf(editor.doc,id).map(c=>c.id)]:[id];}))];
+    if(layer.mask?.target==='mask')ids=[layer.id];
+    const visible=ids.map(id=>editor.findLayer(id)).filter(l=>l&&l.kind!=='group');
+    const rect=layer.kind==='group'&&layer.mask?.target!=='mask'&&visible.length?cornersRect(visible.flatMap(l=>layerCorners(l!))):cornersRect(layerCorners({...layer,transform:readTransform(layer)}));
+    transformState.basis=layer.kind==='group'&&layer.mask?.target!=='mask'?{...layer.transform,origin:[rect.x,rect.y],size:[rect.width,rect.height]}:JSON.parse(JSON.stringify(readTransform(layer)));
+    transformState.masks=new Set(ids.filter(id=>{const l=editor.findLayer(id);return l?.mask?.target==='mask'&&!l.mask.linked;}));
+    transformState.rect=rect;
     const tolerance = 7 / Math.max(0.05, editor.viewport.zoom);
     const handle = hitHandle(rect, event.doc, tolerance);
     transformState.ids = ids;
     transformState.origins = new Map();
     for (const id of ids) {
       const target = editor.findLayer(id);
-      if (target) transformState.origins.set(id, JSON.parse(JSON.stringify(target.transform)) as LayerTransform);
+      if (target) transformState.origins.set(id, JSON.parse(JSON.stringify(readTransform(target))) as LayerTransform);
     }
     transformState.start = event.doc;
     transformState.center = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
@@ -116,15 +138,15 @@ export const moveTool: ToolDefinition = {
     }
   },
   onMove(editor, event) {
+    if(updateSelectionMove(editor,event.doc))return;
     if (transformState.mode === 'idle') return;
     const active = editor.activeLayer();
     if (!active) return;
-    const ids = editor.option<boolean>('transformAll', false) ? transformState.ids : [active.id];
+    const ids = transformState.ids;
     if (transformState.mode === 'move') {
       let delta = { x: event.doc.x - transformState.start.x, y: event.doc.y - transformState.start.y };
       if (editor.option<boolean>('snap', true) && !event.meta) {
-        const snapped = snapPoint(editor, { x: transformState.start.x + delta.x, y: transformState.start.y + delta.y }, ids);
-        delta = { x: snapped.point.x - transformState.start.x, y: snapped.point.y - transformState.start.y };
+        delta=snapTranslation(editor,transformState.rect,delta,ids);
       }
       if (event.shift) {
         if (Math.abs(delta.x) > Math.abs(delta.y)) delta.y = 0;
@@ -134,13 +156,13 @@ export const moveTool: ToolDefinition = {
         const origin = transformState.origins.get(id);
         const layer = editor.findLayer(id);
         if (!origin || !layer) continue;
-        layer.transform.origin = [origin.origin[0] + delta.x, origin.origin[1] + delta.y];
+        writeTransform(layer,{...origin,origin:[origin.origin[0]+delta.x,origin.origin[1]+delta.y]});
       }
       editor.invalidate();
       return;
     }
     if (transformState.mode === 'scale') {
-      const origin = transformState.origins.get(active.id);
+      const origin = transformState.basis;
       if (!origin) return;
       const handle = transformState.handle;
       const sx = origin.size[0] === 0 ? 1 : Math.max(0.01, (event.doc.x - origin.origin[0]) / origin.size[0]);
@@ -154,18 +176,20 @@ export const moveTool: ToolDefinition = {
         if (handle <= 2) height = width / ratio;
         else width = height * ratio;
       }
-      active.transform.size = [Math.max(1, width), Math.max(1, height)];
+      const kx=Math.max(1,width)/origin.size[0],ky=Math.max(1,height)/origin.size[1];
+      for(const id of ids){const target=editor.findLayer(id),base=transformState.origins.get(id);if(!target||!base)continue;writeTransform(target,{...base,origin:[origin.origin[0]+(base.origin[0]-origin.origin[0])*kx,origin.origin[1]+(base.origin[1]-origin.origin[1])*ky],size:[Math.max(1,base.size[0]*kx),Math.max(1,base.size[1]*ky)]});}
       editor.invalidate();
       return;
     }
     if (transformState.mode === 'rotate') {
-      const origin = transformState.origins.get(active.id);
+      const origin = transformState.basis;
       if (!origin) return;
       const angle = Math.atan2(event.doc.y - transformState.center.y, event.doc.x - transformState.center.x) * 180 / Math.PI;
       let next = origin.rotation + (angle - transformState.startAngle);
       if (event.shift) next = Math.round(next / 15) * 15;
       else if (editor.option<boolean>('snap', true)) next = Math.round(next);
-      active.transform.rotation = ((next % 360) + 360) % 360;
+      const delta=(next-origin.rotation)*Math.PI/180,center=transformState.center;
+      for(const id of ids){const target=editor.findLayer(id),base=transformState.origins.get(id);if(!target||!base)continue;const x=base.origin[0]+base.size[0]/2-center.x,y=base.origin[1]+base.size[1]/2-center.y;writeTransform(target,{...base,origin:[center.x+x*Math.cos(delta)-y*Math.sin(delta)-base.size[0]/2,center.y+x*Math.sin(delta)+y*Math.cos(delta)-base.size[1]/2],rotation:base.rotation+next-origin.rotation});}
       editor.invalidate();
       return;
     }
@@ -174,7 +198,9 @@ export const moveTool: ToolDefinition = {
     if (!origin || active.kind !== 'pixel' || !active.pixels) return;
     const warp = origin.warp ?? [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 1 }];
     const cornerIndex = transformState.handle >= 0 ? [0, 1, 2, 3][Math.floor(transformState.handle / 2)] ?? 0 : 0;
-    const local = invertSimple(origin)(event.doc);
+    let point=event.doc;
+    if(event.shift){const dx=point.x-transformState.start.x,dy=point.y-transformState.start.y;point=Math.abs(dx)>=Math.abs(dy)?{x:point.x,y:transformState.start.y}:{x:transformState.start.x,y:point.y};}
+    const local = invertSimple(origin)(point);
     const next = [...warp] as [Point, Point, Point, Point];
     next[cornerIndex] = {
       x: local.x / Math.max(1, active.pixels.width),
@@ -184,16 +210,18 @@ export const moveTool: ToolDefinition = {
     editor.invalidate();
   },
   onUp(editor) {
+    if(endSelectionMove(editor))return;
     if (transformState.mode === 'idle') return;
     transformState.mode = 'idle';
     // 记录历史：提交一次变换
     const label = '变换图层';
+    const maskTargets=new Set(transformState.masks);
     const before = new Map<string, LayerTransform>();
     for (const [id, value] of transformState.origins) before.set(id, value);
     const after = new Map<string, LayerTransform>();
     for (const id of before.keys()) {
       const layer = editor.findLayer(id);
-      if (layer) after.set(id, JSON.parse(JSON.stringify(layer.transform)) as LayerTransform);
+      if (layer) after.set(id, JSON.parse(JSON.stringify(readTransform(layer))) as LayerTransform);
     }
     let changed = false;
     for (const [id, value] of before) {
@@ -209,14 +237,14 @@ export const moveTool: ToolDefinition = {
       () => {
         for (const [id, value] of before) {
           const layer = editor.findLayer(id);
-          if (layer) layer.transform = JSON.parse(JSON.stringify(value)) as LayerTransform;
+          if (layer) writeTransform(layer,JSON.parse(JSON.stringify(value)) as LayerTransform,maskTargets.has(id));
         }
         editor.invalidate();
       },
       () => {
         for (const [id, value] of after) {
           const layer = editor.findLayer(id);
-          if (layer) layer.transform = JSON.parse(JSON.stringify(value)) as LayerTransform;
+          if (layer) writeTransform(layer,JSON.parse(JSON.stringify(value)) as LayerTransform,maskTargets.has(id));
         }
         editor.invalidate();
       },
@@ -228,25 +256,15 @@ export const moveTool: ToolDefinition = {
     const layer = editor.activeLayer();
     if (!layer) return false;
     const step = event.shiftKey ? 10 : 1;
-    const snapshot = beginInteraction(editor, [layer.id]);
-    const before = JSON.parse(JSON.stringify(layer.transform)) as LayerTransform;
-    const apply = (dx: number, dy: number): void => {
-      layer.transform.origin = [before.origin[0] + dx, before.origin[1] + dy];
-    };
-    if (event.key === 'ArrowLeft') apply(-step, 0);
-    if (event.key === 'ArrowRight') apply(step, 0);
-    if (event.key === 'ArrowUp') apply(0, -step);
-    if (event.key === 'ArrowDown') apply(0, step);
-    const after = JSON.parse(JSON.stringify(layer.transform)) as LayerTransform;
-    layer.transform = before;
-    endInteraction(editor, '微移图层', snapshot, snapshotBytes(snapshot));
-    layer.transform = after;
-    editor.pushHistory(
-      '微移图层',
-      () => { layer.transform = before; editor.invalidate(); },
-      () => { layer.transform = after; editor.invalidate(); },
-      64,
-    );
+    if((event.ctrlKey||event.metaKey)&&editor.doc.selection)return nudgeSelectionPixels(editor,event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0);
+    const ids=editor.doc.selectedLayerIds?.includes(layer.id)?editor.doc.selectedLayerIds:[layer.id];
+    const targets=layer.mask?.target==='mask'?[layer.id]:[...new Set(ids.flatMap(id=>[id,...descendantsOf(editor.doc,id).map(l=>l.id)]))];
+    const maskTargets=new Set(targets.filter(id=>{const l=editor.findLayer(id);return l?.mask?.target==='mask'&&!l.mask.linked;}));
+    const before=new Map(targets.map(id=>[id,JSON.parse(JSON.stringify(readTransform(editor.findLayer(id)!))) as LayerTransform]));
+    const dx=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,dy=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;
+    const after=new Map([...before].map(([id,t])=>[id,{...t,origin:[t.origin[0]+dx,t.origin[1]+dy] as [number,number]}]));
+    const apply=(map:Map<string,LayerTransform>)=>{for(const [id,t]of map){const target=editor.findLayer(id);if(target)writeTransform(target,JSON.parse(JSON.stringify(t)),maskTargets.has(id));}editor.invalidate();};
+    apply(after);editor.pushHistory('微移图层',()=>apply(before),()=>apply(after),targets.length*128);
     editor.invalidate();
     return true;
   },
@@ -257,6 +275,7 @@ export const moveTool: ToolDefinition = {
 
 /** 绘制变换控件 */
 export function drawTransformControls(context: ToolOverlayContext): void {
+  if(!context.editor.option<boolean>('showControls',true))return;
   const { editor } = context;
   if (!editor.ui.transformControls) return;
   const ids = editor.option<boolean>('transformAll', false)
@@ -265,7 +284,9 @@ export function drawTransformControls(context: ToolOverlayContext): void {
   for (const id of ids) {
     const layer = editor.findLayer(id);
     if (!layer) continue;
-    const corners = layerCorners(layer).map((p) => context.toScreen(p));
+    let local=layerCorners({...layer,transform:readTransform(layer)});
+    if(layer.kind==='group'&&layer.mask?.target!=='mask'){const children=descendantsOf(editor.doc,layer.id).filter(l=>l.kind!=='group');if(children.length){const r=cornersRect(children.flatMap(l=>layerCorners(l)));local=[{x:r.x,y:r.y},{x:r.x+r.width,y:r.y},{x:r.x+r.width,y:r.y+r.height},{x:r.x,y:r.y+r.height}];}}
+    const corners = local.map((p) => context.toScreen(p));
     const ctx = context.ctx;
     ctx.save();
     ctx.strokeStyle = '#38bdf8';
@@ -383,18 +404,15 @@ export const cropTool: ToolDefinition = {
   },
   onMove(editor, event) {
     if (!cropState.dragging) return;
-    let rect = rectFromPoints(cropState.start, event.doc);
-    const ratio = editor.option<string>('ratio', 'free');
-    if (ratio !== 'free') {
-      const parts = ratio.split(':').map((value) => Number(value));
-      const w = parts[0] ?? 0;
-      const h = parts[1] ?? 0;
-      if (w > 0 && h > 0) {
-        const target = w / h;
-        if (rect.width / Math.max(1, rect.height) > target) rect.height = rect.width / target;
-        else rect.width = rect.height * target;
-      }
-    }
+    const start=cropState.start,end=snapPoint(editor,event.doc).point;
+    const signX=end.x>=start.x?1:-1,signY=end.y>=start.y?1:-1;
+    let width=Math.abs(end.x-start.x),height=Math.abs(end.y-start.y);
+    const parts=editor.option<string>('ratio','free').split(':').map(Number),ratio=parts[0]&&parts[1]?parts[0]/parts[1]:null;
+    const maxW=event.alt?Math.min(start.x,editor.doc.width-start.x):signX>0?editor.doc.width-start.x:start.x;
+    const maxH=event.alt?Math.min(start.y,editor.doc.height-start.y):signY>0?editor.doc.height-start.y:start.y;
+    if(ratio){if(width/Math.max(.001,height)>ratio)height=width/ratio;else width=height*ratio;const k=Math.min(1,maxW/Math.max(.001,width),maxH/Math.max(.001,height));width*=k;height*=k;}
+    else {width=Math.min(width,maxW);height=Math.min(height,maxH);}
+    const rect=event.alt?{x:start.x-width,y:start.y-height,width:width*2,height:height*2}:{x:signX>0?start.x:start.x-width,y:signY>0?start.y:start.y-height,width,height};
     cropState.rect = rect;
     editor.invalidate();
   },
@@ -451,6 +469,8 @@ export function applyCrop(editor: EditorApi): void {
   const rect = cropState.rect;
   if (!rect || rect.width < 1 || rect.height < 1) return;
   const snapshot = snapshotDocument(editor);
+  const parts=editor.option<string>('ratio','free').split(':').map(Number);
+  if(parts[0]&&parts[1]){const gcd=(a:number,b:number):number=>b?gcd(b,a%b):a,div=gcd(parts[0],parts[1]),w=parts[0]/div,h=parts[1]/div,k=Math.floor(Math.min(rect.width/w,rect.height/h));if(k<1)return;rect.width=w*k;rect.height=h*k;}
   cropDocument(editor.doc, rect);
   cropState.rect = null;
   restoreAndRecord(editor, snapshot, '裁剪');
@@ -522,6 +542,7 @@ export const gradientTool: ToolDefinition = {
       from: editor.option<[number, number, number]>('from', [255, 255, 255]),
       to: editor.option<[number, number, number]>('to', [0, 0, 0]),
     };
+    layer.gradient={start:{...start},end:{...end},settings,base:cloneBuffer(layer.pixels),selection:editor.selectionSnapshot()};
     paintGradient(editor, layer, start, end, settings);
     editor.markLayerDirty(layer.id);
     endInteraction(editor, '渐变', snapshot, snapshotBytes(snapshot));
@@ -541,6 +562,19 @@ export const gradientTool: ToolDefinition = {
     context.ctx.restore();
   },
 };
+
+/** 修改已有渐变时从底图重算，不能反复把半透明渐变叠到前一次结果上。 */
+export function updateGradientLayer(editor:EditorApi,id:string,patch:Partial<GradientSettings>):void {
+  const layer=editor.findLayer(id);if(layer?.kind!=='pixel'||!layer.gradient)return;
+  const before=beginInteraction(editor,[id]);layer.gradient.settings={...layer.gradient.settings,...patch};layer.pixels=cloneBuffer(layer.gradient.base);
+  paintGradient({...editor,doc:{...editor.doc,selection:layer.gradient.selection}},layer,layer.gradient.start,layer.gradient.end,layer.gradient.settings);
+  editor.markLayerDirty(id);endInteraction(editor,'修改渐变',before,snapshotBytes(before));editor.invalidate();
+}
+export function updateShapeLayer(editor:EditorApi,id:string,patch:Partial<import('@/types/document').ShapeMeta>):void {
+  const layer=editor.findLayer(id);if(layer?.kind!=='pixel'||!layer.shape)return;
+  const before=beginInteraction(editor,[id]);layer.shape={...layer.shape,...patch};layer.pixels=renderShape({x:0,y:0,width:layer.pixels.width,height:layer.pixels.height},layer.shape);
+  editor.markLayerDirty(id);endInteraction(editor,'修改形状',before,snapshotBytes(before));editor.invalidate();
+}
 
 /** 把渐变画进图层像素（文档坐标先转成图层局部坐标） */
 function paintGradient(
@@ -580,7 +614,7 @@ function paintGradient(
       else if (options.type === 'diamond') t = (Math.abs(px) + Math.abs(py)) / length;
       else t = (px * dx + py * dy) / (length * length);
       if (options.reverse) t = 1 - t;
-      if (options.dither) t += (Math.random() - 0.5) * 0.004;
+      if (options.dither) t += ((((x*73856093)^(y*19349663))>>>0)%1024/1024-.5)*.004;
       t = Math.max(0, Math.min(1, t));
       const color: [number, number, number] = [
         options.from[0] + (options.to[0] - options.from[0]) * t,
@@ -731,7 +765,7 @@ function createShapeLayer(name: string, buffer: import('@/types/document').Pixel
 }
 
 function createShapeLayerId(): string {
-  return `shape-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  return uuid();
 }
 
 /** 按形状元数据渲染像素（形状图层保持可编辑：元数据 + 像素并存） */
@@ -999,34 +1033,9 @@ function pickColor(editor: EditorApi, point: Point): void {
   let g = 0;
   let b = 0;
   let count = 0;
-  if (editor.option<string>('sample', 'composite') === 'composite') {
-    const composite = editor.composite();
-    for (let dy = -half; dy <= half; dy += 1) {
-      for (let dx = -half; dx <= half; dx += 1) {
-        const x = Math.round(point.x) + dx;
-        const y = Math.round(point.y) + dy;
-        if (x < 0 || y < 0 || x >= composite.width || y >= composite.height) continue;
-        const i = (y * composite.width + x) * 4;
-        r += composite.data[i]!;
-        g += composite.data[i + 1]!;
-        b += composite.data[i + 2]!;
-        count += 1;
-      }
-    }
-  } else {
-    const layer = editor.activeLayer();
-    if (layer?.kind === 'pixel' && layer.pixels) {
-      const x = Math.round(point.x - layer.transform.origin[0]);
-      const y = Math.round(point.y - layer.transform.origin[1]);
-      if (x >= 0 && y >= 0 && x < layer.pixels.width && y < layer.pixels.height) {
-        const i = (y * layer.pixels.width + x) * 4;
-        r = layer.pixels.data[i]!;
-        g = layer.pixels.data[i + 1]!;
-        b = layer.pixels.data[i + 2]!;
-        count = 1;
-      }
-    }
-  }
+  const layer=editor.activeLayer();
+  const composite=editor.option<string>('sample','composite')==='composite'||!layer?editor.composite():compositeDocument({...editor.doc,layers:[{...layer,parentId:null,clipping:false}]},editor.doc.width,editor.doc.height,{scale:1}).buffer;
+  for(let dy=-half;dy<=half;dy++)for(let dx=-half;dx<=half;dx++){const x=Math.floor(point.x)+dx,y=Math.floor(point.y)+dy;if(x<0||y<0||x>=composite.width||y>=composite.height)continue;const i=(y*composite.width+x)*4;r+=composite.data[i]!;g+=composite.data[i+1]!;b+=composite.data[i+2]!;count++;}
   if (count === 0) return;
   const color: [number, number, number] = [Math.round(r / count), Math.round(g / count), Math.round(b / count)];
   editor.setForeground(color);

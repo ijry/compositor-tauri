@@ -16,10 +16,15 @@ function change(event: Event) {
   const content=(event.target as HTMLTextAreaElement).value;
   api.setToolOption('content',content);updateTextLayer(api,item.id,{content});
 }
+function textKeys(event:KeyboardEvent){
+  const item=layer.value;if(!item?.text||!event.altKey||!event.key.startsWith('Arrow'))return;
+  event.preventDefault();const horizontal=event.key==='ArrowLeft'||event.key==='ArrowRight',key=horizontal?'tracking':'lineSpacing',direction=event.key==='ArrowLeft'||event.key==='ArrowUp'?-1:1;
+  updateTextLayer(api,item.id,{[key]:item.text[key]+direction*(event.shiftKey?10:1)});
+}
 function finish(){textToolState.editingId=null;}
 </script>
 <template>
-  <textarea v-if="layer" ref="input" class="cmp-inline-text" aria-label="编辑画布文字" :style="style" :value="layer.text?.content" @input="change" @blur="finish" @pointerdown.stop @pointermove.stop @pointerup.stop @dblclick.stop @keydown.stop @keydown.ctrl.enter.prevent="finish" @keydown.meta.enter.prevent="finish" @keydown.esc.prevent="finish" />
+  <textarea v-if="layer" ref="input" class="cmp-inline-text" aria-label="编辑画布文字" :style="style" :value="layer.text?.content" @input="change" @blur="finish" @pointerdown.stop @pointermove.stop @pointerup.stop @dblclick.stop @keydown.stop="textKeys" @keydown.ctrl.enter.prevent="finish" @keydown.meta.enter.prevent="finish" @keydown.esc.prevent="finish" />
 </template>
 <style scoped>
 .cmp-inline-text { position:absolute;z-index:5;box-sizing:border-box;max-width:100%;max-height:100%;padding:4px;resize:none;overflow:auto;line-height:1.2;border:1px solid var(--cmp-accent);background:var(--cmp-panel);color:var(--cmp-text);outline:none; }

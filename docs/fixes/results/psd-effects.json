@@ -1,0 +1,126 @@
+[
+  {
+    "id": "PSD-effect-stroke",
+    "title": "PSD效果往返 stroke",
+    "status": "通过",
+    "pass": true,
+    "before": "a961820f",
+    "after": "a961820f",
+    "metadata": {
+      "stroke": {
+        "enabled": true,
+        "color": [
+          0,
+          255,
+          0
+        ],
+        "opacity": 0.75,
+        "size": 3,
+        "inside": false
+      }
+    }
+  },
+  {
+    "id": "PSD-effect-shadow",
+    "title": "PSD效果往返 shadow",
+    "status": "通过",
+    "pass": true,
+    "before": "39dd6447",
+    "after": "39dd6447",
+    "metadata": {
+      "shadow": {
+        "enabled": true,
+        "angle": 90,
+        "distance": 4,
+        "blur": 2,
+        "color": [
+          0,
+          0,
+          0
+        ],
+        "opacity": 0.7
+      }
+    }
+  },
+  {
+    "id": "PSD-effect-innerShadow",
+    "title": "PSD效果往返 innerShadow",
+    "status": "通过",
+    "pass": true,
+    "before": "813f2fe3",
+    "after": "813f2fe3",
+    "metadata": {
+      "innerShadow": {
+        "enabled": true,
+        "angle": 90,
+        "distance": 3,
+        "blur": 2,
+        "color": [
+          0,
+          0,
+          0
+        ],
+        "opacity": 0.5
+      }
+    }
+  },
+  {
+    "id": "PSD-effect-colorOverlay",
+    "title": "PSD效果往返 colorOverlay",
+    "status": "通过",
+    "pass": true,
+    "before": "27d658e4",
+    "after": "27d658e4",
+    "metadata": {
+      "colorOverlay": {
+        "enabled": true,
+        "color": [
+          0,
+          255,
+          0
+        ],
+        "opacity": 0.5
+      }
+    }
+  },
+  {
+    "id": "PSD-effect-outerGlow",
+    "title": "PSD效果往返 outerGlow",
+    "status": "通过",
+    "pass": true,
+    "before": "e68cd7eb",
+    "after": "e68cd7eb",
+    "metadata": {
+      "outerGlow": {
+        "enabled": true,
+        "color": [
+          0,
+          255,
+          0
+        ],
+        "opacity": 0.7,
+        "size": 3
+      }
+    }
+  },
+  {
+    "id": "PSD-effect-innerGlow",
+    "title": "PSD效果往返 innerGlow",
+    "status": "通过",
+    "pass": true,
+    "before": "7dda1add",
+    "after": "7dda1add",
+    "metadata": {
+      "innerGlow": {
+        "enabled": true,
+        "color": [
+          0,
+          255,
+          0
+        ],
+        "opacity": 0.7,
+        "size": 3
+      }
+    }
+  }
+]

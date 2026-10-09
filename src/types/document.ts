@@ -279,6 +279,14 @@ export interface LayerEffects {
   innerGlow?: GlowEffect;
 }
 
+/** 可重复编辑渐变：保留起止点、源像素和生成参数，显示像素仍是通用兜底。 */
+export interface GradientMeta {
+  start:Point;end:Point;
+  settings:{type:'linear'|'radial'|'angle'|'reflected'|'diamond';opacity:number;reverse:boolean;dither:boolean;from:[number,number,number];to:[number,number,number]};
+  base:PixelBuffer;
+  selection:SelectionMask|null;
+}
+
 /** 图层基类字段 */
 export interface LayerBase {
   id: string;
@@ -291,6 +299,8 @@ export interface LayerBase {
   parentId: string | null;
   /** 剪贴蒙版：以紧邻的下方图层为基础 */
   clipping: boolean;
+  /** 明确的剪贴源引用；为空时兼容相邻下层规则。 */
+  maskSourceId?: string | null;
   mask: LayerMask | null;
   effects: LayerEffects | null;
   /** 会话内状态，不写入工程 */
@@ -298,6 +308,7 @@ export interface LayerBase {
   locked: boolean;
   /** 像素/蒙版内容版本号：像素变化时自增，供渲染缓存判断 */
   contentKey: number;
+  gradient?: GradientMeta | null;
 }
 
 export interface PixelLayer extends LayerBase {
@@ -406,8 +417,11 @@ export interface CompDocument {
   resolution: number;
   layers: Layer[];
   activeLayerId: string | null;
+  /** 会话内多选集合，不写入工程。 */
+  selectedLayerIds?: string[];
   selection: SelectionMask | null;
   guides: Guide[];
+  guidesLocked?: boolean;
   grid: GridSettings;
   snap: SnapSettings;
   /** 前景色 / 背景色 */

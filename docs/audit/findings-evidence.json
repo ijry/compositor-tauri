@@ -1,0 +1,1603 @@
+[
+  {
+    "id": "ISSUE-001",
+    "priority": "P1",
+    "title": "保存工程时图层 ID 可逃逸暂存目录",
+    "selectors": [
+      "SECURITY-id-path"
+    ],
+    "file": "src/io/compProject.ts",
+    "needle": "const fileName =",
+    "explanation": "导入仅检查 ID 非空/唯一，保存直接拼入路径，会构造 images 与暂存目录之外的写入请求。已在内存文件系统复现；未写真实磁盘，也未验证能否越过真实宿主的授权边界。",
+    "line": 120,
+    "evidence": [
+      "SECURITY-id-path"
+    ],
+    "failedEvidence": [
+      "SECURITY-id-path"
+    ]
+  },
+  {
+    "id": "ISSUE-002",
+    "priority": "P1",
+    "title": "原版 Curves / Gradient Map 工程字段未转换，合成报错",
+    "selectors": [
+      "COMP-native-*"
+    ],
+    "file": "src/io/compProject.ts",
+    "needle": "function buildLayer",
+    "explanation": "原版曲线点与本地 points 封装不同，渐变映射颜色对象与本地数组不同；有效的原版字段导致 points is not iterable 或 undefined[0]。",
+    "line": 252,
+    "evidence": [
+      "COMP-native-Curves",
+      "COMP-native-Gradient Map"
+    ],
+    "failedEvidence": [
+      "COMP-native-Curves",
+      "COMP-native-Gradient Map"
+    ]
+  },
+  {
+    "id": "ISSUE-003",
+    "priority": "P1",
+    "title": "形状保存不满足上游 UUID/ShapeKind/颜色字段约定",
+    "selectors": [
+      "COMP-shape-native-save"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "shape-",
+    "explanation": "形状 ID 是 shape- 前缀，kind 是小写，色彩存数组；上游解码器采用 UUID、枚举及 red/green/blue 字段，不能据本插件自读自写宣称兼容。",
+    "line": 734,
+    "evidence": [
+      "COMP-shape-native-save"
+    ],
+    "failedEvidence": [
+      "COMP-shape-native-save"
+    ]
+  },
+  {
+    "id": "ISSUE-004",
+    "priority": "P1",
+    "title": "上游显式剪贴来源被改成相邻层",
+    "selectors": [
+      "COMP-exact-clipping-source"
+    ],
+    "file": "src/io/compProject.ts",
+    "needle": "entry.maskSourceID",
+    "explanation": "导入丢失非相邻 maskSourceID 的准确指向，保存重新推导来源，合成结果及引用均变化。",
+    "line": 144,
+    "evidence": [
+      "COMP-exact-clipping-source"
+    ],
+    "failedEvidence": [
+      "COMP-exact-clipping-source"
+    ]
+  },
+  {
+    "id": "ISSUE-005",
+    "priority": "P1",
+    "title": "工程变换尺寸缺少资源上限校验",
+    "selectors": [
+      "VALIDATION-oversized-transform"
+    ],
+    "file": "src/io/compProject.ts",
+    "needle": "function validateManifest",
+    "explanation": "1e9×1e9 图层变换被接受。测试只加载校验，不触发巨大缓冲分配；渲染侧资源风险尚不能视为已防护。",
+    "line": 238,
+    "evidence": [
+      "VALIDATION-oversized-transform"
+    ],
+    "failedEvidence": [
+      "VALIDATION-oversized-transform"
+    ]
+  },
+  {
+    "id": "ISSUE-006",
+    "priority": "P1",
+    "title": "PSD 导出/再导入丢失旋转、独立/组蒙版、效果和可编辑文字",
+    "selectors": [
+      "PSD-roundtrip-*"
+    ],
+    "file": "src/io/psd.ts",
+    "needle": "export function exportPsd",
+    "explanation": "基本像素层往返通过，但这些有效属性的本插件内部往返已经失败。测试尚非真实 Photoshop 互操作，不能将失败局限解释成外部软件差异。",
+    "line": 329,
+    "evidence": [
+      "PSD-roundtrip-rotation",
+      "PSD-roundtrip-placed-mask",
+      "PSD-roundtrip-group-mask",
+      "PSD-roundtrip-effects",
+      "PSD-roundtrip-text"
+    ],
+    "failedEvidence": [
+      "PSD-roundtrip-rotation",
+      "PSD-roundtrip-placed-mask",
+      "PSD-roundtrip-group-mask",
+      "PSD-roundtrip-effects",
+      "PSD-roundtrip-text"
+    ]
+  },
+  {
+    "id": "ISSUE-007",
+    "priority": "P2",
+    "title": "声明支持的分块 TIFF 不能导入",
+    "selectors": [
+      "FORMAT-tiff-{\"tile\":true}"
+    ],
+    "file": "src/io/tiff.ts",
+    "needle": "tag(273)",
+    "explanation": "同像素 Strip 样本通过，合法 Tile 样本失败；源码只从 StripOffsets 取偏移。",
+    "line": 39,
+    "evidence": [
+      "FORMAT-tiff-{\"tile\":true}"
+    ],
+    "failedEvidence": [
+      "FORMAT-tiff-{\"tile\":true}"
+    ]
+  },
+  {
+    "id": "ISSUE-008",
+    "priority": "P2",
+    "title": "不支持的 TIFF 压缩方式被当成原始数据读入",
+    "selectors": [
+      "FORMAT-tiff-unsupported-rejection"
+    ],
+    "file": "src/io/tiff.ts",
+    "needle": "compression === 1",
+    "explanation": "负例用于验证拒绝未知/未支持压缩，而非证明 JPEG 解码质量。当前没有可靠拒绝，可能将压缩数据静默解成错误像素。",
+    "line": 63,
+    "evidence": [
+      "FORMAT-tiff-unsupported-rejection"
+    ],
+    "failedEvidence": [
+      "FORMAT-tiff-unsupported-rejection"
+    ]
+  },
+  {
+    "id": "ISSUE-009",
+    "priority": "P1",
+    "title": "RAW 宣称 LZW 支持却拒绝标准压缩码 5",
+    "selectors": [
+      "FORMAT-raw-5"
+    ],
+    "file": "src/io/raw.ts",
+    "needle": "compression !== 1",
+    "explanation": "合法合成 LZW DNG 被拒绝；代码允许 7 并按 LZW 解码，但 TIFF/DNG 的 LZW 编号是 5。真实相机文件仍需样本验收。",
+    "line": 151,
+    "evidence": [
+      "FORMAT-raw-5"
+    ],
+    "failedEvidence": [
+      "FORMAT-raw-5"
+    ]
+  },
+  {
+    "id": "ISSUE-010",
+    "priority": "P1",
+    "title": "欢迎页直接导入图片/RAW 没有文档时失败",
+    "selectors": [
+      "FLOW-start-openImage",
+      "FLOW-start-openRaw"
+    ],
+    "file": "src/composables/commands-io.ts",
+    "needle": "case 'openImage'",
+    "explanation": "这些命令被列入无文档可用，却直接访问当前文档代理。PSD/.comp 对照入口通过。",
+    "line": 118,
+    "evidence": [
+      "FLOW-start-openImage",
+      "FLOW-start-openRaw"
+    ],
+    "failedEvidence": [
+      "FLOW-start-openImage",
+      "FLOW-start-openRaw"
+    ]
+  },
+  {
+    "id": "ISSUE-011",
+    "priority": "P1",
+    "title": "导入位图没有脏标记和撤销记录",
+    "selectors": [
+      "FLOW-open-image-dirty"
+    ],
+    "file": "src/composables/commands-io.ts",
+    "needle": "const importFiles",
+    "explanation": "插入图层后未纳入导入事务，用户可能关闭而未获保存提示，撤销也不能去掉导入。",
+    "line": 348,
+    "evidence": [
+      "FLOW-open-image-dirty"
+    ],
+    "failedEvidence": [
+      "FLOW-open-image-dirty"
+    ]
+  },
+  {
+    "id": "ISSUE-012",
+    "priority": "P1",
+    "title": "取消 RAW 显影仍保留预先插入的图层",
+    "selectors": [
+      "RAW-cancel-import"
+    ],
+    "file": "src/composables/commands-io.ts",
+    "needle": "case 'openRaw'",
+    "explanation": "导入先修改文档再打开弹窗，关闭没有回滚；2 层变 3 层，取消后仍 3 层。",
+    "line": 138,
+    "evidence": [
+      "RAW-cancel-import"
+    ],
+    "failedEvidence": [
+      "RAW-cancel-import"
+    ]
+  },
+  {
+    "id": "ISSUE-013",
+    "priority": "P1",
+    "title": "PSD 转换报告在应用之后才出现",
+    "selectors": [
+      "PARITY-psd-before-apply"
+    ],
+    "file": "src/composables/commands-io.ts",
+    "needle": "case 'openPsd'",
+    "explanation": "上游在应用前展示报告允许取消；本地已经打开新文档，关闭报告不能取消此次导入。",
+    "line": 126,
+    "evidence": [
+      "PARITY-psd-before-apply"
+    ],
+    "failedEvidence": [
+      "PARITY-psd-before-apply"
+    ]
+  },
+  {
+    "id": "ISSUE-014",
+    "priority": "P1",
+    "title": "高斯/动感模糊调整层没有渲染效果",
+    "selectors": [
+      "ADJ-Gaussian Blur",
+      "ADJ-Motion Blur"
+    ],
+    "file": "src/core/engine/compositor.ts",
+    "needle": "applyAdjustment(target",
+    "explanation": "这两种算法返回新缓冲，但合成器忽略返回值；已有普通调整层原地修改的成功不能覆盖这条分支。",
+    "line": 291,
+    "evidence": [
+      "ADJ-Gaussian Blur",
+      "ADJ-Motion Blur"
+    ],
+    "failedEvidence": [
+      "ADJ-Gaussian Blur",
+      "ADJ-Motion Blur"
+    ]
+  },
+  {
+    "id": "ISSUE-015",
+    "priority": "P1",
+    "title": "四种混合模式与独立标准数值不符",
+    "selectors": [
+      "BLEND-Overlay",
+      "BLEND-Hard Light",
+      "BLEND-Soft Light",
+      "BLEND-Pin Light"
+    ],
+    "file": "src/core/blend.ts",
+    "needle": "export function blendFunction",
+    "explanation": "Overlay、Hard Light、Soft Light、Pin Light 在指定不透明/半透明像素上超出容差；详见每个模式的实际/预期 RGBA。其他模式通过仅限已测颜色和 alpha 组合。",
+    "line": 148,
+    "evidence": [
+      "BLEND-Overlay",
+      "BLEND-Soft Light",
+      "BLEND-Hard Light",
+      "BLEND-Pin Light"
+    ],
+    "failedEvidence": [
+      "BLEND-Overlay",
+      "BLEND-Soft Light",
+      "BLEND-Hard Light",
+      "BLEND-Pin Light"
+    ]
+  },
+  {
+    "id": "ISSUE-016",
+    "priority": "P2",
+    "title": "曝光不是上游的线性光曝光计算",
+    "selectors": [
+      "ADJ-exposure-reference"
+    ],
+    "file": "src/core/filters/adjust.ts",
+    "needle": "applyExposure",
+    "explanation": "sRGB 128 灰加一档，线性光参考约 176，本地得到 255。",
+    "line": 154,
+    "evidence": [
+      "ADJ-exposure-reference"
+    ],
+    "failedEvidence": [
+      "ADJ-exposure-reference"
+    ]
+  },
+  {
+    "id": "ISSUE-017",
+    "priority": "P2",
+    "title": "曲线使用线性插值而不是上游形状保持 Hermite",
+    "selectors": [
+      "ADJ-curves-interpolation"
+    ],
+    "file": "src/core/filters/adjust.ts",
+    "needle": "buildCurveLut",
+    "explanation": "相同三控制点，输入 64 的参考约 114，本地为 100。",
+    "line": 47,
+    "evidence": [
+      "ADJ-curves-interpolation"
+    ],
+    "failedEvidence": [
+      "ADJ-curves-interpolation"
+    ]
+  },
+  {
+    "id": "ISSUE-018",
+    "priority": "P2",
+    "title": "渐变映射的反向被实现为 RGB 反色",
+    "selectors": [
+      "ADJ-gradient-reverse"
+    ],
+    "file": "src/core/filters/adjust.ts",
+    "needle": "return settings.reversed",
+    "explanation": "反向应交换明暗映射端点，红蓝端点例子应得到蓝色，本地变成青色。",
+    "line": 90,
+    "evidence": [
+      "ADJ-gradient-reverse"
+    ],
+    "failedEvidence": [
+      "ADJ-gradient-reverse"
+    ]
+  },
+  {
+    "id": "ISSUE-020",
+    "priority": "P1",
+    "title": "现有调整层外观随临时选区改变",
+    "selectors": [
+      "PARITY-adjust-selection"
+    ],
+    "file": "src/core/engine/compositor.ts",
+    "needle": "const selection = options.limitAdjustmentsBySelection",
+    "explanation": "常规合成默认叠加当前选区限制，选择/取消选择会改变既有调整层的最终图像，导出还可能与未选择时不同。",
+    "line": 178,
+    "evidence": [
+      "PARITY-adjust-selection"
+    ],
+    "failedEvidence": [
+      "PARITY-adjust-selection"
+    ]
+  },
+  {
+    "id": "ISSUE-021",
+    "priority": "P1",
+    "title": "五类调整层参数面板仅有占位文字",
+    "selectors": [
+      "MENU-048",
+      "MENU-049",
+      "MENU-051",
+      "MENU-052",
+      "MENU-054"
+    ],
+    "file": "src/components/panels/PropertiesPanel.vue",
+    "needle": "完整参数可在",
+    "explanation": "Levels、Curves、Gradient Map、Grain、Color Balance 不能通过 UI 完整编辑。其他调整类型也仅实现部分参数，不能以创建成功计为完整。",
+    "line": 138,
+    "evidence": [
+      "MENU-048",
+      "MENU-049",
+      "MENU-051",
+      "MENU-052",
+      "MENU-054"
+    ],
+    "failedEvidence": [
+      "MENU-048",
+      "MENU-049",
+      "MENU-051",
+      "MENU-052",
+      "MENU-054"
+    ]
+  },
+  {
+    "id": "ISSUE-022",
+    "priority": "P1",
+    "title": "六种图层效果缺少参数编辑控件",
+    "selectors": [
+      "FLOW-effects-ui"
+    ],
+    "file": "src/components/panels/PropertiesPanel.vue",
+    "needle": "<h4>图层效果</h4>",
+    "explanation": "只有添加、启用、移除；颜色、尺寸、距离、模糊、透明度等不能编辑。内核默认渲染通过不等于“始终可编辑”。",
+    "line": 158,
+    "evidence": [
+      "FLOW-effects-ui"
+    ],
+    "failedEvidence": [
+      "FLOW-effects-ui"
+    ]
+  },
+  {
+    "id": "ISSUE-023",
+    "priority": "P1",
+    "title": "RAW 曲线/混合/分级/几何四组为占位 UI",
+    "selectors": [
+      "RAW-UI-曲线",
+      "RAW-UI-颜色混合",
+      "RAW-UI-颜色分级",
+      "RAW-UI-几何"
+    ],
+    "file": "src/components/dialogs/DialogHost.vue",
+    "needle": "raw-group",
+    "explanation": "组标题存在但没有任何该组编辑控件。",
+    "line": 149,
+    "evidence": [
+      "RAW-UI-曲线",
+      "RAW-UI-颜色混合",
+      "RAW-UI-颜色分级",
+      "RAW-UI-几何"
+    ],
+    "failedEvidence": [
+      "RAW-UI-曲线",
+      "RAW-UI-颜色混合",
+      "RAW-UI-颜色分级",
+      "RAW-UI-几何"
+    ]
+  },
+  {
+    "id": "ISSUE-024",
+    "priority": "P2",
+    "title": "RAW grain 与混合器 hue/saturation/luminance 未消费",
+    "selectors": [
+      "RAW-grain",
+      "RAW-mixer-hue",
+      "RAW-mixer-saturation",
+      "RAW-mixer-luminance"
+    ],
+    "file": "src/io/raw.ts",
+    "needle": "developRawImage",
+    "explanation": "差分无效果并经源码确认字段没有进入处理；不能只以设置对象有这些键声明可用。",
+    "line": 502,
+    "evidence": [
+      "RAW-grain",
+      "RAW-mixer-hue",
+      "RAW-mixer-saturation",
+      "RAW-mixer-luminance"
+    ],
+    "failedEvidence": [
+      "RAW-grain",
+      "RAW-mixer-hue",
+      "RAW-mixer-saturation",
+      "RAW-mixer-luminance"
+    ]
+  },
+  {
+    "id": "ISSUE-025",
+    "priority": "P1",
+    "title": "RAW 红色混合器命中相反的青色色族",
+    "selectors": [
+      "RAW-mixer-red-semantics"
+    ],
+    "file": "src/io/raw.ts",
+    "needle": "180 -",
+    "explanation": "色相距离权重反向，红不变而青变化。",
+    "line": 619,
+    "evidence": [
+      "RAW-mixer-red-semantics"
+    ],
+    "failedEvidence": [
+      "RAW-mixer-red-semantics"
+    ]
+  },
+  {
+    "id": "ISSUE-026",
+    "priority": "P2",
+    "title": "只有两个端点的 RAW 曲线被忽略",
+    "selectors": [
+      "RAW-curves-2"
+    ],
+    "file": "src/io/raw.ts",
+    "needle": "curvePoints.length",
+    "explanation": "合法两端点曲线是有意义的变换，length > 2 使其不应用。",
+    "line": 595,
+    "evidence": [
+      "RAW-curves-2"
+    ],
+    "failedEvidence": [
+      "RAW-curves-2"
+    ]
+  },
+  {
+    "id": "ISSUE-027",
+    "priority": "P1",
+    "title": "缺少对普通图层的 Camera Raw Filter 入口",
+    "selectors": [
+      "PARITY-raw-filter-entry"
+    ],
+    "file": "src/composables/commands-io.ts",
+    "needle": "case 'openRaw'",
+    "explanation": "现有功能只导入 RAW 文件；不是上游可对普通图片打开的显影滤镜。",
+    "line": 138,
+    "evidence": [
+      "PARITY-raw-filter-entry"
+    ],
+    "failedEvidence": [
+      "PARITY-raw-filter-entry"
+    ]
+  },
+  {
+    "id": "ISSUE-028",
+    "priority": "P1",
+    "title": "内容识别填充的选区阈值不一致，完全无效果",
+    "selectors": [
+      "MENU-027",
+      "KEY-edit.contentAware"
+    ],
+    "file": "src/core/filters/contentAware.ts",
+    "needle": "> 8",
+    "explanation": "调用方生成 0/1 hole，内核再按 >8 读取，所有洞变为 0；历史增加但像素不变。",
+    "line": 137,
+    "evidence": [
+      "MENU-027",
+      "KEY-edit.contentAware"
+    ],
+    "failedEvidence": [
+      "MENU-027",
+      "KEY-edit.contentAware"
+    ]
+  },
+  {
+    "id": "ISSUE-029",
+    "priority": "P1",
+    "title": "多边形套索不能累积点击顶点",
+    "selectors": [
+      "TOOL-lasso-polygon",
+      "PARAM-lasso-mode"
+    ],
+    "file": "src/tools/selection.ts",
+    "needle": "id: 'lasso'",
+    "explanation": "每次按下重置点、抬起只留下单点，无法形成有效多边形选区。",
+    "line": 129,
+    "evidence": [
+      "PARAM-lasso-mode",
+      "TOOL-lasso-polygon"
+    ],
+    "failedEvidence": [
+      "PARAM-lasso-mode",
+      "TOOL-lasso-polygon"
+    ]
+  },
+  {
+    "id": "ISSUE-030",
+    "priority": "P1",
+    "title": "框选羽化后选区变成全空",
+    "selectors": [
+      "FLOW-marquee-feather",
+      "PARAM-marquee-feather"
+    ],
+    "file": "src/tools/selection.ts",
+    "needle": "new Uint8Array(selection.data.length)",
+    "explanation": "新建全零覆盖率而未复制原选区就模糊；有输出差异恰恰是丢失选区，不是正确羽化。",
+    "line": 72,
+    "evidence": [
+      "FLOW-marquee-feather",
+      "PARAM-marquee-feather"
+    ],
+    "failedEvidence": [
+      "FLOW-marquee-feather",
+      "PARAM-marquee-feather"
+    ]
+  },
+  {
+    "id": "ISSUE-031",
+    "priority": "P2",
+    "title": "多个工具选项未接入行为或被硬编码",
+    "selectors": [
+      "PARAM-marquee-antialias",
+      "PARAM-lasso-feather",
+      "PARAM-wand-sampleAllLayers",
+      "PARAM-wand-antialias",
+      "PARAM-objectSelect-feather",
+      "PARAM-liquify-strength",
+      "PARAM-move-showControls",
+      "FLOW-move-controls"
+    ],
+    "file": "src/tools/selection.ts",
+    "needle": "sampleAllLayers: true",
+    "explanation": "框选/魔棒抗锯齿、套索/对象选择羽化、魔棒单层取样没有对应处理；液化强度在默认 push 模式无效。灵敏度与吸附本身有读取，不包含在此缺陷里。 移动工具的 showControls 选项也不控制真正的 ui.transformControls。",
+    "line": 191,
+    "evidence": [
+      "FLOW-move-controls",
+      "PARAM-move-showControls",
+      "PARAM-marquee-antialias",
+      "PARAM-lasso-feather",
+      "PARAM-wand-sampleAllLayers",
+      "PARAM-wand-antialias",
+      "PARAM-objectSelect-feather",
+      "PARAM-liquify-strength"
+    ],
+    "failedEvidence": [
+      "FLOW-move-controls",
+      "PARAM-move-showControls",
+      "PARAM-marquee-antialias",
+      "PARAM-lasso-feather",
+      "PARAM-wand-sampleAllLayers",
+      "PARAM-wand-antialias",
+      "PARAM-objectSelect-feather",
+      "PARAM-liquify-strength"
+    ]
+  },
+  {
+    "id": "ISSUE-032",
+    "priority": "P1",
+    "title": "仿制图章没有从指定源正确复制",
+    "selectors": [
+      "TOOL-clone-default",
+      "PARAM-clone-*"
+    ],
+    "file": "src/tools/paint.ts",
+    "needle": "cloneOrigin",
+    "explanation": "偏移取相邻移动点而非源到目标，持续改写 cloneOrigin，小步手势可能只复制自身；全图层采样未正确实现。",
+    "line": 32,
+    "evidence": [
+      "PARAM-clone-size",
+      "PARAM-clone-hardness",
+      "PARAM-clone-opacity",
+      "PARAM-clone-aligned",
+      "PARAM-clone-sampleAllLayers",
+      "TOOL-clone-default"
+    ],
+    "failedEvidence": [
+      "PARAM-clone-size",
+      "PARAM-clone-hardness",
+      "PARAM-clone-opacity",
+      "PARAM-clone-aligned",
+      "PARAM-clone-sampleAllLayers",
+      "TOOL-clone-default"
+    ]
+  },
+  {
+    "id": "ISSUE-033",
+    "priority": "P1",
+    "title": "固定比例裁剪跨旧画布边缘后丢失比例",
+    "selectors": [
+      "TOOL-crop-16:9",
+      "TOOL-crop-9:16",
+      "TOOL-crop-2:3",
+      "PARAM-crop-ratio"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "id: 'crop'",
+    "explanation": "16:9 案例得到 52×36，9:16 得到 40×52；拖框扩展与应用时裁边未共同保持约束。",
+    "line": 326,
+    "evidence": [
+      "PARAM-crop-ratio",
+      "TOOL-crop-16:9",
+      "TOOL-crop-9:16",
+      "TOOL-crop-2:3"
+    ],
+    "failedEvidence": [
+      "PARAM-crop-ratio",
+      "TOOL-crop-16:9",
+      "TOOL-crop-9:16",
+      "TOOL-crop-2:3"
+    ]
+  },
+  {
+    "id": "ISSUE-034",
+    "priority": "P1",
+    "title": "嵌套组拖动/Alt 复制将全部后代扁平化",
+    "selectors": [
+      "FLOW-nested-*"
+    ],
+    "file": "src/composables/commands.ts",
+    "needle": "for (const layer of working) layer.parentId = parentId",
+    "explanation": "根、子组、叶子被赋予同一 parentId；真实拖拽与正确 referenceId 的命令调用均复现。",
+    "line": 252,
+    "evidence": [
+      "FLOW-nested-drag-false",
+      "FLOW-nested-drag-true",
+      "FLOW-nested-command"
+    ],
+    "failedEvidence": [
+      "FLOW-nested-drag-false",
+      "FLOW-nested-drag-true",
+      "FLOW-nested-command"
+    ]
+  },
+  {
+    "id": "ISSUE-035",
+    "priority": "P1",
+    "title": "组移动和多选图层移动不作用于应移动的像素层",
+    "selectors": [
+      "FLOW-group-move",
+      "FLOW-multiselect-move"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "const ids = editor.option",
+    "explanation": "选中集合只存在面板内部，move 取活动层或所有层；组未展开后代，移动组不带动内容。",
+    "line": 92,
+    "evidence": [
+      "FLOW-group-move",
+      "FLOW-multiselect-move"
+    ],
+    "failedEvidence": [
+      "FLOW-group-move",
+      "FLOW-multiselect-move"
+    ]
+  },
+  {
+    "id": "ISSUE-036",
+    "priority": "P1",
+    "title": "选区内像素移动/复制及轮廓拖动缺少正确交互分支",
+    "selectors": [
+      "FLOW-selection-move-*",
+      "PARITY-outline-move",
+      "PARITY-arrow-*-true"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "onDown(editor, event)",
+    "explanation": "拖动或 Ctrl+方向键改的是整层变换，选区工具内部拖动新建选区而非移动轮廓。已有 transformSelection 命令不代表交互已接通。",
+    "line": 89,
+    "evidence": [
+      "FLOW-selection-move-false",
+      "FLOW-selection-move-true",
+      "PARITY-arrow-Left-false-true",
+      "PARITY-arrow-Left-true-true",
+      "PARITY-arrow-Right-false-true",
+      "PARITY-arrow-Right-true-true",
+      "PARITY-arrow-Up-false-true",
+      "PARITY-arrow-Up-true-true",
+      "PARITY-arrow-Down-false-true",
+      "PARITY-arrow-Down-true-true",
+      "PARITY-outline-move"
+    ],
+    "failedEvidence": [
+      "FLOW-selection-move-false",
+      "FLOW-selection-move-true",
+      "PARITY-arrow-Left-false-true",
+      "PARITY-arrow-Left-true-true",
+      "PARITY-arrow-Right-false-true",
+      "PARITY-arrow-Right-true-true",
+      "PARITY-arrow-Up-false-true",
+      "PARITY-arrow-Up-true-true",
+      "PARITY-arrow-Down-false-true",
+      "PARITY-arrow-Down-true-true",
+      "PARITY-outline-move"
+    ]
+  },
+  {
+    "id": "ISSUE-037",
+    "priority": "P1",
+    "title": "Windows Ctrl 拖手柄没有进入自由扭曲",
+    "selectors": [
+      "TOOL-move-warp-ctrl"
+    ],
+    "file": "src/components/CanvasStage.vue",
+    "needle": "meta: event.metaKey",
+    "explanation": "事件保留 ctrl，却只有 meta 被 move 用作扭曲开关；Meta 对照场景通过。",
+    "line": 142,
+    "evidence": [
+      "TOOL-move-warp-ctrl"
+    ],
+    "failedEvidence": [
+      "TOOL-move-warp-ctrl"
+    ]
+  },
+  {
+    "id": "ISSUE-038",
+    "priority": "P2",
+    "title": "扭曲角点时 Shift 没有锁轴",
+    "selectors": [
+      "FLOW-warp-shift"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "const local = invertSimple",
+    "explanation": "warp 分支未按 Shift 约束坐标。",
+    "line": 177,
+    "evidence": [
+      "FLOW-warp-shift"
+    ],
+    "failedEvidence": [
+      "FLOW-warp-shift"
+    ]
+  },
+  {
+    "id": "ISSUE-039",
+    "priority": "P2",
+    "title": "方向键微移一次生成两条历史",
+    "selectors": [
+      "FLOW-nudge-history"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "endInteraction(editor, '微移图层'",
+    "explanation": "先记录恢复到 before 的无变化快照，再额外 pushHistory；使历史和连续撤销不符合一次操作一次记录。",
+    "line": 242,
+    "evidence": [
+      "FLOW-nudge-history"
+    ],
+    "failedEvidence": [
+      "FLOW-nudge-history"
+    ]
+  },
+  {
+    "id": "ISSUE-040",
+    "priority": "P1",
+    "title": "画笔 Shift 直线未实现",
+    "selectors": [
+      "FLOW-brush-shift"
+    ],
+    "file": "src/tools/paint.ts",
+    "needle": "function startPaint",
+    "explanation": "第二次 Shift 点击不连接上一笔终点，中间像素保持原色。",
+    "line": 61,
+    "evidence": [
+      "FLOW-brush-shift"
+    ],
+    "failedEvidence": [
+      "FLOW-brush-shift"
+    ]
+  },
+  {
+    "id": "ISSUE-041",
+    "priority": "P1",
+    "title": "画完的形状与渐变不能继续用参数栏编辑",
+    "selectors": [
+      "FLOW-shape-edit",
+      "FLOW-gradient-edit"
+    ],
+    "file": "src/components/ToolHeader.vue",
+    "needle": "if (api.toolId === 'type'",
+    "explanation": "参数栏只将修改回写已有文字；形状不重绘，渐变只保留瞬态起止点并栅格化。",
+    "line": 24,
+    "evidence": [
+      "FLOW-shape-edit",
+      "FLOW-gradient-edit"
+    ],
+    "failedEvidence": [
+      "FLOW-shape-edit",
+      "FLOW-gradient-edit"
+    ]
+  },
+  {
+    "id": "ISSUE-042",
+    "priority": "P1",
+    "title": "蒙版无法通过 UI 解除链接并独立变换",
+    "selectors": [
+      "PARITY-mask-link-ui",
+      "PARITY-mask-transform"
+    ],
+    "file": "src/components/panels/PropertiesPanel.vue",
+    "needle": "<h4>图层蒙版</h4>",
+    "explanation": "模型有 linked/placement，渲染也支持独立蒙版，但 UI 无开关，移动工具仍改图像层 transform。",
+    "line": 143,
+    "evidence": [
+      "PARITY-mask-link-ui",
+      "PARITY-mask-transform"
+    ],
+    "failedEvidence": [
+      "PARITY-mask-link-ui",
+      "PARITY-mask-transform"
+    ]
+  },
+  {
+    "id": "ISSUE-043",
+    "priority": "P1",
+    "title": "选中蒙版时图层面板删除的是整个图层",
+    "selectors": [
+      "FLOW-mask-delete"
+    ],
+    "file": "src/components/panels/LayersPanel.vue",
+    "needle": "runOnSelection('deleteLayer')",
+    "explanation": "删除目标没有根据 mask.target 分流，与上游 Delete Layer Mask 语义不符。",
+    "line": 225,
+    "evidence": [
+      "FLOW-mask-delete"
+    ],
+    "failedEvidence": [
+      "FLOW-mask-delete"
+    ]
+  },
+  {
+    "id": "ISSUE-044",
+    "priority": "P1",
+    "title": "画布/图像尺寸对话框强制把高度设为宽度",
+    "selectors": [
+      "FLOW-canvas-width",
+      "FLOW-image-aspect"
+    ],
+    "file": "src/components/dialogs/DialogHost.vue",
+    "needle": "canvasForm.height = canvasForm.width",
+    "explanation": "仅改画布宽度也改变高度；64×32 图像改宽为 80 后变成 80×80 而不是保持 2:1。",
+    "line": 95,
+    "evidence": [
+      "FLOW-canvas-width",
+      "FLOW-image-aspect"
+    ],
+    "failedEvidence": [
+      "FLOW-canvas-width",
+      "FLOW-image-aspect"
+    ]
+  },
+  {
+    "id": "ISSUE-045",
+    "priority": "P2",
+    "title": "吸附菜单引用不存在的命令",
+    "selectors": [
+      "MENU-088"
+    ],
+    "file": "src/App.vue",
+    "needle": "commands.run('snapSettings')",
+    "explanation": "对话框组件存在，但菜单没有使用 openDialog，command handler 也不存在。",
+    "line": 149,
+    "evidence": [
+      "MENU-088"
+    ],
+    "failedEvidence": [
+      "MENU-088"
+    ]
+  },
+  {
+    "id": "ISSUE-046",
+    "priority": "P2",
+    "title": "吸附只测鼠标点，且目标层缩放坐标重复变换",
+    "selectors": [
+      "EDGE-snap-layer-edge",
+      "EDGE-snap-scaled-target"
+    ],
+    "file": "src/core/engine/snapping.ts",
+    "needle": "const width = layer.transform.size",
+    "explanation": "图层边缘接近参考线未吸附；目标层变换矩阵已经含缩放，再用变换后宽高取角点会算错目标边缘。",
+    "line": 55,
+    "evidence": [
+      "EDGE-snap-layer-edge",
+      "EDGE-snap-scaled-target"
+    ],
+    "failedEvidence": [
+      "EDGE-snap-layer-edge",
+      "EDGE-snap-scaled-target"
+    ]
+  },
+  {
+    "id": "ISSUE-047",
+    "priority": "P2",
+    "title": "网格启用状态割裂且 subdivisions 不绘制",
+    "selectors": [
+      "FLOW-grid-enable",
+      "FLOW-grid-subdivisions"
+    ],
+    "file": "src/components/CanvasStage.vue",
+    "needle": "document.grid.enabled && uiState.grid",
+    "explanation": "设置只改 doc.grid.enabled，另一个 UI 开关仍关；绘制循环没有使用细分数。",
+    "line": 84,
+    "evidence": [
+      "FLOW-grid-enable",
+      "FLOW-grid-subdivisions"
+    ],
+    "failedEvidence": [
+      "FLOW-grid-enable",
+      "FLOW-grid-subdivisions"
+    ]
+  },
+  {
+    "id": "ISSUE-048",
+    "priority": "P2",
+    "title": "参考线缺少已有线拖动/锁定与撤销路径",
+    "selectors": [
+      "FLOW-guide-move",
+      "FLOW-guide-history",
+      "EDGE-lock-guides"
+    ],
+    "file": "src/components/CanvasStage.vue",
+    "needle": "let guideDrag",
+    "explanation": "只有从标尺新建的分支；新建标脏但没有可回放的历史，既有线也没有命中拖动处理。",
+    "line": 26,
+    "evidence": [
+      "FLOW-guide-move",
+      "FLOW-guide-history",
+      "EDGE-lock-guides"
+    ],
+    "failedEvidence": [
+      "FLOW-guide-move",
+      "FLOW-guide-history",
+      "EDGE-lock-guides"
+    ]
+  },
+  {
+    "id": "ISSUE-049",
+    "priority": "P1",
+    "title": "数字不透明度输入错误",
+    "selectors": [
+      "FLOW-opacity-digits",
+      "PARITY-opacity-*"
+    ],
+    "file": "src/composables/useEditor.ts",
+    "needle": "const value = opacityBuffer.length",
+    "explanation": "单数字未除以10，1～9都夹到100%，0变成0%；缓冲立即清空，无法输入两位精确百分比。",
+    "line": 614,
+    "evidence": [
+      "FLOW-opacity-digits",
+      "PARITY-opacity-0",
+      "PARITY-opacity-1",
+      "PARITY-opacity-2",
+      "PARITY-opacity-3",
+      "PARITY-opacity-4",
+      "PARITY-opacity-5",
+      "PARITY-opacity-6",
+      "PARITY-opacity-7",
+      "PARITY-opacity-8",
+      "PARITY-opacity-9"
+    ],
+    "failedEvidence": [
+      "FLOW-opacity-digits",
+      "PARITY-opacity-0",
+      "PARITY-opacity-1",
+      "PARITY-opacity-2",
+      "PARITY-opacity-3",
+      "PARITY-opacity-4",
+      "PARITY-opacity-5",
+      "PARITY-opacity-6",
+      "PARITY-opacity-7",
+      "PARITY-opacity-8",
+      "PARITY-opacity-9"
+    ]
+  },
+  {
+    "id": "ISSUE-050",
+    "priority": "P1",
+    "title": "快捷键的动作与上游不符，部分会执行意外破坏性操作",
+    "selectors": [
+      "PARITY-ctrl-t",
+      "PARITY-jpeg-shortcut",
+      "PARITY-shift-delete",
+      "PARITY-layer-via-copy",
+      "KEY-layer.group",
+      "EDGE-merge-multi-key",
+      "PARITY-adjust-Curves",
+      "PARITY-adjust-Levels",
+      "PARITY-adjust-Hue/Saturation"
+    ],
+    "file": "src/composables/shortcuts.ts",
+    "needle": "push('adjust.invertLayer'",
+    "explanation": "Ctrl+T 新增反相层；Ctrl+M/L/U 新建调整层而非 Image 编辑；Shift+Delete 清空而非内容识别；Ctrl+J/E/G 未按选区/非相邻多选正确分流；单独选组的 Ctrl+E 对照通过；JPEG 默认组合也不同。",
+    "line": 144,
+    "evidence": [
+      "EDGE-merge-multi-key",
+      "PARITY-ctrl-t",
+      "PARITY-adjust-Curves",
+      "PARITY-adjust-Levels",
+      "PARITY-adjust-Hue/Saturation",
+      "PARITY-jpeg-shortcut",
+      "PARITY-shift-delete",
+      "PARITY-layer-via-copy",
+      "KEY-layer.group"
+    ],
+    "failedEvidence": [
+      "EDGE-merge-multi-key",
+      "PARITY-ctrl-t",
+      "PARITY-adjust-Curves",
+      "PARITY-adjust-Levels",
+      "PARITY-adjust-Hue/Saturation",
+      "PARITY-jpeg-shortcut",
+      "PARITY-shift-delete",
+      "PARITY-layer-via-copy",
+      "KEY-layer.group"
+    ]
+  },
+  {
+    "id": "ISSUE-051",
+    "priority": "P2",
+    "title": "Shift 标点快捷键未规范化物理键值",
+    "selectors": [
+      "KEY-view.snap",
+      "KEY-brush.softer",
+      "KEY-brush.harder"
+    ],
+    "file": "src/composables/shortcuts.ts",
+    "needle": "let key = event.key",
+    "explanation": "真实 US 键位给出 : { }，注册表用 ; [ ]；直接构造字符串 KeyboardEvent 容易误以为通过。本次用物理 key code 验证。 同时应修正 nudgeHardness 使用70/±10而画笔内部采用0–1的单位错配；测试以合法0.5初始值、±0.1为预期。",
+    "line": 78,
+    "evidence": [
+      "KEY-view.snap",
+      "KEY-brush.softer",
+      "KEY-brush.harder"
+    ],
+    "failedEvidence": [
+      "KEY-view.snap",
+      "KEY-brush.softer",
+      "KEY-brush.harder"
+    ]
+  },
+  {
+    "id": "ISSUE-052",
+    "priority": "P2",
+    "title": "部分原版快捷操作/模式循环没有注册或没有接线",
+    "selectors": [
+      "FLOW-tab-tool",
+      "PARITY-cycle-*",
+      "PARITY-blend-cycle-*",
+      "PARITY-shape-cycle",
+      "PARITY-text-*",
+      "PARITY-delete"
+    ],
+    "file": "src/composables/useEditor.ts",
+    "needle": "const matched = findShortcut",
+    "explanation": "包括 Tab、重复工具键切模式、Shift混合模式/形状、文字 Alt 方向键、普通 Delete 等；对应基础功能存在也不代表这些入口可用。",
+    "line": 592,
+    "evidence": [
+      "FLOW-tab-tool",
+      "PARITY-delete",
+      "PARITY-cycle-marquee",
+      "PARITY-cycle-lasso",
+      "PARITY-cycle-wand",
+      "PARITY-cycle-blur",
+      "PARITY-blend-cycle--1",
+      "PARITY-blend-cycle-1",
+      "PARITY-shape-cycle",
+      "PARITY-text-Left-false",
+      "PARITY-text-Left-true",
+      "PARITY-text-Right-false",
+      "PARITY-text-Right-true",
+      "PARITY-text-Up-false",
+      "PARITY-text-Up-true",
+      "PARITY-text-Down-false",
+      "PARITY-text-Down-true"
+    ],
+    "failedEvidence": [
+      "FLOW-tab-tool",
+      "PARITY-delete",
+      "PARITY-cycle-marquee",
+      "PARITY-cycle-lasso",
+      "PARITY-cycle-wand",
+      "PARITY-cycle-blur",
+      "PARITY-blend-cycle--1",
+      "PARITY-blend-cycle-1",
+      "PARITY-shape-cycle",
+      "PARITY-text-Left-false",
+      "PARITY-text-Left-true",
+      "PARITY-text-Right-false",
+      "PARITY-text-Right-true",
+      "PARITY-text-Up-false",
+      "PARITY-text-Up-true",
+      "PARITY-text-Down-false",
+      "PARITY-text-Down-true"
+    ]
+  },
+  {
+    "id": "ISSUE-053",
+    "priority": "P2",
+    "title": "缺少命令面板、仅画布模式和独立选择工具",
+    "selectors": [
+      "FLOW-command-palette",
+      "FLOW-canvas-only",
+      "PARITY-select-tool"
+    ],
+    "file": "src/composables/shortcuts.ts",
+    "needle": "function buildDefaults",
+    "explanation": "上游 1.4.6 有 Ctrl+F / F / A 对应入口，本地没有等价实现。",
+    "line": 95,
+    "evidence": [
+      "FLOW-command-palette",
+      "FLOW-canvas-only",
+      "PARITY-select-tool"
+    ],
+    "failedEvidence": [
+      "FLOW-command-palette",
+      "FLOW-canvas-only",
+      "PARITY-select-tool"
+    ]
+  },
+  {
+    "id": "ISSUE-054",
+    "priority": "P1",
+    "title": "JPEG 对话框忽略格式 payload，缺少质量实时预览",
+    "selectors": [
+      "FLOW-jpeg-format"
+    ],
+    "file": "src/components/dialogs/DialogHost.vue",
+    "needle": "exportForm",
+    "explanation": "JPEG 快捷键打开后仍显示 PNG；没有用于质量预览的图像/画布节点，菜单导出也直接按固定质量保存。",
+    "line": 30,
+    "evidence": [
+      "FLOW-jpeg-format"
+    ],
+    "failedEvidence": [
+      "FLOW-jpeg-format"
+    ]
+  },
+  {
+    "id": "ISSUE-055",
+    "priority": "P1",
+    "title": "破坏性滤镜没有参数/确认/取消的实时预览流程",
+    "selectors": [
+      "FLOW-filter-preview"
+    ],
+    "file": "src/composables/commands.ts",
+    "needle": "case 'filterVignette'",
+    "explanation": "菜单直接将固定参数应用到像素，不能等同上游可调整、可取消的滤镜面板。",
+    "line": 631,
+    "evidence": [
+      "FLOW-filter-preview"
+    ],
+    "failedEvidence": [
+      "FLOW-filter-preview"
+    ]
+  },
+  {
+    "id": "ISSUE-056",
+    "priority": "P2",
+    "title": "数值擦洗绑在输入框而不是标签",
+    "selectors": [
+      "FLOW-label-scrub"
+    ],
+    "file": "src/components/ToolHeader.vue",
+    "needle": "@mousedown=\"startScrub",
+    "explanation": "拖标签无效果，与上游以及本地注释说明不符。",
+    "line": 95,
+    "evidence": [
+      "FLOW-label-scrub"
+    ],
+    "failedEvidence": [
+      "FLOW-label-scrub"
+    ]
+  },
+  {
+    "id": "ISSUE-057",
+    "priority": "P2",
+    "title": "长按工具组、图层右键和锁定 UI 缺失",
+    "selectors": [
+      "FLOW-toolbar-longpress",
+      "FLOW-layer-context",
+      "PARITY-layer-lock-ui"
+    ],
+    "file": "src/components/ToolBar.vue",
+    "needle": "@click=\"onClick",
+    "explanation": "工具全展开/点击轮换与长按弹出不同；图层只有 ⋯ 点击菜单，没有右键与锁定控件。",
+    "line": 38,
+    "evidence": [
+      "FLOW-layer-context",
+      "FLOW-toolbar-longpress",
+      "PARITY-layer-lock-ui"
+    ],
+    "failedEvidence": [
+      "FLOW-layer-context",
+      "FLOW-toolbar-longpress",
+      "PARITY-layer-lock-ui"
+    ]
+  },
+  {
+    "id": "ISSUE-058",
+    "priority": "P2",
+    "title": "历史面板点击较早条目只撤销一步",
+    "selectors": [
+      "EDGE-history-jump"
+    ],
+    "file": "src/components/panels/HistoryPanel.vue",
+    "needle": "index < position",
+    "explanation": "没有跳转到点中的历史位置。",
+    "line": 52,
+    "evidence": [
+      "EDGE-history-jump"
+    ],
+    "failedEvidence": [
+      "EDGE-history-jump"
+    ]
+  },
+  {
+    "id": "ISSUE-059",
+    "priority": "P2",
+    "title": "颜色面板交换按钮丢弃背景色、HEX 显示不跟随更新",
+    "selectors": [
+      "EDGE-colors-swap-button",
+      "EDGE-colors-hex-sync"
+    ],
+    "file": "src/components/panels/HistoryPanel.vue",
+    "needle": "交换 (X)",
+    "explanation": "按钮把背景固定成黑而非原前景；HEX 只初始化一次，没有监听吸管或 X 键改变后的前景。",
+    "line": 65,
+    "evidence": [
+      "EDGE-colors-swap-button",
+      "EDGE-colors-hex-sync"
+    ],
+    "failedEvidence": [
+      "EDGE-colors-swap-button",
+      "EDGE-colors-hex-sync"
+    ]
+  },
+  {
+    "id": "ISSUE-060",
+    "priority": "P3",
+    "title": "停靠标题双击行为与自身说明不一致",
+    "selectors": [
+      "FLOW-panel-doubleclick"
+    ],
+    "file": "src/components/DockLayout.vue",
+    "needle": "@dblclick=\"toggleCollapse",
+    "explanation": "停靠态双击折叠，浮动态双击才停靠；实际浮动/拖动/缩放/边缘停靠及持久化测试通过。",
+    "line": 156,
+    "evidence": [
+      "FLOW-panel-doubleclick"
+    ],
+    "failedEvidence": [
+      "FLOW-panel-doubleclick"
+    ]
+  },
+  {
+    "id": "ISSUE-061",
+    "priority": "P2",
+    "title": "拖图层到另一个项目标签没有跨文档导入",
+    "selectors": [
+      "PARITY-cross-doc-drag"
+    ],
+    "file": "src/App.vue",
+    "needle": "class=\"tab\"",
+    "explanation": "跨项目剪贴板复制组测试通过，但标签没有 drag/drop 转移入口。",
+    "line": 225,
+    "evidence": [
+      "PARITY-cross-doc-drag"
+    ],
+    "failedEvidence": [
+      "PARITY-cross-doc-drag"
+    ]
+  },
+  {
+    "id": "ISSUE-062",
+    "priority": "P2",
+    "title": "没有上游的大 PSD 按预算裁层降级",
+    "selectors": [
+      "PARITY-psd-large-fallback"
+    ],
+    "file": "src/io/psd.ts",
+    "needle": "const psd = readPsd",
+    "explanation": "内存自适应历史预算存在；这里缺的是 PSD 大图降级，不能混为完全没有预算。为了安全未分配超大文件实测。",
+    "line": 67,
+    "evidence": [
+      "PARITY-psd-large-fallback"
+    ],
+    "failedEvidence": [
+      "PARITY-psd-large-fallback"
+    ]
+  },
+  {
+    "id": "ISSUE-063",
+    "priority": "P2",
+    "title": "内部像素缓冲不支持原计划承诺的 16 位处理",
+    "selectors": [
+      "COLOR-buffer16"
+    ],
+    "file": "src/types/document.ts",
+    "needle": "interface PixelBuffer",
+    "explanation": "实际数据类型固定 Uint8ClampedArray；16 位 TIFF 解码到 8 位不等于保留 16 位内部精度。Lab 等转换已另行往返验证通过。",
+    "line": 103,
+    "evidence": [
+      "COLOR-buffer16"
+    ],
+    "failedEvidence": [
+      "COLOR-buffer16"
+    ]
+  },
+  {
+    "id": "ISSUE-064",
+    "priority": "P3",
+    "title": "像素网格没有用户开关",
+    "selectors": [
+      "PARITY-pixel-grid-toggle"
+    ],
+    "file": "src/components/CanvasStage.vue",
+    "needle": "showPixelGrid: true",
+    "explanation": "高倍率网格渲染存在，但默认固定开启，缺少上游 View 开关。",
+    "line": 50,
+    "evidence": [
+      "PARITY-pixel-grid-toggle"
+    ],
+    "failedEvidence": [
+      "PARITY-pixel-grid-toggle"
+    ]
+  },
+  {
+    "id": "ISSUE-065",
+    "priority": "P3",
+    "title": "全部中文化声明未成立",
+    "selectors": [
+      "EDGE-chinese-anchor"
+    ],
+    "file": "src/components/dialogs/DialogHost.vue",
+    "needle": "['top-left', 'top'",
+    "explanation": "至少九宫格锚点直接显示英文；黑白参数 reds/yellows、调整种类名等也未完整本地化。",
+    "line": 99,
+    "evidence": [
+      "EDGE-chinese-anchor"
+    ],
+    "failedEvidence": [
+      "EDGE-chinese-anchor"
+    ]
+  },
+  {
+    "id": "ISSUE-066",
+    "priority": "P3",
+    "title": "存在空的 flattenClipboard 命令分支",
+    "selectors": [
+      "CMD-flattenClipboard"
+    ],
+    "file": "src/composables/commands.ts",
+    "needle": "case 'flattenClipboard': break",
+    "explanation": "当前没有 UI 绑定，优先级低，但不能将空 handler 计为已实现功能。",
+    "line": 575,
+    "evidence": [
+      "CMD-flattenClipboard"
+    ],
+    "failedEvidence": [
+      "CMD-flattenClipboard"
+    ]
+  },
+  {
+    "id": "ISSUE-067",
+    "priority": "P2",
+    "title": "快捷键冲突允许保存并被第一项遮蔽",
+    "selectors": [
+      "EDGE-shortcut-conflict"
+    ],
+    "file": "src/composables/shortcuts.ts",
+    "needle": "target.chord =",
+    "explanation": "UI 提示两条同时触发，实际 findShortcut 只执行第一条，后绑定命令失效。",
+    "line": 261,
+    "evidence": [
+      "EDGE-shortcut-conflict"
+    ],
+    "failedEvidence": [
+      "EDGE-shortcut-conflict"
+    ]
+  },
+  {
+    "id": "ISSUE-068",
+    "priority": "P1",
+    "title": "吸管单层取样忽略邻域大小与缩放变换",
+    "selectors": [
+      "EDGE-eyedropper-layer-size",
+      "EDGE-eyedropper-layer-transform"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "function pickColor",
+    "explanation": "合并取样的邻域平均有输出差异，但 layer 分支只取一个像素且仅减 origin，不做逆变换。",
+    "line": 995,
+    "evidence": [
+      "EDGE-eyedropper-layer-size",
+      "EDGE-eyedropper-layer-transform"
+    ],
+    "failedEvidence": [
+      "EDGE-eyedropper-layer-size",
+      "EDGE-eyedropper-layer-transform"
+    ]
+  },
+  {
+    "id": "ISSUE-069",
+    "priority": "P2",
+    "title": "新建表单没有界面入口，始终直接创建默认画布",
+    "selectors": [
+      "KEY-file.new",
+      "MENU-001"
+    ],
+    "file": "src/composables/shortcuts.ts",
+    "needle": "push('file.new'",
+    "explanation": "新建对话框组件存在，但菜单、Ctrl+N、启动页和加号均直接调用 newCanvas 创建1920×1080画布，没有让用户先设置尺寸的界面入口。",
+    "line": 108,
+    "evidence": [
+      "MENU-001",
+      "KEY-file.new"
+    ],
+    "failedEvidence": [
+      "KEY-file.new"
+    ]
+  },
+  {
+    "id": "ISSUE-070",
+    "priority": "P2",
+    "title": "全局前景色色块没有完整颜色选择器入口",
+    "selectors": [
+      "EDGE-global-color-picker"
+    ],
+    "file": "src/components/panels/HistoryPanel.vue",
+    "needle": "class=\"chip fg\"",
+    "explanation": "主颜色面板只能输入 HEX，文字属性的颜色弹窗不能替代绘画前景色入口。",
+    "line": 62,
+    "evidence": [
+      "EDGE-global-color-picker"
+    ],
+    "failedEvidence": [
+      "EDGE-global-color-picker"
+    ]
+  },
+  {
+    "id": "ISSUE-071",
+    "priority": "P1",
+    "title": "RAW 归一化把 0–255 缓冲再次乘255导致高光截断",
+    "selectors": [
+      "RAW-neutral-normalization"
+    ],
+    "file": "src/io/raw.ts",
+    "needle": "r * 255",
+    "explanation": "去马赛克已输出 0–255，白平衡输出又乘255。无曝光或颜色矩阵的16位中性灰被全部剪裁为255。",
+    "line": 371,
+    "evidence": [
+      "RAW-neutral-normalization"
+    ],
+    "failedEvidence": [
+      "RAW-neutral-normalization"
+    ]
+  },
+  {
+    "id": "ISSUE-072",
+    "priority": "P1",
+    "title": "Bayer 去马赛克没有重建各位置的绿色通道",
+    "selectors": [
+      "RAW-neutral-bayer"
+    ],
+    "file": "src/io/raw.ts",
+    "needle": "out.data[i + 1] = at(green",
+    "explanation": "红/蓝采样位置 green 数组为0却直接输出，均匀中性CFA出现不同色相位；其他通道的邻域重建也需一并核查。",
+    "line": 311,
+    "evidence": [
+      "RAW-neutral-bayer"
+    ],
+    "failedEvidence": [
+      "RAW-neutral-bayer"
+    ]
+  },
+  {
+    "id": "ISSUE-073",
+    "priority": "P2",
+    "title": "像素网格混用屏幕/文档坐标，居中或平移时缺行缺列",
+    "selectors": [
+      "RENDER-grid-position",
+      "RENDER-grid-threshold"
+    ],
+    "file": "src/core/engine/renderer.ts",
+    "needle": "Math.floor(-topLeft.x)",
+    "explanation": "topLeft 是屏幕坐标，计算文档像素可见范围时没除 zoom。截图和独立像素断言均复现；显示阈值还写成 >=6 而非800%。",
+    "line": 152,
+    "evidence": [
+      "RENDER-grid-position",
+      "RENDER-grid-threshold"
+    ],
+    "failedEvidence": [
+      "RENDER-grid-position",
+      "RENDER-grid-threshold"
+    ]
+  },
+  {
+    "id": "ISSUE-074",
+    "priority": "P2",
+    "title": "裁剪缺少 Alt 对称和参考线吸附",
+    "selectors": [
+      "EDGE-crop-symmetric",
+      "EDGE-crop-snap"
+    ],
+    "file": "src/tools/transform.ts",
+    "needle": "cropState.rect = rect;",
+    "explanation": "裁剪 onMove 仅按两点算矩形和比例，未处理 alt 或 snapPoint；从选区起裁和 Escape 取消另有阳性对照。",
+    "line": 398,
+    "evidence": [
+      "EDGE-crop-symmetric",
+      "EDGE-crop-snap"
+    ],
+    "failedEvidence": [
+      "EDGE-crop-symmetric",
+      "EDGE-crop-snap"
+    ]
+  },
+  {
+    "id": "ISSUE-075",
+    "priority": "P1",
+    "title": "工具选区布尔运算被重复执行，减选实际保留了交集",
+    "selectors": [
+      "EDGE-selection-booleans"
+    ],
+    "file": "src/tools/helpers.ts",
+    "needle": "editor.setSelection(combineSelection",
+    "explanation": "commitSelection 先 combine，再把同一 mode 传给会再次 combine 的 api.setSelection。矩形序列应为100/150/80/50像素，实测100/150/70/0；软覆盖率加选/交集也受重复运算影响。",
+    "line": 71,
+    "evidence": [
+      "EDGE-selection-booleans"
+    ],
+    "failedEvidence": [
+      "EDGE-selection-booleans"
+    ]
+  }
+]

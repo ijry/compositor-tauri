@@ -9,7 +9,8 @@
 import { readPsd, writePsd, type Layer as PsdLayer, type Psd } from 'ag-psd';
 import { createBuffer } from '@/core/pixels';
 import { createDocument, createGroupLayer, createPixelLayer, defaultTransform } from '@/core/document';
-import { compositeInto } from '@/core/engine/compositor';
+import { createMaskSampler } from '@/core/engine/maskGeometry';
+import { compositeDocument, compositeInto } from '@/core/engine/compositor';
 import type { BlendMode, CompDocument, Layer, MaskBuffer, PixelBuffer, TextMeta } from '@/types/document';
 
 /** 导入结果：文档 + 转换报告 */
@@ -104,6 +105,7 @@ function convertLayer(psdLayer: PsdLayer, parentId: string | null, document: Com
     const group = createGroupLayer(psdLayer.name || '组', parentId);
     group.isVisible = !psdLayer.hidden;
     group.opacity = clamp01(psdLayer.opacity ?? 1);
+    attachPsdMask(group,psdLayer,report);
     for (const child of children) {
       const converted = convertLayer(child, group.id, document, report);
       if (converted) document.layers.push(converted);
@@ -118,8 +120,9 @@ function convertLayer(psdLayer: PsdLayer, parentId: string | null, document: Com
   if (!buffer) return null;
   const name = psdLayer.name || '图层';
   const rawBlend = String(psdLayer.blendMode ?? 'normal');
-  const blendMode = BLEND_MODE_MAP[rawBlend] ?? 'Normal';
-  if (!INTERNAL_BLEND_NAMES.has(rawBlend)) {
+  const blendKey=rawBlend.replace(/ ([a-z])/g,(_,letter:string)=>letter.toUpperCase());
+  const blendMode = BLEND_MODE_MAP[rawBlend] ?? BLEND_MODE_MAP[blendKey] ?? 'Normal';
+  if (!BLEND_MODE_MAP[rawBlend]&&!BLEND_MODE_MAP[blendKey]) {
     report.unsupported.push(`${name}：混合模式 ${rawBlend} 已按 Normal 处理`);
   }
 
@@ -136,11 +139,11 @@ function convertLayer(psdLayer: PsdLayer, parentId: string | null, document: Com
       text = {
         content: details.text ?? '',
         fontName: extractFontName(details) ?? 'Arial',
-        fontSize: Math.max(4, Math.round(transform[0] ?? 32)),
-        color: [0, 0, 0],
-        align: 'left',
-        tracking: 0,
-        lineSpacing: 0,
+        fontSize: Math.max(4, details.style?.fontSize ?? Math.abs(transform[0] ?? 32)),
+        color: toRgb(details.style?.fillColor),
+        align: details.paragraphStyle?.justification==='right'?'right':details.paragraphStyle?.justification==='center'?'center':'left',
+        tracking: details.style?.tracking??0,
+        lineSpacing: details.style?.leading??0,
         boxSize: null,
         bold: details.style?.fauxBold ?? false,
         italic: details.style?.fauxItalic ?? false,
@@ -170,11 +173,11 @@ function convertLayer(psdLayer: PsdLayer, parentId: string | null, document: Com
       ...(layer.effects ?? {}),
       shadow: {
         enabled: drop.enabled ?? true,
-        angle: toNumber(drop.angle),
+        angle: 180-toNumber(drop.angle),
         distance: toNumber(drop.distance),
         blur: toNumber(drop.size),
         color: toRgb(drop.color),
-        opacity: toNumber(drop.opacity ?? 100) / 100,
+        opacity: toNumber(drop.opacity ?? 1),
       },
     };
   }
@@ -183,32 +186,35 @@ function convertLayer(psdLayer: PsdLayer, parentId: string | null, document: Com
       ...(layer.effects ?? {}),
       innerShadow: {
         enabled: inner.enabled ?? true,
-        angle: toNumber(inner.angle),
+        angle: 180-toNumber(inner.angle),
         distance: toNumber(inner.distance),
         blur: toNumber(inner.size),
         color: toRgb(inner.color),
-        opacity: toNumber(inner.opacity ?? 100) / 100,
+        opacity: toNumber(inner.opacity ?? 1),
       },
     };
   }
 
-  if (psdLayer.mask) {
-    report.masks += 1;
-    const maskData = extractMask(psdLayer.mask, width, height);
-    if (maskData) {
-      layer.mask = {
-        pixels: maskData,
-        enabled: true,
-        linked: true,
-        placement: null,
-        target: 'image',
-        inverted: false,
-      };
-    }
-  }
+  const fill=psdLayer.effects?.solidFill?.[0];
+  if(fill)layer.effects={...layer.effects,colorOverlay:{enabled:fill.enabled!==false,color:toRgb(fill.color),opacity:fill.opacity??1}};
+  const stroke=psdLayer.effects?.stroke?.[0];
+  if(stroke)layer.effects={...layer.effects,stroke:{enabled:stroke.enabled!==false,color:toRgb(stroke.color),opacity:stroke.opacity??1,size:toNumber(stroke.size),inside:stroke.position==='inside'}};
+  for(const key of ['outerGlow','innerGlow'] as const){const e=psdLayer.effects?.[key];if(e)layer.effects={...layer.effects,[key]:{enabled:e.enabled!==false,color:toRgb(e.color),opacity:e.opacity??1,size:toNumber(e.size)}};}
+  attachPsdMask(layer,psdLayer,report);
+
   return layer;
 }
 
+
+/** PSD蒙版有独立文档放置，不能强制拉伸成图层大小；组同样可持有蒙版。 */
+function attachPsdMask(layer:Layer,psdLayer:PsdLayer,report:PsdConversionReport):void {
+  const mask=psdLayer.mask;if(!mask)return;
+  const w=mask.imageData?.width??Math.max(1,(mask.right??1)-(mask.left??0)),h=mask.imageData?.height??Math.max(1,(mask.bottom??1)-(mask.top??0));
+  const pixels=extractMask(mask,w,h);if(!pixels)return;
+  report.masks++;
+  const relative=mask.positionRelativeToLayer;
+  layer.mask={pixels,enabled:!mask.disabled,linked:false,placement:{x:(mask.left??0)+(relative?psdLayer.left??0:0),y:(mask.top??0)+(relative?psdLayer.top??0:0),width:w,height:h},target:'image',inverted:false};
+}
 
 /** PSD 里部分数值字段可能是带单位的对象，这里统一取出数值 */
 function toNumber(value: unknown): number {
@@ -302,7 +308,7 @@ function extractMask(mask: NonNullable<PsdLayer['mask']>, width: number, height:
     const sy = Math.min(sourceHeight - 1, Math.floor((y * sourceHeight) / height));
     for (let x = 0; x < width; x += 1) {
       const sx = Math.min(sourceWidth - 1, Math.floor((x * sourceWidth) / width));
-      out[y * width + x] = sourceData[sy * sourceWidth + sx] ?? 0;
+      out[y * width + x] = sourceData[(sy * sourceWidth + sx)*(sourceData.length>=sourceWidth*sourceHeight*4?4:1)] ?? 0;
     }
   }
   return { width, height, data: out };
@@ -310,6 +316,7 @@ function extractMask(mask: NonNullable<PsdLayer['mask']>, width: number, height:
 
 /** 取字体名 */
 function extractFontName(details: NonNullable<PsdLayer['text']>): string | null {
+  if(details.style?.font?.name)return details.style.font.name;
   const font = (details as unknown as { font?: string }).font;
   if (typeof font === 'string' && font) return font;
   const engine = (details as unknown as { engineData?: { name?: string } }).engineData;
@@ -327,80 +334,39 @@ function isVerticalText(details: NonNullable<PsdLayer['text']>): boolean {
 
 /** 导出为 PSD 二进制（调整层与组会被栅格化为像素层） */
 export function exportPsd(document: CompDocument): ArrayBuffer {
-  const build = (layer: Layer): PsdLayer => {
-    if (layer.kind === 'group') {
-      const children = document.layers.filter((item) => item.parentId === layer.id).map(build);
-      return {
-        name: layer.name,
-        opacity: layer.opacity,
-        blendMode: toPsdBlendMode(layer.blendMode),
-        hidden: !layer.isVisible,
-        left: 0,
-        top: 0,
-        right: document.width,
-        bottom: document.height,
-        children,
-      } as PsdLayer;
+  const build=(layer:Layer):PsdLayer=>{
+    const result:PsdLayer={name:layer.name,opacity:layer.opacity,hidden:!layer.isVisible,blendMode:toPsdBlendMode(layer.blendMode),clipping:layer.clipping} as PsdLayer;
+    if(layer.kind==='group')result.children=document.layers.filter(l=>l.parentId===layer.id).map(build);
+    else {
+      const transformed=layer.kind==='adjustment'||!layer.pixels||layer.transform.rotation!==0||layer.transform.flipX||layer.transform.flipY||!!layer.transform.warp||layer.transform.size[0]!==layer.pixels.width||layer.transform.size[1]!==layer.pixels.height;
+      // PSD普通像素层没有单独的仿射属性，导出文档空间的栅格保持当前外观。
+      const buffer=transformed?compositeDocument({...document,selection:null,layers:[{...layer,parentId:null,opacity:1,blendMode:'Normal',mask:null,effects:null,clipping:false}]},document.width,document.height,{scale:1}).buffer:layer.pixels!;
+      const left=transformed?0:Math.round(layer.transform.origin[0]),top=transformed?0:Math.round(layer.transform.origin[1]);
+      Object.assign(result,{left,top,right:left+buffer.width,bottom:top+buffer.height,imageData:new ImageData(buffer.data as Uint8ClampedArray<ArrayBuffer>,buffer.width,buffer.height)});
+      if(layer.text){const t=layer.text;result.text={text:t.content,transform:[1,0,0,1,left,top],orientation:'horizontal',style:{font:{name:t.fontName},fontSize:t.fontSize,fillColor:{r:t.color[0],g:t.color[1],b:t.color[2]},fauxBold:t.bold,fauxItalic:t.italic,tracking:t.tracking,leading:t.lineSpacing||t.fontSize*1.2},paragraphStyle:{justification:t.align},shapeType:t.boxSize?'box':'point',...(t.boxSize?{boxBounds:[0,0,...t.boxSize]}:{})};}
     }
-    let buffer = layer.pixels;
-    if (!buffer || layer.kind === 'adjustment') {
-      // 调整层没有像素，用其上方的合成结果填充
-      buffer = createBuffer(document.width, document.height);
-      const temp: CompDocument = { ...document, layers: document.layers.filter((item) => item.kind !== 'adjustment') };
-      compositeInto(buffer, temp, 1);
+    if(layer.mask){
+      const sample=createMaskSampler({...layer,mask:{...layer.mask,enabled:true}})!;
+      const mask=createBuffer(document.width,document.height);
+      for(let y=0;y<mask.height;y++)for(let x=0;x<mask.width;x++){const i=(y*mask.width+x)*4,v=Math.round(sample(x+.5,y+.5)*255);mask.data.set([v,v,v,255],i);}
+      result.mask={imageData:new ImageData(mask.data as Uint8ClampedArray<ArrayBuffer>,mask.width,mask.height),left:0,top:0,right:mask.width,bottom:mask.height,defaultColor:0,disabled:!layer.mask.enabled};
     }
-    const left = Math.round(layer.transform.origin[0]);
-    const top = Math.round(layer.transform.origin[1]);
-    const result: PsdLayer = {
-      name: layer.name,
-      opacity: layer.opacity,
-      blendMode: toPsdBlendMode(layer.blendMode),
-      hidden: !layer.isVisible,
-      left,
-      top,
-      right: left + buffer.width,
-      bottom: top + buffer.height,
-      imageData: new ImageData(buffer.data as Uint8ClampedArray<ArrayBuffer>, buffer.width, buffer.height),
-    } as PsdLayer;
-    if (layer.mask) {
-      const mask = createBuffer(layer.mask.pixels.width, layer.mask.pixels.height);
-      for (let i = 0; i < layer.mask.pixels.data.length; i += 1) {
-        const value = layer.mask.pixels.data[i] ?? 0;
-        mask.data[i * 4] = value;
-        mask.data[i * 4 + 1] = value;
-        mask.data[i * 4 + 2] = value;
-        mask.data[i * 4 + 3] = 255;
-      }
-      result.mask = {
-        imageData: new ImageData(mask.data as Uint8ClampedArray<ArrayBuffer>, mask.width, mask.height),
-        top: 0,
-        left: 0,
-        bottom: mask.height,
-        right: mask.width,
-        defaultColor: 0,
-      } as NonNullable<PsdLayer['mask']>;
+    if(layer.effects){const fx=layer.effects;result.effects={};
+      const rgb=(color:[number,number,number])=>({r:color[0],g:color[1],b:color[2]});
+      if(fx.stroke){const e=fx.stroke;result.effects.stroke=[{enabled:e.enabled!==false,opacity:e.opacity,color:rgb(e.color),size:{units:'Pixels',value:e.size},position:e.inside?'inside':'outside',fillType:'color',blendMode:'normal'}];}
+      for(const key of ['outerGlow','innerGlow'] as const){const e=fx[key];if(e)result.effects[key]={enabled:e.enabled!==false,opacity:e.opacity,color:rgb(e.color),size:{units:'Pixels',value:e.size},blendMode:'normal',source:'edge'};}
+      if(fx.colorOverlay){const e=fx.colorOverlay;result.effects.solidFill=[{enabled:e.enabled!==false,opacity:e.opacity,color:rgb(e.color),blendMode:'normal'}];}
+      for(const [key,psdKey]of [['shadow','dropShadow'],['innerShadow','innerShadow']] as const){const e=fx[key];if(e)result.effects[psdKey]=[{enabled:e.enabled!==false,opacity:e.opacity,color:rgb(e.color),angle:180-e.angle,distance:{units:'Pixels',value:e.distance},size:{units:'Pixels',value:e.blur},blendMode:'normal',useGlobalLight:false}];}
     }
     return result;
   };
-  const psd: Psd = {
-    width: document.width,
-    height: document.height,
-    children: document.layers.filter((layer) => layer.parentId === null).map(build),
-  };
-  return writePsd(psd, { generateThumbnail: false, noBackground: true });
+  const psd:Psd={width:document.width,height:document.height,children:document.layers.filter(l=>l.parentId===null).map(build)};
+  return writePsd(psd,{generateThumbnail:false,noBackground:true});
 }
 
-function toPsdBlendMode(mode: BlendMode): string {
-  const inverse: Record<string, string> = {
-    Normal: 'normal', Darken: 'darken', Multiply: 'multiply', 'Color Burn': 'colorBurn',
-    'Linear Burn': 'linearBurn', Lighten: 'lighten', Screen: 'screen', 'Color Dodge': 'colorDodge',
-    'Linear Dodge (Add)': 'linearDodge', Overlay: 'overlay', 'Soft Light': 'softLight',
-    'Hard Light': 'hardLight', 'Vivid Light': 'vividLight', 'Linear Light': 'linearLight',
-    'Pin Light': 'pinLight', 'Hard Mix': 'hardMix', Difference: 'difference', Exclusion: 'exclusion',
-    Subtract: 'subtract', Divide: 'divide', Hue: 'hue', Saturation: 'saturation',
-    Color: 'color', Luminosity: 'luminosity',
-  };
-  return inverse[mode] ?? 'normal';
+/** ag-psd的公开枚举使用空格分词，不能把内部camelCase映射直接交给写入器。 */
+function toPsdBlendMode(mode:BlendMode):string {
+  return mode==='Linear Dodge (Add)'?'linear dodge':mode.toLowerCase();
 }
 
 /** 生成转换报告文本（界面展示用） */

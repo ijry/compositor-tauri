@@ -1,0 +1,2 @@
+import {launch,readRuntime,saveJSON} from './harness.mjs';
+const browser=await launch();try{const runtime=await readRuntime(browser);await saveJSON('catalog-runtime.json',runtime);console.log(JSON.stringify({tools:runtime.tools.length,parameters:runtime.tools.reduce((n,t)=>n+t.specs.length,0),shortcuts:runtime.shortcuts.length,rawFields:Object.keys(runtime.rawDefaults).length,blendModes:runtime.blendModes.length}));}finally{await browser.close();}

@@ -175,7 +175,7 @@ export function compositeInto(
   options: CompositeOptions = {},
 ): void {
   const layers = hierarchyRows(document.layers).map(row=>row.layer);
-  const selection = options.limitAdjustmentsBySelection === false ? null : document.selection;
+  const selection = options.limitAdjustmentsBySelection === true ? document.selection : null;
   const selectionSample = selectionSampler(selection);
   const width = target.width;
   const height = target.height;
@@ -211,8 +211,8 @@ export function compositeInto(
     const cached = clipSamplerCache.get(layer.id);
     if (cached !== undefined) return cached;
     const index = layers.findIndex((item) => item.id === layer.id);
-    let base: Layer | null = null;
-    for (let i = index - 1; i >= 0; i -= 1) {
+    let base: Layer | null = layer.maskSourceId ? layers.find(item=>item.id===layer.maskSourceId)??null : null;
+    for (let i = index - 1; i >= 0 && !layer.maskSourceId; i -= 1) {
       const candidate = layers[i];
       if (candidate.parentId !== layer.parentId) break;
       if (!candidate.clipping) { base = candidate; break; }
@@ -240,7 +240,7 @@ export function compositeInto(
       const children:Layer[]=[];
       for(let j=i+1;j<list.length;j++) {
         const child=list[j]!;
-        if(!child.clipping || child.kind==='group')break;
+        if(!child.clipping || child.kind==='group' || (child.maskSourceId && child.maskSourceId!==base.id))break;
         children.push(child);
       }
       if(children.length){stacks.set(base.id,children);for(const child of children)stacked.add(child.id);}
@@ -257,7 +257,7 @@ export function compositeInto(
       const opacity=child.opacity*context.opacity;
       if(child.kind==='adjustment' && child.adjustment) {
         const mask=child.mask?.enabled?createMaskSampler(child):null;
-        applyAdjustment(group,child.adjustment,buildCoverage(width,height,[mask,selectionSample],opacity));
+        group.data.set(applyAdjustment(group,child.adjustment,buildCoverage(width,height,[mask,selectionSample],opacity)).data);
       } else {
         const drawn=buildLayerSurface(child,scale);
         if(drawn)blitSurface(group,drawn,[],opacity,child.blendMode,scale);
@@ -288,7 +288,7 @@ export function compositeInto(
     if (layer.kind === 'adjustment' && layer.adjustment) {
       // 调整层：作用于当前 target（其下方已合成的内容）
       const coverage = buildCoverage(width, height, [...context.masks, maskSample, clipSample, selectionSample], alpha);
-      applyAdjustment(target, layer.adjustment, coverage);
+      target.data.set(applyAdjustment(target, layer.adjustment, coverage).data);
       continue;
     }
 

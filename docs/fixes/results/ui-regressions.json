@@ -1,0 +1,318 @@
+[
+  {
+    "id": "UI-adjust-Levels",
+    "title": "调整层真实参数编辑 Levels",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "a4916eb",
+    "after": "9f51bd5d",
+    "history": [
+      0,
+      1,
+      0
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "UI-adjust-Curves",
+    "title": "调整层真实参数编辑 Curves",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "a4916eb",
+    "after": "cacea504",
+    "history": [
+      0,
+      2,
+      1
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "UI-adjust-Gradient Map",
+    "title": "调整层真实参数编辑 Gradient Map",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "ea9c95e3",
+    "after": "a93459b8",
+    "history": [
+      0,
+      1,
+      0
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "UI-adjust-Grain",
+    "title": "调整层真实参数编辑 Grain",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "a4916eb",
+    "after": "99626ab8",
+    "history": [
+      0,
+      1,
+      0
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "UI-adjust-Color Balance",
+    "title": "调整层真实参数编辑 Color Balance",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "a4916eb",
+    "after": "798259ae",
+    "history": [
+      0,
+      1,
+      0
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "UI-effect-stroke",
+    "title": "图层效果UI修改 描边",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "d46ac5e3",
+    "after": "894eebaf",
+    "metadata": {
+      "enabled": true,
+      "size": 3,
+      "color": [
+        0,
+        255,
+        255
+      ],
+      "opacity": 1,
+      "inside": false
+    },
+    "status": "通过"
+  },
+  {
+    "id": "UI-effect-shadow",
+    "title": "图层效果UI修改 投影",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "2051be86",
+    "after": "cfb4b73e",
+    "metadata": {
+      "enabled": true,
+      "angle": 120,
+      "distance": 8,
+      "blur": 8,
+      "color": [
+        0,
+        255,
+        255
+      ],
+      "opacity": 0.6
+    },
+    "status": "通过"
+  },
+  {
+    "id": "UI-effect-innerShadow",
+    "title": "图层效果UI修改 内阴影",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "dc286e85",
+    "after": "a2a726bd",
+    "metadata": {
+      "enabled": true,
+      "angle": 120,
+      "distance": 8,
+      "blur": 8,
+      "color": [
+        0,
+        255,
+        255
+      ],
+      "opacity": 0.6
+    },
+    "status": "通过"
+  },
+  {
+    "id": "UI-effect-colorOverlay",
+    "title": "图层效果UI修改 颜色叠加",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "f5269dc5",
+    "after": "3990e5c5",
+    "metadata": {
+      "enabled": true,
+      "color": [
+        0,
+        255,
+        255
+      ],
+      "opacity": 1
+    },
+    "status": "通过"
+  },
+  {
+    "id": "UI-effect-outerGlow",
+    "title": "图层效果UI修改 外发光",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "2fd30d47",
+    "after": "23c4d1cf",
+    "metadata": {
+      "enabled": true,
+      "size": 10,
+      "color": [
+        0,
+        255,
+        255
+      ],
+      "opacity": 0.8
+    },
+    "status": "通过"
+  },
+  {
+    "id": "UI-effect-innerGlow",
+    "title": "图层效果UI修改 内发光",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": "faa8bd1a",
+    "after": "bb9e21a8",
+    "metadata": {
+      "enabled": true,
+      "size": 10,
+      "color": [
+        0,
+        255,
+        255
+      ],
+      "opacity": 0.8
+    },
+    "status": "通过"
+  },
+  {
+    "id": "UI-raw-groups",
+    "title": "RAW缺失的四组实际修改并应用",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": {
+      "width": 16,
+      "height": 16,
+      "hash": "e109ed2",
+      "visible": 256,
+      "first": [
+        30,
+        39,
+        48,
+        255
+      ]
+    },
+    "after": {
+      "width": 14,
+      "height": 16,
+      "hash": "5ae1329c",
+      "visible": 224,
+      "first": [
+        106,
+        86,
+        98,
+        255
+      ]
+    },
+    "status": "通过"
+  },
+  {
+    "id": "UI-raw-filter",
+    "title": "普通图层从菜单进入RAW滤镜并取消不修改",
+    "kind": "fix-ui",
+    "pass": true,
+    "groups": 8,
+    "status": "通过"
+  },
+  {
+    "id": "UI-pixel-grid",
+    "title": "菜单开关实际控制像素网格",
+    "kind": "fix-ui",
+    "pass": true,
+    "before": true,
+    "after": false,
+    "status": "通过"
+  },
+  {
+    "id": "UI-guides-lock",
+    "title": "锁定参考线后不移动，解锁后可移动",
+    "kind": "fix-ui",
+    "pass": true,
+    "locked": {
+      "locked": true,
+      "pos": 10
+    },
+    "unlocked": 14,
+    "status": "通过"
+  },
+  {
+    "id": "UI-layer-lock",
+    "title": "图层锁定按钮控制画笔写入",
+    "kind": "fix-ui",
+    "pass": true,
+    "status": "通过"
+  },
+  {
+    "id": "UI-jpeg",
+    "title": "原版JPEG快捷键选择正确格式与实时预览",
+    "kind": "fix-ui",
+    "pass": true,
+    "text": "导出图片\n格式\nJPEG\n质量\n缩放\n64 × 64 · 1.5 KB\n关闭\n导出",
+    "images": 1,
+    "status": "通过"
+  },
+  {
+    "id": "UI-filter-preview",
+    "title": "滤镜菜单打开预览、取消保留源、应用可撤销",
+    "kind": "fix-ui",
+    "pass": true,
+    "count": 4,
+    "status": "通过"
+  },
+  {
+    "id": "UI-clipboard-flatten",
+    "title": "剪贴板扁平化命令输出合并像素",
+    "kind": "fix-ui",
+    "pass": true,
+    "size": [
+      64,
+      64
+    ],
+    "name": "粘贴的像素",
+    "status": "通过"
+  },
+  {
+    "id": "UI-mask-history",
+    "title": "独立蒙版移动后切回图像，再撤销不影响原图变换",
+    "kind": "fix-ui",
+    "pass": true,
+    "transform": {
+      "origin": [
+        16,
+        16
+      ],
+      "size": [
+        32,
+        32
+      ],
+      "rotation": 0,
+      "flipX": false,
+      "flipY": false,
+      "sampling": "Nearest",
+      "warp": null
+    },
+    "placement": {
+      "x": 0,
+      "y": 0,
+      "width": 64,
+      "height": 64,
+      "rotation": 0,
+      "flipX": false,
+      "flipY": false,
+      "sampling": "Nearest"
+    },
+    "status": "通过"
+  }
+]

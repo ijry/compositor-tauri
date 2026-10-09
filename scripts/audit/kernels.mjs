@@ -1,0 +1,38 @@
+import {launch,pageFor,saveJSON} from './harness.mjs';
+const browser=await launch(),page=await pageFor(browser),results=[];
+async function run(id,title,fn,arg){let r;try{const v=await page.evaluate(fn,arg);r={id,title,kind:'kernel',...v,status:v.pass?'通过':'失败',scope:'真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证'};}catch(e){r={id,title,kind:'kernel',status:'失败',error:e.message};}results.push(r);await saveJSON('kernels-results.json',results);console.log(id,r.status,r.error??r.detail??'');}
+try{
+ const kinds=['Hue/Saturation','Levels','Curves','Exposure','Gradient Map','Grain','Black & White','Color Balance','Invert','Gaussian Blur','Motion Blur','Add Noise'];
+ for(const kind of kinds)await run('ADJ-'+kind,'调整内核 / '+kind,kind=>{
+  const {D,P,C,pixel,hash}=window.A,source=pixel('样本',32,32),doc=D.createDocument(32,32),record=D.defaultAdjustment(kind);doc.layers=[source];const before=hash(C.compositeDocument(doc).buffer.data);
+  if(kind==='Hue/Saturation'){record.hue=60;record.saturation=30;}
+  if(kind==='Levels'){record.levels.ranges[0].black=20;record.levels.ranges[0].gamma=.7;record.levels.ranges[0].white=220;}
+  if(kind==='Curves')record.curves.channels[0].points=[[0,0],[128,210],[255,255]];
+  if(kind==='Exposure')record.exposureSettings.exposure=1;
+  if(kind==='Gradient Map'){record.gradientMapSettings.shadows=[255,0,0];record.gradientMapSettings.mids=[0,255,0];record.gradientMapSettings.highlights=[0,0,255];}
+  if(kind==='Grain'){record.grainSettings.amount=20;record.grainSettings.colorAmount=30;}
+  if(kind==='Color Balance')record.colorBalanceSettings.midCyanRed=40;
+  if(kind==='Gaussian Blur')record.blurRadius=3;
+  if(kind==='Motion Blur'){record.motionAngle=45;record.motionDistance=8;}
+  if(kind==='Add Noise')record.noiseAmount=1;
+  const layer=D.createAdjustmentLayer(kind,doc);layer.adjustment=record;doc.layers.push(layer);const after=hash(C.compositeDocument(doc).buffer.data);layer.opacity=0;const zero=hash(C.compositeDocument(doc).buffer.data);layer.opacity=1;D.addLayerMask(layer,32,32).data.fill(0);const masked=hash(C.compositeDocument(doc).buffer.data);return{pass:before!==after&&zero===before&&masked===before,before,after,opacityZeroIdentity:zero===before,blackMaskIdentity:masked===before};
+ },kind);
+ await run('ADJ-exposure-reference','曝光按线性光增加一档',()=>{const {D,P,C}=window.A,d=D.createDocument(1,1),l=D.createPixelLayer('灰',P.createBuffer(1,1,[128,128,128,255])),a=D.createAdjustmentLayer('Exposure',d);a.adjustment.exposureSettings.exposure=1;d.layers=[l,a];const actual=Array.from(C.compositeDocument(d).buffer.data);return{pass:Math.abs(actual[0]-176)<=2,actual,expected:[176,176,176,255]};});
+ await run('ADJ-gradient-reverse','反向渐变映射交换端点而非反色',()=>{const {D,P,F}=window.A,b=P.createBuffer(1,1,[0,0,0,255]),r=D.defaultAdjustment('Gradient Map');r.gradientMapSettings={shadows:[255,0,0],mids:[0,255,0],highlights:[0,0,255],reversed:true};F.applyAdjustment(b,r);const actual=Array.from(b.data);return{pass:actual[0]===0&&actual[1]===0&&actual[2]===255,actual,expected:[0,0,255,255]};});
+ await run('ADJ-curves-interpolation','曲线与上游形状保持 Hermite 插值一致',()=>{const {D,P,F}=window.A,b=P.createBuffer(1,1,[64,64,64,255]),r=D.defaultAdjustment('Curves');r.curves.channels[0].points=[[0,0],[128,200],[255,255]];F.applyAdjustment(b,r);const s0=200/128,s1=2/(1/s0+1/(55/127)),expected=Math.round(25+100-16*s1);return{pass:Math.abs(b.data[0]-expected)<=1,actual:b.data[0],expected};});
+ const modes=await page.evaluate(()=>window.A.Types.BLEND_MODES);
+ for(const mode of modes)await run('BLEND-'+mode,'混合模式 / '+mode,mode=>{
+  const map={Normal:'source-over',Darken:'darken',Multiply:'multiply','Color Burn':'color-burn',Lighten:'lighten',Screen:'screen','Color Dodge':'color-dodge',Overlay:'overlay','Soft Light':'soft-light','Hard Light':'hard-light',Difference:'difference',Exclusion:'exclusion',Hue:'hue',Saturation:'saturation',Color:'color',Luminosity:'luminosity'};
+  const cb=[120,90,200],cs=[210,50,80],{D,P,C}=window.A,checks=[];
+  const blend=(b,s)=>{switch(mode){case 'Linear Burn':return Math.max(0,b+s-255);case 'Linear Dodge (Add)':return Math.min(255,b+s);case 'Vivid Light':return s<128?Math.max(0,255-(255-b)*255/Math.max(1,2*s)):Math.min(255,b*255/Math.max(1,2*(255-s)));case 'Linear Light':return Math.max(0,Math.min(255,b+2*s-255));case 'Pin Light':return s<128?Math.min(b,2*s):Math.max(b,2*s-255);case 'Hard Mix':return b+s<255?0:255;case 'Subtract':return Math.max(0,b-s);case 'Divide':return s===0?255:Math.min(255,b/s*255);default:return s;}};
+  for(const [ba,sa]of [[255,255],[128,160],[0,128]]){
+   let expected;if(map[mode]){const c=document.createElement('canvas');c.width=c.height=1;const ctx=c.getContext('2d');ctx.fillStyle='rgba('+cb.join(',')+','+ba/255+')';ctx.fillRect(0,0,1,1);ctx.globalCompositeOperation=map[mode];ctx.fillStyle='rgba('+cs.join(',')+','+sa/255+')';ctx.fillRect(0,0,1,1);expected=Array.from(ctx.getImageData(0,0,1,1).data);}else{const ab=ba/255,as=sa/255,alpha=as+ab*(1-as);expected=cb.map((b,i)=>Math.round((b*ab*(1-as)+as*((1-ab)*cs[i]+ab*blend(b,cs[i])))/alpha));expected.push(Math.round(alpha*255));}
+   const d=D.createDocument(1,1),b=D.createPixelLayer('b',P.createBuffer(1,1,[...cb,ba])),s=D.createPixelLayer('s',P.createBuffer(1,1,[...cs,sa]));s.blendMode=mode;d.layers=[b,s];const actual=Array.from(C.compositeDocument(d).buffer.data);const delta=Math.max(...actual.map((v,i)=>Math.abs(v-expected[i])));checks.push({ba,sa,actual,expected,maxDelta:delta});
+  }
+  return{pass:checks.every(c=>c.maxDelta<=2),reference:map[mode]?'浏览器 Canvas 标准混合（容差2）':'独立公式（容差2）',checks};
+ },mode);
+ const effects={stroke:{size:3,inside:false,color:[0,255,0],opacity:1},shadow:{angle:90,distance:5,blur:2,color:[0,0,0],opacity:.7},colorOverlay:{color:[0,255,0],opacity:.7},innerShadow:{angle:90,distance:3,blur:2,color:[0,0,0],opacity:.7},outerGlow:{size:3,color:[0,255,0],opacity:.7},innerGlow:{size:3,color:[0,255,0],opacity:.7}};
+ for(const [name,value]of Object.entries(effects))await run('FX-'+name,'图层效果内核 / '+name,({name,value})=>{const {D,P,C,hash}=window.A,d=D.createDocument(32,32),l=D.createPixelLayer('样本',P.createBuffer(12,12,[220,50,30,255]));l.transform.origin=[10,10];d.layers=[l];const before=hash(C.compositeDocument(d).buffer.data);l.effects={[name]:{...value,enabled:true}};const after=hash(C.compositeDocument(d).buffer.data);l.effects[name].enabled=false;const disabled=hash(C.compositeDocument(d).buffer.data);return{pass:before!==after&&before===disabled,before,after,disabled};},{name,value});
+ await run('FX-shadow-angle','上游投影角度通过工程codec保持光源方向',async()=>{const codec=await import('/src/io/projectCodecs.ts');const {D,P,C}=window.A,d=D.createDocument(32,32),l=D.createPixelLayer('样本',P.createBuffer(4,4,[255,0,0,255]));l.transform.origin=[14,14];l.effects=codec.decodeEffects({shadow:{enabled:true,angle:0,distance:8,blur:0,red:0,green:0,blue:0,opacity:1}});d.layers=[l];const b=C.compositeDocument(d).buffer,left=b.data[(16*32+8)*4+3],right=b.data[(16*32+24)*4+3],saved=codec.encodeEffects(l.effects).shadow;return{pass:left>0&&right===0&&saved.angle===0,left,right,internalAngle:l.effects.shadow.angle,savedAngle:saved.angle,expected:'原版angle=0光从右来，codec转换为内部180，影在左，保存回0',scope:'内部偏移角与上游光源角是有意不同的表示；应验证边界转换，而不是强迫内部同值'};});
+ await run('COLOR-buffer16','16位内部缓冲声明',async()=>{const mod=await import('/src/core/color.ts');const {P}=window.A;return{pass:typeof mod.rgbToLab==='function'&&P.createBuffer(1,1).data.BYTES_PER_ELEMENT===2,exports:Object.keys(mod),bufferType:P.createBuffer(1,1).data.constructor.name,detail:'实际缓冲固定为 Uint8ClampedArray，不支持声明的16位内部处理；Lab转换存在且由 COLOR-roundtrips 单独验证，不能混为缺失' };});
+}finally{await page.close();await browser.close();}

@@ -12,8 +12,13 @@ import DockLayout from '@/components/DockLayout.vue';
 import StartPage from '@/components/StartPage.vue';
 import { initTheme } from '@/composables/useTheme';
 import { loadPanelLayout, resetPanels, constrainFloatingPanels } from '@/composables/usePanels';
+import FilterDialog from '@/components/dialogs/FilterDialog.vue';
+import type { FilterSession } from '@/composables/filterSession';
+import CommandPalette from '@/components/dialogs/CommandPalette.vue';
 import DialogHost from '@/components/dialogs/DialogHost.vue';
-import { api, closeDocument, commands, currentDocument, documents, handleKeyDown, initialize, selectDocument, statusMessage } from '@/composables/useEditor';
+import { api, currentDialog, closeDocument, commands, currentDocument, documents, handleKeyDown, initialize, selectDocument, statusMessage } from '@/composables/useEditor';
+import { ADJUSTMENT_LABELS, descendantsOf } from '@/core/document';
+import { captureClipboard } from '@/core/clipboard';
 import { toHex } from '@/core/color';
 
 /** 菜单定义 */
@@ -58,7 +63,7 @@ const menus: { label: string; items: { label?: string; key?: string; divider?: b
       { label: '填充前景色', run: () => commands.run('fillForeground') },
       { label: '填充背景色', run: () => commands.run('fillBackground') },
       { label: '清除', run: () => commands.run('clearSelection') },
-      { label: '内容识别填充', run: () => commands.run('contentAwareFill') },
+      { label: '内容识别填充', run: () => commands.run('openFilter','contentAwareFill') },
     ],
   },
   {
@@ -98,20 +103,22 @@ const menus: { label: string; items: { label?: string; key?: string; divider?: b
     items: [
       'Hue/Saturation', 'Levels', 'Curves', 'Exposure', 'Gradient Map', 'Grain',
       'Black & White', 'Color Balance', 'Invert', 'Gaussian Blur', 'Motion Blur', 'Add Noise',
-    ].map((name) => ({ label: name, run: () => commands.run('addAdjustment', name) })),
+    ].map((name) => ({ label: ADJUSTMENT_LABELS[name as keyof typeof ADJUSTMENT_LABELS]??name, run: () => commands.run('addAdjustment', name) })),
   },
   {
     label: '滤镜',
     items: [
-      { label: '添加杂色', run: () => commands.run('filterAddNoise', { amount: 10 }) },
-      { label: '渐晕', run: () => commands.run('filterVignette', { amount: -40 }) },
-      { label: '辉光', run: () => commands.run('filterBloom') },
-      { label: '色调反差', run: () => commands.run('filterTonalContrast') },
-      { label: '镜头校正', run: () => commands.run('filterLensCorrection') },
-      { label: '移除背景', run: () => commands.run('filterRemoveBackground') },
-      { label: 'USM 锐化', run: () => commands.run('filterSharpen') },
-      { label: '降噪', run: () => commands.run('filterDenoise') },
-      { label: '抖动', run: () => commands.run('filterDither') },
+      {label:'相机RAW滤镜…',run:()=>commands.run('openFilter','cameraRaw')},
+      ...['Hue/Saturation','Levels','Curves','Exposure','Gradient Map','Grain','Black & White','Color Balance','Invert','Gaussian Blur','Motion Blur'].map(kind=>({label:(ADJUSTMENT_LABELS[kind as keyof typeof ADJUSTMENT_LABELS]??kind)+'…',run:()=>commands.run('openFilter',kind)})),
+      { label: '添加杂色', run: () => commands.run('openFilter', 'filterAddNoise') },
+      { label: '渐晕', run: () => commands.run('openFilter', 'filterVignette') },
+      { label: '辉光', run: () => commands.run('openFilter', 'filterBloom') },
+      { label: '色调反差', run: () => commands.run('openFilter', 'filterTonalContrast') },
+      { label: '镜头校正', run: () => commands.run('openFilter', 'filterLensCorrection') },
+      { label: '移除背景', run: () => commands.run('openFilter', 'filterRemoveBackground') },
+      { label: 'USM 锐化', run: () => commands.run('openFilter', 'filterSharpen') },
+      { label: '降噪', run: () => commands.run('openFilter', 'filterDenoise') },
+      { label: '抖动', run: () => commands.run('openFilter', 'filterDither') },
     ],
   },
   {
@@ -147,6 +154,11 @@ const menus: { label: string; items: { label?: string; key?: string; divider?: b
       { label: '网格设置…', run: () => commands.run('gridSettings') },
       { label: '显示参考线', run: () => commands.run('toggleGuides') },
       { label: '吸附设置…', run: () => commands.run('snapSettings') },
+      { label:'清除参考线',run:()=>commands.run('clearGuides') },
+      { label:'锁定参考线',run:()=>{api.doc.guidesLocked=!api.doc.guidesLocked;} },
+      { label:'显示像素网格',run:()=>{api.ui.pixelGrid=!api.ui.pixelGrid;api.invalidate();} },
+      { label:'仅画布',run:()=>{api.ui.canvasOnly=!api.ui.canvasOnly;} },
+      { label:'搜索命令…',run:()=>api.openDialog('commandPalette') },
       { label: '显示变换控件', run: () => commands.run('toggleTransformControls') },
       { divider: true },
       { label: '主题：暗色', run: () => commands.run('setTheme', 'dark') },
@@ -189,10 +201,22 @@ onBeforeUnmount(() => {
 function foregroundHex(): string {
   return toHex(...api.foreground).toUpperCase();
 }
+/** 跨文档拖放只接收当前进程中已打开文档的ID，复制独立像素，目标文档拥有撤销记录。 */
+async function dropLayers(event:DragEvent,index:number){
+  const raw=event.dataTransfer?.getData('application/x-compositor-layers');if(!raw)return;
+  let data:{documentId:string;ids:string[]};try{data=JSON.parse(raw);}catch{return;}
+  const source=documents.value.find(d=>d.id===data.documentId),target=documents.value[index];if(!source||!target||source===target||!Array.isArray(data.ids))return;
+  const ids=new Set(data.ids.filter(id=>source.layers.some(l=>l.id===id)));
+  const roots=source.layers.filter(l=>ids.has(l.id)&&(!l.parentId||!ids.has(l.parentId)));
+  selectDocument(index);
+  for(const layer of roots){const captured=captureClipboard({...source,selection:null},{...layer,mask:layer.mask?{...layer.mask,target:'image'}:null});if(captured)await commands.run('pastePayload',captured);}
+}
 </script>
 
 <template>
-  <div class="cmp-app">
+  <div class="cmp-app" :class="{'canvas-only':api.ui.canvasOnly}">
+    <FilterDialog v-if="currentDialog?.name==='filterDialog'" :session="currentDialog.payload as FilterSession"/>
+    <CommandPalette v-if="currentDialog?.name==='commandPalette'" :menus="menus"/>
     <!-- 菜单栏 -->
     <header class="menu-bar">
       <el-dropdown v-for="menu in menus" :key="menu.label" trigger="hover" @command="() => undefined">
@@ -225,6 +249,7 @@ function foregroundHex(): string {
         class="tab"
         :class="{ active: index === documents.indexOf(currentDocument!) }"
         @click="selectDocument(index)"
+        @dragover.prevent="($event.dataTransfer)&&($event.dataTransfer.dropEffect='copy')" @drop.prevent="dropLayers($event,index)"
       >
         <span>{{ doc.name }}</span>
         <button class="close" @click.stop="closeDocument(doc.id)">×</button>
@@ -392,4 +417,9 @@ function foregroundHex(): string {
   min-width: 52px;
   text-align: right;
 }
+</style>
+
+<style>
+.canvas-only .menu-bar,.canvas-only .tabs,.canvas-only .status-bar,.canvas-only .cmp-toolbar,.canvas-only .cmp-tool-header,.canvas-only .dock-left,.canvas-only .dock-right,.canvas-only .dock-bottom,.canvas-only .float-layer{display:none!important}
+.canvas-only{position:fixed;inset:0;z-index:2500;background:black}.canvas-only .dock-layout{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important}.canvas-only .dock-center{grid-area:1 / 1 / 2 / 2!important}
 </style>

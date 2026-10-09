@@ -1,0 +1,193 @@
+{
+  "businessSha": "b508f9a8d1d5ee74a1b0bec6c308338c4987dc91",
+  "upstreamSha": "fa41b9b6693b8e1b3a01a13a9ea112edd8e008e3",
+  "generatedAt": "2026-10-08T15:25:40.898Z",
+  "totalRecords": 557,
+  "states": {
+    "通过": 290,
+    "部分通过": 78,
+    "失败": 158,
+    "未实现": 18,
+    "未验证": 0,
+    "未实测": 13
+  },
+  "groups": [
+    {
+      "file": "contracts-results.json",
+      "total": 43,
+      "states": {
+        "通过": 8,
+        "部分通过": 0,
+        "失败": 30,
+        "未实现": 5,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "edges-results.json",
+      "total": 33,
+      "states": {
+        "通过": 17,
+        "部分通过": 0,
+        "失败": 13,
+        "未实现": 3,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "formats-results.json",
+      "total": 45,
+      "states": {
+        "通过": 18,
+        "部分通过": 0,
+        "失败": 14,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 13
+      }
+    },
+    {
+      "file": "kernels-results.json",
+      "total": 47,
+      "states": {
+        "通过": 37,
+        "部分通过": 0,
+        "失败": 10,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "menus-results.json",
+      "total": 94,
+      "states": {
+        "通过": 87,
+        "部分通过": 0,
+        "失败": 7,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "parameters-results.json",
+      "total": 60,
+      "states": {
+        "通过": 8,
+        "部分通过": 37,
+        "失败": 15,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "parity-results.json",
+      "total": 61,
+      "states": {
+        "通过": 9,
+        "部分通过": 0,
+        "失败": 46,
+        "未实现": 6,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "raw-contract-results.json",
+      "total": 2,
+      "states": {
+        "通过": 0,
+        "部分通过": 0,
+        "失败": 2,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "raw-results.json",
+      "total": 52,
+      "states": {
+        "通过": 0,
+        "部分通过": 41,
+        "失败": 7,
+        "未实现": 4,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "render-results.json",
+      "total": 2,
+      "states": {
+        "通过": 0,
+        "部分通过": 0,
+        "失败": 2,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "shortcuts-results.json",
+      "total": 70,
+      "states": {
+        "通过": 64,
+        "部分通过": 0,
+        "失败": 6,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 0
+      }
+    },
+    {
+      "file": "tools-results.json",
+      "total": 48,
+      "states": {
+        "通过": 42,
+        "部分通过": 0,
+        "失败": 6,
+        "未实现": 0,
+        "未验证": 0,
+        "未实测": 0
+      }
+    }
+  ],
+  "findingGroups": 74,
+  "priorities": {
+    "P1": 41,
+    "P2": 29,
+    "P3": 4
+  },
+  "catalog": {
+    "localMenus": 94,
+    "localCommands": 93,
+    "localTools": 19,
+    "localToolParameters": 60,
+    "localShortcuts": 68,
+    "nativeShortcuts": 115,
+    "nativeMenuSourceNodes": 86,
+    "originalClaims": 60,
+    "upstreamClaims": 51
+  },
+  "unclassifiedFailures": [],
+  "uncoveredCommands": [],
+  "unverifiedNativeKeys": [],
+  "claimStates": {
+    "通过": 5,
+    "部分通过": 16,
+    "失败": 36,
+    "未实现": 2,
+    "未验证": 0,
+    "未实测": 1
+  },
+  "notes": [
+    "通过仅为指定案例/环境，不是无缺陷保证。",
+    "源控件库存与原生实机验证分开。",
+    "审计脚本默认收集所有失败并正常结束；--strict 才作为非零验收门禁。"
+  ]
+}

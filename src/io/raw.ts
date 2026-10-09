@@ -10,7 +10,8 @@
  * 非 TIFF 容器（如 CR3 的 ISO-BMFF、RAF 的 Fujifilm 私有格式）无法解码，
  * 会在导入时给出明确提示。
  */
-import { fastLuma, hslToRgb, rgbToHsl } from '@/core/color';
+import { fastLuma, hslToRgb, rgbToHsl, makeRandom } from '@/core/color';
+import { buildCurveLut } from '@/core/filters/adjust';
 import { cloneBuffer, createBuffer } from '@/core/pixels';
 import type { CameraRawSettings, PixelBuffer, RawImage } from '@/types/document';
 
@@ -148,7 +149,7 @@ export function decodeRaw(data: ArrayBuffer): RawImage {
   if (width <= 0 || height <= 0 || stripOffsets.length === 0) {
     throw new Error('未在文件中找到原始像素数据');
   }
-  if (compression !== 1 && compression !== 7 && compression !== 32773) {
+  if (compression !== 1 && compression !== 5 && compression !== 32773) {
     throw new Error(`暂不支持的 RAW 压缩方式（${compression}），请使用未压缩或 LZW 的 DNG`);
   }
 
@@ -210,6 +211,7 @@ export function decodeRaw(data: ArrayBuffer): RawImage {
     colorMatrix1.length >= 9 ? colorMatrix1 : (colorMatrix2.length >= 9 ? colorMatrix2 : null),
     forwardMatrix.length >= 9 ? forwardMatrix : null,
     baselineExposure,
+    maxValue,
   );
 
   // 按默认裁剪区域裁剪
@@ -279,38 +281,21 @@ function demosaic(
     }
     return out;
   }
-  // Bayer：先按 CFA 位置取出两个通道值
-  const red = new Float32Array(width * height);
-  const green = new Float32Array(width * height);
-  const blue = new Float32Array(width * height);
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const channel = pattern[(y % 2) * 2 + (x % 2)]!;
-      const value = read(x, y, 0) * scale * 255;
-      const index = y * width + x;
-      if (channel === 0) red[index] = value;
-      else if (channel === 2) blue[index] = value;
-      else green[index] = value;
-    }
-  }
-  const at = (data: Float32Array, x: number, y: number): number => {
-    const px = Math.max(0, Math.min(width - 1, x));
-    const py = Math.max(0, Math.min(height - 1, y));
-    return data[py * width + px]!;
-  };
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = y * width + x;
-      const i = index * 4;
-      if (red[index] !== 0 || pattern[(y % 2) * 2 + (x % 2)] !== 0) {
-        out.data[i] = red[index] !== 0 ? red[index]! : averageNeighbors(red, x, y, width, height, at);
+  // Bayer按CFA通道选择真实样本，缺少的通道用邻域同色样本插值。
+  // 不能以“数值是否为0”判断有没有采样；黑色本身也是合法值。
+  for(let y=0;y<height;y++)for(let x=0;x<width;x++) {
+    const channel=pattern[(y%2)*2+x%2]!,di=(y*width+x)*4;
+    for(let c=0;c<3;c++) {
+      if(c===channel){out.data[di+c]=read(x,y,0)*scale*255;continue;}
+      let sum=0,weight=0;
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++) {
+        const sx=x+dx,sy=y+dy;
+        if(sx<0||sy<0||sx>=width||sy>=height||pattern[(sy%2)*2+sx%2]!==c)continue;
+        const w=dx===0||dy===0?1:0.5;sum+=read(sx,sy,0)*w;weight+=w;
       }
-      if (blue[index] !== 0 || pattern[(y % 2) * 2 + (x % 2)] !== 2) {
-        out.data[i + 2] = blue[index] !== 0 ? blue[index]! : averageNeighbors(blue, x, y, width, height, at);
-      }
-      out.data[i + 1] = at(green, x, y);
-      out.data[i + 3] = 255;
+      out.data[di+c]=(weight?sum/weight:read(x,y,0))*scale*255;
     }
+    out.data[di+3]=255;
   }
   return out;
 }
@@ -343,12 +328,13 @@ function applyWhiteBalanceAndMatrix(
   colorMatrix: number[] | null,
   forwardMatrix: number[] | null,
   baselineExposure: number,
+  maxValue: number,
 ): PixelBuffer {
   const out = createBuffer(buffer.width, buffer.height);
   const blackR = black[0] ?? 0;
   const blackG = black[1] ?? blackR;
   const blackB = black[2] ?? blackR;
-  const whiteR = white[0] ?? 65535;
+  const whiteR = white[0] ?? maxValue;
   const whiteG = white[1] ?? whiteR;
   const whiteB = white[2] ?? whiteR;
   const exposure = Math.pow(2, baselineExposure);
@@ -357,9 +343,9 @@ function applyWhiteBalanceAndMatrix(
   const gainR = whiteBalance[1] / Math.max(1e-6, whiteBalance[0]);
   const gainB = whiteBalance[1] / Math.max(1e-6, whiteBalance[2]);
   for (let i = 0; i < buffer.data.length; i += 4) {
-    let r = ((buffer.data[i]! - (blackR / 65535) * 255) / Math.max(1e-6, (whiteR - blackR) / 65535)) * exposure;
-    let g = ((buffer.data[i + 1]! - (blackG / 65535) * 255) / Math.max(1e-6, (whiteG - blackG) / 65535)) * exposure;
-    let b = ((buffer.data[i + 2]! - (blackB / 65535) * 255) / Math.max(1e-6, (whiteB - blackB) / 65535)) * exposure;
+    let r = ((buffer.data[i]! - (blackR / maxValue) * 255) / Math.max(1e-6, (whiteR - blackR) / maxValue)) * exposure;
+    let g = ((buffer.data[i + 1]! - (blackG / maxValue) * 255) / Math.max(1e-6, (whiteG - blackG) / maxValue)) * exposure;
+    let b = ((buffer.data[i + 2]! - (blackB / maxValue) * 255) / Math.max(1e-6, (whiteB - blackB) / maxValue)) * exposure;
     r *= gainR;
     b *= gainB;
     if (matrix) {
@@ -368,9 +354,9 @@ function applyWhiteBalanceAndMatrix(
       const nb = matrix[6]! * r + matrix[7]! * g + matrix[8]! * b;
       r = nr; g = ng; b = nb;
     }
-    out.data[i] = Math.max(0, Math.min(255, r * 255));
-    out.data[i + 1] = Math.max(0, Math.min(255, g * 255));
-    out.data[i + 2] = Math.max(0, Math.min(255, b * 255));
+    out.data[i] = Math.max(0, Math.min(255, r));
+    out.data[i + 1] = Math.max(0, Math.min(255, g));
+    out.data[i + 2] = Math.max(0, Math.min(255, b));
     out.data[i + 3] = 255;
   }
   return out;
@@ -592,8 +578,8 @@ export function developRawImage(raw: RawImage, settings: CameraRawSettings): Pix
   }
 
   /* 曲线 */
-  if (settings.curvePoints.length > 2) {
-    const lut = buildCurve(settings.curvePoints);
+  if (settings.curvePoints.length >= 2) {
+    const lut = buildCurveLut(settings.curvePoints);
     for (let i = 0; i < data.length; i += 4) {
       data[i] = lut[data[i]!]!;
       data[i + 1] = lut[data[i + 1]!]!;
@@ -606,9 +592,10 @@ export function developRawImage(raw: RawImage, settings: CameraRawSettings): Pix
     for (let i = 0; i < data.length; i += 4) {
       const hsl = rgbToHsl(data[i]!, data[i + 1]!, data[i + 2]!);
       if (hsl.s < 0.06) continue;
-      let saturationDelta = 0;
-      let luminanceDelta = 0;
-      let hueDelta = 0;
+      const global=settings.colorMixer[0];
+      let saturationDelta = (global?.saturation??0)/100;
+      let luminanceDelta = (global?.luminance??0)/100;
+      let hueDelta = global?.hue??0;
       for (const wheel of COLOR_WHEELS) {
         const settingsValue = settings.colorMixer[0] ?? {
           hue: 0, saturation: 0, luminance: 0, red: 0, orange: 0, yellow: 0, green: 0, aqua: 0, blue: 0, purple: 0, magenta: 0,
@@ -616,7 +603,7 @@ export function developRawImage(raw: RawImage, settings: CameraRawSettings): Pix
         const amount = settingsValue[wheel.key];
         if (amount === 0) continue;
         let distance = Math.abs(((hsl.h - wheel.hue + 540) % 360) - 180);
-        distance = 180 - distance; // 0 = 完全命中
+        // 圆周最短色相距离：0表示正好命中，180表示互补色。
         const weight = Math.max(0, 1 - distance / 60) * hsl.s;
         saturationDelta += amount / 100 * weight;
         luminanceDelta += amount / 100 * weight * 0.6;
@@ -667,6 +654,9 @@ export function developRawImage(raw: RawImage, settings: CameraRawSettings): Pix
       }
     }
   }
+
+  // 使用固定种子的单色颗粒，预览与应用可复现，不在每次重绘随机闪烁。
+  if(settings.grain>0){const random=makeRandom(1741);for(let i=0;i<data.length;i+=4){const n=(random()-.5)*settings.grain*.8;for(let c=0;c<3;c++)data[i+c]=data[i+c]!+n;}}
 
   /* 光学：镜头畸变与去色边 */
   if (settings.distortion !== 0) applyRawDistortion(working, settings.distortion);

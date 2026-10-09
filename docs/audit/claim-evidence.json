@@ -1,0 +1,2424 @@
+{
+  "claims": [
+    {
+      "id": "CLAIM-001",
+      "status": "通过",
+      "selectors": [
+        "VALIDATION-PACKAGE"
+      ],
+      "note": "清单和产物静态校验通过，不等于真宿主安装验证。",
+      "evidence": [
+        "VALIDATION-PACKAGE"
+      ]
+    },
+    {
+      "id": "CLAIM-002",
+      "status": "通过",
+      "selectors": [
+        "VALIDATION-BUILD"
+      ],
+      "note": "Vue3/TypeScript/Vite 构建通过。",
+      "evidence": [
+        "VALIDATION-BUILD"
+      ]
+    },
+    {
+      "id": "CLAIM-003",
+      "status": "部分通过",
+      "selectors": [
+        "MENU-005",
+        "MENU-006",
+        "KEY-file.save",
+        "KEY-file.open"
+      ],
+      "note": "内存 OTools 替身覆盖文件接口路径；真实 OTools/Tauri/浏览器文件授权尚未实测。",
+      "evidence": [
+        "MENU-005",
+        "MENU-006",
+        "KEY-file.open",
+        "KEY-file.save"
+      ]
+    },
+    {
+      "id": "CLAIM-004",
+      "status": "通过",
+      "selectors": [
+        "VALIDATION-STRUCTURE"
+      ],
+      "note": "已按 types/core/io/tools/composables/components 组织，源码存在中文注释；结构静态核查。",
+      "evidence": [
+        "VALIDATION-STRUCTURE"
+      ]
+    },
+    {
+      "id": "CLAIM-005",
+      "status": "部分通过",
+      "selectors": [
+        "CMD-mergeGroup",
+        "PSD-basic-roundtrip",
+        "COMP-shape-native-save"
+      ],
+      "note": "模型覆盖主要种类，不能据字段存在认定处理/互操作都完整。",
+      "evidence": [
+        "CMD-mergeGroup",
+        "PSD-basic-roundtrip",
+        "COMP-shape-native-save"
+      ]
+    },
+    {
+      "id": "CLAIM-006",
+      "status": "失败",
+      "selectors": [
+        "BLEND-*"
+      ],
+      "note": "24种各测三组 alpha，4种有标准数值反例。",
+      "evidence": [
+        "BLEND-Normal",
+        "BLEND-Darken",
+        "BLEND-Multiply",
+        "BLEND-Color Burn",
+        "BLEND-Linear Burn",
+        "BLEND-Lighten",
+        "BLEND-Screen",
+        "BLEND-Color Dodge",
+        "BLEND-Linear Dodge (Add)",
+        "BLEND-Overlay",
+        "BLEND-Soft Light",
+        "BLEND-Hard Light",
+        "BLEND-Vivid Light",
+        "BLEND-Linear Light",
+        "BLEND-Pin Light",
+        "BLEND-Hard Mix",
+        "BLEND-Difference",
+        "BLEND-Exclusion",
+        "BLEND-Subtract",
+        "BLEND-Divide",
+        "BLEND-Hue",
+        "BLEND-Saturation",
+        "BLEND-Color",
+        "BLEND-Luminosity"
+      ]
+    },
+    {
+      "id": "CLAIM-007",
+      "status": "失败",
+      "selectors": [
+        "COLOR-roundtrips",
+        "COLOR-buffer16"
+      ],
+      "note": "颜色转换通过代表性往返；内部16位缓冲未实现。",
+      "evidence": [
+        "COLOR-roundtrips",
+        "COLOR-buffer16"
+      ]
+    },
+    {
+      "id": "CLAIM-008",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-move-*",
+        "REGRESSION-147"
+      ],
+      "note": "仿射/单应/采样已有用例，但未覆盖全部几何和大尺寸资源边界。",
+      "evidence": [
+        "TOOL-move-move",
+        "TOOL-move-scale",
+        "TOOL-move-rotate",
+        "TOOL-move-warp-meta",
+        "TOOL-move-warp-ctrl",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-009",
+      "status": "失败",
+      "selectors": [
+        "ADJ-*",
+        "PARITY-adjust-selection",
+        "REGRESSION-147"
+      ],
+      "note": "组/蒙版基本组合有回归；调整层受临时选区影响，空间模糊无效。",
+      "evidence": [
+        "ADJ-Hue/Saturation",
+        "ADJ-Levels",
+        "ADJ-Curves",
+        "ADJ-Exposure",
+        "ADJ-Gradient Map",
+        "ADJ-Grain",
+        "ADJ-Black & White",
+        "ADJ-Color Balance",
+        "ADJ-Invert",
+        "ADJ-Gaussian Blur",
+        "ADJ-Motion Blur",
+        "ADJ-Add Noise",
+        "ADJ-exposure-reference",
+        "ADJ-gradient-reverse",
+        "ADJ-curves-interpolation",
+        "PARITY-adjust-selection",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-010",
+      "status": "部分通过",
+      "selectors": [
+        "FX-*",
+        "FLOW-effects-ui"
+      ],
+      "note": "六种效果可渲染默认参数，投影角度在工程边界已适配；完整效果参数编辑界面仍缺失。",
+      "evidence": [
+        "FLOW-effects-ui",
+        "FX-stroke",
+        "FX-shadow",
+        "FX-colorOverlay",
+        "FX-innerShadow",
+        "FX-outerGlow",
+        "FX-innerGlow",
+        "FX-shadow-angle"
+      ]
+    },
+    {
+      "id": "CLAIM-011",
+      "status": "失败",
+      "selectors": [
+        "RENDER-*",
+        "UI-layout-*",
+        "REGRESSION-147"
+      ],
+      "note": "基础缩放/视口布局通过；像素网格缺行缺列。",
+      "evidence": [
+        "UI-layout-1440",
+        "UI-layout-960",
+        "RENDER-grid-position",
+        "RENDER-grid-threshold",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-012",
+      "status": "失败",
+      "selectors": [
+        "KEY-edit.undo",
+        "KEY-edit.redo",
+        "FLOW-nudge-history",
+        "EDGE-history-jump",
+        "FLOW-open-image-dirty"
+      ],
+      "note": "撤销栈基础用例通过，但微移双记录、历史跳转和导入遗漏存在。",
+      "evidence": [
+        "FLOW-nudge-history",
+        "FLOW-open-image-dirty",
+        "EDGE-history-jump",
+        "KEY-edit.undo",
+        "KEY-edit.redo"
+      ]
+    },
+    {
+      "id": "CLAIM-013",
+      "status": "失败",
+      "selectors": [
+        "FLOW-marquee-feather",
+        "MENU-07*",
+        "CMD-transformSelection",
+        "EDGE-selection-booleans",
+        "EDGE-crop-*"
+      ],
+      "note": "选区命令有通过案例，但工具羽化及交互完整性不成立。",
+      "evidence": [
+        "FLOW-marquee-feather",
+        "CMD-transformSelection",
+        "EDGE-crop-selection",
+        "EDGE-crop-symmetric",
+        "EDGE-crop-snap",
+        "EDGE-crop-cancel",
+        "EDGE-selection-booleans",
+        "MENU-070",
+        "MENU-071",
+        "MENU-072",
+        "MENU-073",
+        "MENU-074",
+        "MENU-075",
+        "MENU-076",
+        "MENU-077",
+        "MENU-078",
+        "MENU-079"
+      ]
+    },
+    {
+      "id": "CLAIM-014",
+      "status": "失败",
+      "selectors": [
+        "FLOW-tab-tool",
+        "PARITY-cycle-*",
+        "TOOL-hand-*"
+      ],
+      "note": "工具分发/临时抓手可用；Tab和重复工具键切模式未接通。",
+      "evidence": [
+        "FLOW-tab-tool",
+        "PARITY-cycle-marquee",
+        "PARITY-cycle-lasso",
+        "PARITY-cycle-wand",
+        "PARITY-cycle-blur",
+        "TOOL-hand-default"
+      ]
+    },
+    {
+      "id": "CLAIM-015",
+      "status": "失败",
+      "selectors": [
+        "FLOW-group-move",
+        "FLOW-multiselect-move",
+        "EDGE-snap-*",
+        "FLOW-nudge-history"
+      ],
+      "note": "组、多选、边缘吸附、历史都有反例。",
+      "evidence": [
+        "FLOW-group-move",
+        "FLOW-multiselect-move",
+        "FLOW-nudge-history",
+        "EDGE-snap-layer-edge",
+        "EDGE-snap-scaled-target"
+      ]
+    },
+    {
+      "id": "CLAIM-016",
+      "status": "失败",
+      "selectors": [
+        "TOOL-move-warp-*",
+        "FLOW-warp-shift"
+      ],
+      "note": "Meta路径通过；Windows Ctrl及Shift锁轴失败。",
+      "evidence": [
+        "FLOW-warp-shift",
+        "TOOL-move-warp-meta",
+        "TOOL-move-warp-ctrl"
+      ]
+    },
+    {
+      "id": "CLAIM-017",
+      "status": "失败",
+      "selectors": [
+        "TOOL-crop-*",
+        "EDGE-selection-booleans",
+        "EDGE-crop-*"
+      ],
+      "note": "三种固定比例在边界拖动后丢失比例。",
+      "evidence": [
+        "EDGE-crop-selection",
+        "EDGE-crop-symmetric",
+        "EDGE-crop-snap",
+        "EDGE-crop-cancel",
+        "EDGE-selection-booleans",
+        "TOOL-crop-free",
+        "TOOL-crop-1:1",
+        "TOOL-crop-4:3",
+        "TOOL-crop-3:4",
+        "TOOL-crop-16:9",
+        "TOOL-crop-9:16",
+        "TOOL-crop-3:2",
+        "TOOL-crop-2:3"
+      ]
+    },
+    {
+      "id": "CLAIM-018",
+      "status": "失败",
+      "selectors": [
+        "TOOL-lasso-*",
+        "TOOL-marquee-*",
+        "TOOL-wand-*",
+        "PARAM-objectSelect-*",
+        "EDGE-selection-booleans",
+        "EDGE-crop-*"
+      ],
+      "note": "多边形套索、抗锯齿/羽化/取样参数存在未接线。",
+      "evidence": [
+        "EDGE-crop-selection",
+        "EDGE-crop-symmetric",
+        "EDGE-crop-snap",
+        "EDGE-crop-cancel",
+        "EDGE-selection-booleans",
+        "PARAM-objectSelect-sensitivity",
+        "PARAM-objectSelect-feather",
+        "TOOL-marquee-rect",
+        "TOOL-marquee-ellipse",
+        "TOOL-lasso-free",
+        "TOOL-lasso-polygon",
+        "TOOL-wand-default"
+      ]
+    },
+    {
+      "id": "CLAIM-019",
+      "status": "失败",
+      "selectors": [
+        "TOOL-brush-*",
+        "TOOL-eraser-*",
+        "FLOW-brush-shift"
+      ],
+      "note": "基本画笔/擦除通过，Shift直线失败。",
+      "evidence": [
+        "FLOW-brush-shift",
+        "TOOL-brush-paint",
+        "TOOL-brush-erase",
+        "TOOL-eraser-default"
+      ]
+    },
+    {
+      "id": "CLAIM-020",
+      "status": "失败",
+      "selectors": [
+        "TOOL-healing-*",
+        "TOOL-clone-*",
+        "PARAM-clone-*"
+      ],
+      "note": "仿制图章基础取样失败；修复算法只验证了合成样本效果，不代表照片质量。",
+      "evidence": [
+        "PARAM-clone-size",
+        "PARAM-clone-hardness",
+        "PARAM-clone-opacity",
+        "PARAM-clone-aligned",
+        "PARAM-clone-sampleAllLayers",
+        "TOOL-healing-default",
+        "TOOL-clone-default"
+      ]
+    },
+    {
+      "id": "CLAIM-021",
+      "status": "失败",
+      "selectors": [
+        "TOOL-blur-*",
+        "TOOL-smudge-*",
+        "TOOL-liquify-*",
+        "PARAM-liquify-strength"
+      ],
+      "note": "各模式可以改像素，但默认push强度不生效。",
+      "evidence": [
+        "PARAM-liquify-strength",
+        "TOOL-blur-pixels",
+        "TOOL-blur-mask",
+        "TOOL-smudge-default",
+        "TOOL-liquify-push",
+        "TOOL-liquify-twirl",
+        "TOOL-liquify-bloat"
+      ]
+    },
+    {
+      "id": "CLAIM-022",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-gradient-*",
+        "PARAM-gradient-*",
+        "FLOW-gradient-edit"
+      ],
+      "note": "五种渐变及基本参数有输出；持久可编辑渐变和独立工具混合选项不足。",
+      "evidence": [
+        "FLOW-gradient-edit",
+        "PARAM-gradient-type",
+        "PARAM-gradient-opacity",
+        "PARAM-gradient-reverse",
+        "PARAM-gradient-dither",
+        "TOOL-gradient-linear",
+        "TOOL-gradient-radial",
+        "TOOL-gradient-angle",
+        "TOOL-gradient-reflected",
+        "TOOL-gradient-diamond"
+      ]
+    },
+    {
+      "id": "CLAIM-023",
+      "status": "失败",
+      "selectors": [
+        "TOOL-shape-*",
+        "FLOW-shape-edit",
+        "COMP-shape-native-save"
+      ],
+      "note": "形状可创建，后续参数编辑及上游保存合约失败。",
+      "evidence": [
+        "FLOW-shape-edit",
+        "COMP-shape-native-save",
+        "TOOL-shape-rectangle",
+        "TOOL-shape-roundedRectangle",
+        "TOOL-shape-ellipse",
+        "TOOL-shape-line"
+      ]
+    },
+    {
+      "id": "CLAIM-024",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-type-*",
+        "PARAM-type-*",
+        "PARITY-text-*",
+        "REGRESSION-147"
+      ],
+      "note": "内联文字/基本属性有验证；彩色字体run完整编辑、原版文字快捷键及外部PSD往返未达到。",
+      "evidence": [
+        "PARAM-type-content",
+        "PARAM-type-fontName",
+        "PARAM-type-fontSize",
+        "PARAM-type-color",
+        "PARAM-type-align",
+        "PARAM-type-tracking",
+        "PARAM-type-lineSpacing",
+        "PARAM-type-bold",
+        "PARAM-type-italic",
+        "PARITY-text-Left-false",
+        "PARITY-text-Left-true",
+        "PARITY-text-Right-false",
+        "PARITY-text-Right-true",
+        "PARITY-text-Up-false",
+        "PARITY-text-Up-true",
+        "PARITY-text-Down-false",
+        "PARITY-text-Down-true",
+        "TOOL-type-left",
+        "TOOL-type-center",
+        "TOOL-type-right",
+        "TOOL-type-point",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-025",
+      "status": "失败",
+      "selectors": [
+        "TOOL-eyedropper-*",
+        "PARAM-eyedropper-*",
+        "EDGE-eyedropper-*",
+        "EDGE-global-color-picker"
+      ],
+      "note": "合并取样有差分，单层取样与全局颜色选择器不完整。",
+      "evidence": [
+        "EDGE-eyedropper-layer-size",
+        "EDGE-eyedropper-layer-transform",
+        "EDGE-global-color-picker",
+        "PARAM-eyedropper-sample",
+        "PARAM-eyedropper-size",
+        "TOOL-eyedropper-composite",
+        "TOOL-eyedropper-layer"
+      ]
+    },
+    {
+      "id": "CLAIM-026",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-hand-*",
+        "TOOL-zoom-*",
+        "KEY-view.*"
+      ],
+      "note": "常规平移缩放通过；未进行超高倍率/极大画布的危险压力测试。",
+      "evidence": [
+        "KEY-view.fit",
+        "KEY-view.actual",
+        "KEY-view.zoomIn",
+        "KEY-view.zoomOut",
+        "KEY-view.rulers",
+        "KEY-view.grid",
+        "KEY-view.guides",
+        "KEY-view.snap",
+        "KEY-view.transformControls",
+        "TOOL-hand-default",
+        "TOOL-zoom-default",
+        "TOOL-zoom-out"
+      ]
+    },
+    {
+      "id": "CLAIM-027",
+      "status": "部分通过",
+      "selectors": [
+        "ADJ-Hue/Saturation",
+        "KEY-adjust.hueSaturation"
+      ],
+      "note": "基础算法有输出，着色等完整参数UI/语义未逐参数认证。",
+      "evidence": [
+        "ADJ-Hue/Saturation",
+        "KEY-adjust.hueSaturation"
+      ]
+    },
+    {
+      "id": "CLAIM-028",
+      "status": "失败",
+      "selectors": [
+        "MENU-048",
+        "MENU-049",
+        "ADJ-curves-interpolation",
+        "COMP-native-Curves"
+      ],
+      "note": "编辑器缺失、曲线插值与工程字段不兼容。",
+      "evidence": [
+        "COMP-native-Curves",
+        "ADJ-curves-interpolation",
+        "MENU-048",
+        "MENU-049"
+      ]
+    },
+    {
+      "id": "CLAIM-029",
+      "status": "失败",
+      "selectors": [
+        "ADJ-exposure-reference",
+        "ADJ-gradient-reverse",
+        "MENU-051",
+        "MENU-052"
+      ],
+      "note": "曝光和反向映射有数值反例，多个编辑器缺失。",
+      "evidence": [
+        "ADJ-exposure-reference",
+        "ADJ-gradient-reverse",
+        "MENU-051",
+        "MENU-052"
+      ]
+    },
+    {
+      "id": "CLAIM-030",
+      "status": "失败",
+      "selectors": [
+        "ADJ-Black & White",
+        "ADJ-Color Balance",
+        "ADJ-Invert",
+        "MENU-054"
+      ],
+      "note": "内核基础样本可运行，但Color Balance无完整编辑UI。",
+      "evidence": [
+        "ADJ-Black & White",
+        "ADJ-Color Balance",
+        "ADJ-Invert",
+        "MENU-054"
+      ]
+    },
+    {
+      "id": "CLAIM-031",
+      "status": "失败",
+      "selectors": [
+        "ADJ-Gaussian Blur",
+        "ADJ-Motion Blur"
+      ],
+      "note": "创建成功但空间调整结果未进入合成。",
+      "evidence": [
+        "ADJ-Gaussian Blur",
+        "ADJ-Motion Blur"
+      ]
+    },
+    {
+      "id": "CLAIM-032",
+      "status": "部分通过",
+      "selectors": [
+        "ADJ-Add Noise"
+      ],
+      "note": "验证非默认杂色及覆盖率；未给种子/高斯/单色全组合做统计分布验收。",
+      "evidence": [
+        "ADJ-Add Noise"
+      ]
+    },
+    {
+      "id": "CLAIM-033",
+      "status": "部分通过",
+      "selectors": [
+        "MENU-06*"
+      ],
+      "note": "固定参数滤镜有像素效果；原版全部可调参数和照片质量未认证。",
+      "evidence": [
+        "MENU-060",
+        "MENU-061",
+        "MENU-062",
+        "MENU-063",
+        "MENU-064",
+        "MENU-065",
+        "MENU-066",
+        "MENU-067",
+        "MENU-068",
+        "MENU-069"
+      ]
+    },
+    {
+      "id": "CLAIM-034",
+      "status": "未实现",
+      "selectors": [
+        "FLOW-filter-preview"
+      ],
+      "note": "没有要求的破坏性滤镜参数/实时预览/确认取消面板。",
+      "evidence": [
+        "FLOW-filter-preview"
+      ]
+    },
+    {
+      "id": "CLAIM-035",
+      "status": "部分通过",
+      "selectors": [
+        "KEY-file.*",
+        "PARITY-cross-doc-copy",
+        "REGRESSION-147"
+      ],
+      "note": "标签、保存中继续编辑在模拟宿主有回归；真实磁盘/原生对话框待测。",
+      "evidence": [
+        "PARITY-cross-doc-copy",
+        "KEY-file.new",
+        "KEY-file.newLayer",
+        "KEY-file.open",
+        "KEY-file.save",
+        "KEY-file.saveAs",
+        "KEY-file.exportPng",
+        "KEY-file.exportJpeg",
+        "KEY-file.close",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-036",
+      "status": "失败",
+      "selectors": [
+        "FLOW-grid-*",
+        "FLOW-guide-*",
+        "EDGE-lock-guides",
+        "MENU-088"
+      ],
+      "note": "细分、启用状态、既有线编辑/锁定/撤销及吸附入口存在问题。",
+      "evidence": [
+        "FLOW-grid-enable",
+        "FLOW-grid-subdivisions",
+        "FLOW-guide-move",
+        "FLOW-guide-history",
+        "EDGE-lock-guides",
+        "MENU-088"
+      ]
+    },
+    {
+      "id": "CLAIM-037",
+      "status": "失败",
+      "selectors": [
+        "FLOW-canvas-width",
+        "FLOW-image-aspect",
+        "TOOL-crop-*",
+        "MENU-028",
+        "MENU-029",
+        "MENU-033",
+        "MENU-034"
+      ],
+      "note": "核心尺寸API/翻转有通过例，表单联动及比例裁剪失败。",
+      "evidence": [
+        "FLOW-canvas-width",
+        "FLOW-image-aspect",
+        "MENU-028",
+        "MENU-029",
+        "MENU-033",
+        "MENU-034",
+        "TOOL-crop-free",
+        "TOOL-crop-1:1",
+        "TOOL-crop-4:3",
+        "TOOL-crop-3:4",
+        "TOOL-crop-16:9",
+        "TOOL-crop-9:16",
+        "TOOL-crop-3:2",
+        "TOOL-crop-2:3"
+      ]
+    },
+    {
+      "id": "CLAIM-038",
+      "status": "失败",
+      "selectors": [
+        "FORMAT-*",
+        "FLOW-start-openImage"
+      ],
+      "note": "基本位图格式通过合成样本；Tile TIFF与欢迎页导入失败，复杂ICC/EXIF变体未覆盖。",
+      "evidence": [
+        "FLOW-start-openImage",
+        "FORMAT-png",
+        "FORMAT-jpeg",
+        "FORMAT-webp",
+        "FORMAT-bmp",
+        "FORMAT-gif",
+        "FORMAT-svg",
+        "FORMAT-tiff-{\"bitDepth\":8}",
+        "FORMAT-tiff-{\"bitDepth\":16}",
+        "FORMAT-tiff-{\"big\":true}",
+        "FORMAT-tiff-{\"compression\":5}",
+        "FORMAT-tiff-{\"compression\":32773}",
+        "FORMAT-tiff-{\"tile\":true}",
+        "FORMAT-tiff-unsupported-rejection",
+        "FORMAT-raw-1",
+        "FORMAT-raw-5",
+        "FORMAT-raw-32773",
+        "FORMAT-real-CR2",
+        "FORMAT-real-NEF",
+        "FORMAT-real-ARW",
+        "FORMAT-real-ORF",
+        "FORMAT-real-PEF",
+        "FORMAT-real-SRW",
+        "FORMAT-real-RW2",
+        "FORMAT-real-CR3",
+        "FORMAT-real-RAF",
+        "FORMAT-real-AVIF",
+        "FORMAT-real-HEIC",
+        "FORMAT-real-HEIF",
+        "FORMAT-real-PSB"
+      ]
+    },
+    {
+      "id": "CLAIM-039",
+      "status": "失败",
+      "selectors": [
+        "PARITY-psd-before-apply",
+        "PSD-basic-roundtrip",
+        "FORMAT-real-PSB"
+      ],
+      "note": "转换报告时机不符合上游；真实PSB/Photoshop复杂样本未实测。",
+      "evidence": [
+        "FORMAT-real-PSB",
+        "PSD-basic-roundtrip",
+        "PARITY-psd-before-apply"
+      ]
+    },
+    {
+      "id": "CLAIM-040",
+      "status": "失败",
+      "selectors": [
+        "FORMAT-raw-*",
+        "RAW-neutral-*"
+      ],
+      "note": "LZW标准压缩码、归一化和去马赛克必要条件均失败；真实厂商RAW仍未测。",
+      "evidence": [
+        "FORMAT-raw-1",
+        "FORMAT-raw-5",
+        "FORMAT-raw-32773",
+        "RAW-neutral-normalization",
+        "RAW-neutral-bayer"
+      ]
+    },
+    {
+      "id": "CLAIM-041",
+      "status": "未实现",
+      "selectors": [
+        "RAW-UI-*",
+        "RAW-mixer-*",
+        "RAW-curves-2",
+        "RAW-grain"
+      ],
+      "note": "四组为占位UI，已实现组还存在参数/色族计算问题。",
+      "evidence": [
+        "RAW-grain",
+        "RAW-mixer-hue",
+        "RAW-mixer-saturation",
+        "RAW-mixer-luminance",
+        "RAW-mixer-red",
+        "RAW-mixer-orange",
+        "RAW-mixer-yellow",
+        "RAW-mixer-green",
+        "RAW-mixer-aqua",
+        "RAW-mixer-blue",
+        "RAW-mixer-purple",
+        "RAW-mixer-magenta",
+        "RAW-curves-2",
+        "RAW-mixer-red-semantics",
+        "RAW-UI-光效",
+        "RAW-UI-颜色",
+        "RAW-UI-曲线",
+        "RAW-UI-颜色混合",
+        "RAW-UI-颜色分级",
+        "RAW-UI-细节",
+        "RAW-UI-光学",
+        "RAW-UI-几何"
+      ]
+    },
+    {
+      "id": "CLAIM-042",
+      "status": "失败",
+      "selectors": [
+        "MENU-01*",
+        "FLOW-jpeg-format",
+        "PARITY-jpeg-shortcut"
+      ],
+      "note": "基本PNG/JPEG/WebP编码可运行，但JPEG格式与实时预览不符合声明。",
+      "evidence": [
+        "FLOW-jpeg-format",
+        "MENU-010",
+        "MENU-011",
+        "MENU-012",
+        "MENU-013",
+        "MENU-014",
+        "MENU-015",
+        "MENU-016",
+        "MENU-017",
+        "MENU-018",
+        "MENU-019",
+        "PARITY-jpeg-shortcut"
+      ]
+    },
+    {
+      "id": "CLAIM-043",
+      "status": "失败",
+      "selectors": [
+        "COMP-*",
+        "SECURITY-id-path",
+        "VALIDATION-*"
+      ],
+      "note": "部分往返通过，原版调整/形状/剪贴引用与路径安全阻断。",
+      "evidence": [
+        "COMP-native-Curves",
+        "COMP-native-Gradient Map",
+        "COMP-shape-native-save",
+        "COMP-exact-clipping-source",
+        "SECURITY-id-path",
+        "VALIDATION-resource-path",
+        "VALIDATION-duplicate-id",
+        "VALIDATION-parent-cycle",
+        "VALIDATION-version",
+        "VALIDATION-oversized-transform"
+      ]
+    },
+    {
+      "id": "CLAIM-044",
+      "status": "部分通过",
+      "selectors": [
+        "CMD-unwatchComp",
+        "REGRESSION-147"
+      ],
+      "note": "watcher和保存并发在内存文件系统回归通过；真实FS事件/权限/故障未测。",
+      "evidence": [
+        "CMD-unwatchComp",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-045",
+      "status": "失败",
+      "selectors": [
+        "FLOW-start-*",
+        "CMD-openRecent",
+        "MENU-007",
+        "MENU-008",
+        "MENU-009"
+      ],
+      "note": "欢迎页PNG/RAW失败，最近工程和示例有正例。",
+      "evidence": [
+        "FLOW-start-openImage",
+        "FLOW-start-openRaw",
+        "FLOW-start-openPsd",
+        "FLOW-start-openComp",
+        "CMD-openRecent",
+        "MENU-007",
+        "MENU-008",
+        "MENU-009"
+      ]
+    },
+    {
+      "id": "CLAIM-046",
+      "status": "失败",
+      "selectors": [
+        "PSD-*"
+      ],
+      "note": "基本图层正例通过；高级属性的内部往返已失败。",
+      "evidence": [
+        "PSD-basic-roundtrip",
+        "PSD-roundtrip-rotation",
+        "PSD-roundtrip-placed-mask",
+        "PSD-roundtrip-group-mask",
+        "PSD-roundtrip-effects",
+        "PSD-roundtrip-text"
+      ]
+    },
+    {
+      "id": "CLAIM-047",
+      "status": "失败",
+      "selectors": [
+        "MENU-*"
+      ],
+      "note": "94个菜单逐项测试，7项失败；按钮触发不代表整个功能已完整。",
+      "evidence": [
+        "MENU-001",
+        "MENU-002",
+        "MENU-003",
+        "MENU-004",
+        "MENU-005",
+        "MENU-006",
+        "MENU-007",
+        "MENU-008",
+        "MENU-009",
+        "MENU-010",
+        "MENU-011",
+        "MENU-012",
+        "MENU-013",
+        "MENU-014",
+        "MENU-015",
+        "MENU-016",
+        "MENU-017",
+        "MENU-018",
+        "MENU-019",
+        "MENU-020",
+        "MENU-021",
+        "MENU-022",
+        "MENU-023",
+        "MENU-024",
+        "MENU-025",
+        "MENU-026",
+        "MENU-027",
+        "MENU-028",
+        "MENU-029",
+        "MENU-030",
+        "MENU-031",
+        "MENU-032",
+        "MENU-033",
+        "MENU-034",
+        "MENU-035",
+        "MENU-036",
+        "MENU-037",
+        "MENU-038",
+        "MENU-039",
+        "MENU-040",
+        "MENU-041",
+        "MENU-042",
+        "MENU-043",
+        "MENU-044",
+        "MENU-045",
+        "MENU-046",
+        "MENU-047",
+        "MENU-048",
+        "MENU-049",
+        "MENU-050",
+        "MENU-051",
+        "MENU-052",
+        "MENU-053",
+        "MENU-054",
+        "MENU-055",
+        "MENU-056",
+        "MENU-057",
+        "MENU-058",
+        "MENU-059",
+        "MENU-060",
+        "MENU-061",
+        "MENU-062",
+        "MENU-063",
+        "MENU-064",
+        "MENU-065",
+        "MENU-066",
+        "MENU-067",
+        "MENU-068",
+        "MENU-069",
+        "MENU-070",
+        "MENU-071",
+        "MENU-072",
+        "MENU-073",
+        "MENU-074",
+        "MENU-075",
+        "MENU-076",
+        "MENU-077",
+        "MENU-078",
+        "MENU-079",
+        "MENU-080",
+        "MENU-081",
+        "MENU-082",
+        "MENU-083",
+        "MENU-084",
+        "MENU-085",
+        "MENU-086",
+        "MENU-087",
+        "MENU-088",
+        "MENU-089",
+        "MENU-090",
+        "MENU-091",
+        "MENU-092",
+        "MENU-093",
+        "MENU-094"
+      ]
+    },
+    {
+      "id": "CLAIM-048",
+      "status": "失败",
+      "selectors": [
+        "FLOW-toolbar-longpress",
+        "PARITY-cycle-*"
+      ],
+      "note": "长按弹出未实现，部分键盘模式循环未接线。",
+      "evidence": [
+        "FLOW-toolbar-longpress",
+        "PARITY-cycle-marquee",
+        "PARITY-cycle-lasso",
+        "PARITY-cycle-wand",
+        "PARITY-cycle-blur"
+      ]
+    },
+    {
+      "id": "CLAIM-049",
+      "status": "失败",
+      "selectors": [
+        "PARAM-*",
+        "FLOW-label-scrub"
+      ],
+      "note": "参数值绑定不等于生效；有未消费字段，擦洗事件未绑标签。",
+      "evidence": [
+        "FLOW-label-scrub",
+        "PARAM-move-snap",
+        "PARAM-move-transformAll",
+        "PARAM-move-showControls",
+        "PARAM-marquee-shape",
+        "PARAM-marquee-feather",
+        "PARAM-marquee-antialias",
+        "PARAM-lasso-mode",
+        "PARAM-lasso-feather",
+        "PARAM-wand-tolerance",
+        "PARAM-wand-contiguous",
+        "PARAM-wand-sampleAllLayers",
+        "PARAM-wand-feather",
+        "PARAM-wand-antialias",
+        "PARAM-objectSelect-sensitivity",
+        "PARAM-objectSelect-feather",
+        "PARAM-crop-ratio",
+        "PARAM-brush-size",
+        "PARAM-brush-hardness",
+        "PARAM-brush-opacity",
+        "PARAM-brush-smoothing",
+        "PARAM-brush-mode",
+        "PARAM-gradient-type",
+        "PARAM-gradient-opacity",
+        "PARAM-gradient-reverse",
+        "PARAM-gradient-dither",
+        "PARAM-eraser-size",
+        "PARAM-eraser-hardness",
+        "PARAM-eraser-opacity",
+        "PARAM-eraser-smoothing",
+        "PARAM-healing-size",
+        "PARAM-healing-spacing",
+        "PARAM-clone-size",
+        "PARAM-clone-hardness",
+        "PARAM-clone-opacity",
+        "PARAM-clone-aligned",
+        "PARAM-clone-sampleAllLayers",
+        "PARAM-blur-size",
+        "PARAM-blur-hardness",
+        "PARAM-blur-strength",
+        "PARAM-blur-target",
+        "PARAM-smudge-size",
+        "PARAM-smudge-strength",
+        "PARAM-liquify-mode",
+        "PARAM-liquify-size",
+        "PARAM-liquify-strength",
+        "PARAM-shape-kind",
+        "PARAM-shape-fill",
+        "PARAM-shape-cornerRadius",
+        "PARAM-shape-strokeWidth",
+        "PARAM-type-content",
+        "PARAM-type-fontName",
+        "PARAM-type-fontSize",
+        "PARAM-type-color",
+        "PARAM-type-align",
+        "PARAM-type-tracking",
+        "PARAM-type-lineSpacing",
+        "PARAM-type-bold",
+        "PARAM-type-italic",
+        "PARAM-eyedropper-sample",
+        "PARAM-eyedropper-size"
+      ]
+    },
+    {
+      "id": "CLAIM-050",
+      "status": "失败",
+      "selectors": [
+        "FLOW-nested-*",
+        "FLOW-layer-context",
+        "PARITY-layer-lock-ui",
+        "REGRESSION-147"
+      ],
+      "note": "浅层操作及重命名有回归，嵌套拖拽/复制破坏层级；右键和锁定UI缺失。",
+      "evidence": [
+        "FLOW-nested-drag-false",
+        "FLOW-nested-drag-true",
+        "FLOW-nested-command",
+        "FLOW-layer-context",
+        "PARITY-layer-lock-ui",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-051",
+      "status": "部分通过",
+      "selectors": [
+        "CMD-deleteMask",
+        "CMD-toggleMask",
+        "CMD-maskTarget",
+        "FLOW-effects-ui",
+        "REGRESSION-147"
+      ],
+      "note": "数值变换/外观/蒙版基础路径有验证，效果只有列表而无完整编辑。",
+      "evidence": [
+        "FLOW-effects-ui",
+        "CMD-deleteMask",
+        "CMD-toggleMask",
+        "CMD-maskTarget",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-052",
+      "status": "失败",
+      "selectors": [
+        "EDGE-history-jump",
+        "EDGE-colors-*",
+        "EDGE-global-color-picker"
+      ],
+      "note": "历史跳转、颜色交换与HEX同步出错；文档统计存在。",
+      "evidence": [
+        "EDGE-history-jump",
+        "EDGE-colors-swap-button",
+        "EDGE-colors-hex-sync",
+        "EDGE-global-color-picker"
+      ]
+    },
+    {
+      "id": "CLAIM-053",
+      "status": "部分通过",
+      "selectors": [
+        "FLOW-panel-dock",
+        "FLOW-panel-edge",
+        "FLOW-panel-doubleclick",
+        "REGRESSION-147"
+      ],
+      "note": "浏览器浮动/停靠/移动缩放/持久化通过；双击语义与注释不一致，真宿主待测。",
+      "evidence": [
+        "FLOW-panel-dock",
+        "FLOW-panel-edge",
+        "FLOW-panel-doubleclick",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "CLAIM-054",
+      "status": "失败",
+      "selectors": [
+        "KEY-*",
+        "PARITY-*",
+        "EDGE-shortcut-conflict"
+      ],
+      "note": "68个本地注册项+上游语义逐项对照；数字、映射、冲突处理及扩展操作失败。",
+      "evidence": [
+        "EDGE-shortcut-conflict",
+        "PARITY-opacity-0",
+        "PARITY-opacity-1",
+        "PARITY-opacity-2",
+        "PARITY-opacity-3",
+        "PARITY-opacity-4",
+        "PARITY-opacity-5",
+        "PARITY-opacity-6",
+        "PARITY-opacity-7",
+        "PARITY-opacity-8",
+        "PARITY-opacity-9",
+        "PARITY-arrow-Left-false-false",
+        "PARITY-arrow-Left-false-true",
+        "PARITY-arrow-Left-true-false",
+        "PARITY-arrow-Left-true-true",
+        "PARITY-arrow-Right-false-false",
+        "PARITY-arrow-Right-false-true",
+        "PARITY-arrow-Right-true-false",
+        "PARITY-arrow-Right-true-true",
+        "PARITY-arrow-Up-false-false",
+        "PARITY-arrow-Up-false-true",
+        "PARITY-arrow-Up-true-false",
+        "PARITY-arrow-Up-true-true",
+        "PARITY-arrow-Down-false-false",
+        "PARITY-arrow-Down-false-true",
+        "PARITY-arrow-Down-true-false",
+        "PARITY-arrow-Down-true-true",
+        "PARITY-ctrl-t",
+        "PARITY-adjust-Curves",
+        "PARITY-adjust-Levels",
+        "PARITY-adjust-Hue/Saturation",
+        "PARITY-jpeg-shortcut",
+        "PARITY-shift-delete",
+        "PARITY-delete",
+        "PARITY-layer-via-copy",
+        "PARITY-cycle-marquee",
+        "PARITY-cycle-lasso",
+        "PARITY-cycle-wand",
+        "PARITY-cycle-blur",
+        "PARITY-blend-cycle--1",
+        "PARITY-blend-cycle-1",
+        "PARITY-shape-cycle",
+        "PARITY-select-tool",
+        "PARITY-text-Left-false",
+        "PARITY-text-Left-true",
+        "PARITY-text-Right-false",
+        "PARITY-text-Right-true",
+        "PARITY-text-Up-false",
+        "PARITY-text-Up-true",
+        "PARITY-text-Down-false",
+        "PARITY-text-Down-true",
+        "PARITY-mask-link-ui",
+        "PARITY-mask-transform",
+        "PARITY-outline-move",
+        "PARITY-adjust-selection",
+        "PARITY-psd-before-apply",
+        "PARITY-cross-doc-copy",
+        "PARITY-cross-doc-drag",
+        "PARITY-layer-lock-ui",
+        "PARITY-raw-filter-entry",
+        "PARITY-psd-large-fallback",
+        "PARITY-pixel-grid-toggle",
+        "KEY-tool.move",
+        "KEY-tool.marquee",
+        "KEY-tool.lasso",
+        "KEY-tool.wand",
+        "KEY-tool.crop",
+        "KEY-tool.brush",
+        "KEY-tool.gradient",
+        "KEY-tool.eraser",
+        "KEY-tool.healing",
+        "KEY-tool.clone",
+        "KEY-tool.blur",
+        "KEY-tool.shape",
+        "KEY-tool.type",
+        "KEY-tool.eyedropper",
+        "KEY-tool.hand",
+        "KEY-tool.zoom",
+        "KEY-file.new",
+        "KEY-file.newLayer",
+        "KEY-file.open",
+        "KEY-file.save",
+        "KEY-file.saveAs",
+        "KEY-file.exportPng",
+        "KEY-file.exportJpeg",
+        "KEY-file.close",
+        "KEY-edit.undo",
+        "KEY-edit.redo",
+        "KEY-edit.cut",
+        "KEY-edit.copy",
+        "KEY-edit.copyMerged",
+        "KEY-edit.paste",
+        "KEY-edit.fillForeground",
+        "KEY-edit.fillBackground",
+        "KEY-edit.clear",
+        "KEY-edit.contentAware",
+        "KEY-canvas.size",
+        "KEY-canvas.imageSize",
+        "KEY-select.all",
+        "KEY-select.deselect",
+        "KEY-select.inverse",
+        "KEY-select.subject",
+        "KEY-adjust.curves",
+        "KEY-adjust.levels",
+        "KEY-adjust.hueSaturation",
+        "KEY-adjust.invertPixels",
+        "KEY-adjust.invertLayer",
+        "KEY-layer.duplicate",
+        "KEY-layer.clipping",
+        "KEY-layer.group",
+        "KEY-layer.ungroup",
+        "KEY-layer.up",
+        "KEY-layer.down",
+        "KEY-layer.mergeDown",
+        "KEY-view.fit",
+        "KEY-view.actual",
+        "KEY-view.zoomIn",
+        "KEY-view.zoomOut",
+        "KEY-view.rulers",
+        "KEY-view.grid",
+        "KEY-view.guides",
+        "KEY-view.snap",
+        "KEY-view.transformControls",
+        "KEY-brush.smaller",
+        "KEY-brush.bigger",
+        "KEY-brush.softer",
+        "KEY-brush.harder",
+        "KEY-tool.swapColors",
+        "KEY-tool.resetColors",
+        "KEY-help.shortcuts",
+        "KEY-customize-ui",
+        "KEY-input-guard"
+      ]
+    },
+    {
+      "id": "CLAIM-055",
+      "status": "部分通过",
+      "selectors": [
+        "FLOW-theme-persistence",
+        "MENU-09*",
+        "EDGE-chinese-anchor"
+      ],
+      "note": "暗/亮/系统主题有浏览器验证；文案没有全部中文。",
+      "evidence": [
+        "FLOW-theme-persistence",
+        "EDGE-chinese-anchor",
+        "MENU-090",
+        "MENU-091",
+        "MENU-092",
+        "MENU-093",
+        "MENU-094"
+      ]
+    },
+    {
+      "id": "CLAIM-056",
+      "status": "失败",
+      "selectors": [
+        "EDGE-chinese-anchor"
+      ],
+      "note": "九宫格锚点等仍直接使用英文，不能勾全部中文化。",
+      "evidence": [
+        "EDGE-chinese-anchor"
+      ]
+    },
+    {
+      "id": "CLAIM-057",
+      "status": "通过",
+      "selectors": [
+        "VALIDATION-TYPES"
+      ],
+      "note": "本轮 pnpm typecheck 独立执行通过。",
+      "evidence": [
+        "VALIDATION-TYPES"
+      ]
+    },
+    {
+      "id": "CLAIM-058",
+      "status": "通过",
+      "selectors": [
+        "VALIDATION-BUILD"
+      ],
+      "note": "本轮 pnpm build 通过。",
+      "evidence": [
+        "VALIDATION-BUILD"
+      ]
+    },
+    {
+      "id": "CLAIM-059",
+      "status": "未实测",
+      "selectors": [
+        "HOST-OTOOLS"
+      ],
+      "note": "没有重部署/覆盖现有用户插件，也没有真宿主窗口控制授权。",
+      "evidence": [
+        "HOST-OTOOLS"
+      ]
+    },
+    {
+      "id": "CLAIM-060",
+      "status": "部分通过",
+      "selectors": [
+        "VALIDATION-README"
+      ],
+      "note": "README存在，但多处功能完成声明必须按本次证据修订。",
+      "evidence": [
+        "VALIDATION-README"
+      ]
+    }
+  ],
+  "upstream": [
+    {
+      "id": "UP-001",
+      "status": "失败",
+      "selectors": [
+        "BLEND-*",
+        "CMD-toggleVisibility",
+        "CMD-mergeGroup"
+      ],
+      "note": "模型与组透明度有正例，4种混合模式数值不符。",
+      "evidence": [
+        "CMD-toggleVisibility",
+        "CMD-mergeGroup",
+        "BLEND-Normal",
+        "BLEND-Darken",
+        "BLEND-Multiply",
+        "BLEND-Color Burn",
+        "BLEND-Linear Burn",
+        "BLEND-Lighten",
+        "BLEND-Screen",
+        "BLEND-Color Dodge",
+        "BLEND-Linear Dodge (Add)",
+        "BLEND-Overlay",
+        "BLEND-Soft Light",
+        "BLEND-Hard Light",
+        "BLEND-Vivid Light",
+        "BLEND-Linear Light",
+        "BLEND-Pin Light",
+        "BLEND-Hard Mix",
+        "BLEND-Difference",
+        "BLEND-Exclusion",
+        "BLEND-Subtract",
+        "BLEND-Divide",
+        "BLEND-Hue",
+        "BLEND-Saturation",
+        "BLEND-Color",
+        "BLEND-Luminosity"
+      ]
+    },
+    {
+      "id": "UP-002",
+      "status": "失败",
+      "selectors": [
+        "PARITY-mask-link-ui",
+        "PARITY-mask-transform",
+        "REGRESSION-147"
+      ],
+      "note": "蒙版绘画/填充/模糊有回归，解除链接和独立变换UI失败。",
+      "evidence": [
+        "PARITY-mask-link-ui",
+        "PARITY-mask-transform",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-003",
+      "status": "失败",
+      "selectors": [
+        "COMP-exact-clipping-source",
+        "REGRESSION-147"
+      ],
+      "note": "相邻剪贴和组蒙版有正例，显式非相邻来源被丢失。",
+      "evidence": [
+        "COMP-exact-clipping-source",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-004",
+      "status": "失败",
+      "selectors": [
+        "ADJ-*",
+        "MENU-04*",
+        "MENU-05*"
+      ],
+      "note": "空间模糊和完整参数编辑器未完成。",
+      "evidence": [
+        "ADJ-Hue/Saturation",
+        "ADJ-Levels",
+        "ADJ-Curves",
+        "ADJ-Exposure",
+        "ADJ-Gradient Map",
+        "ADJ-Grain",
+        "ADJ-Black & White",
+        "ADJ-Color Balance",
+        "ADJ-Invert",
+        "ADJ-Gaussian Blur",
+        "ADJ-Motion Blur",
+        "ADJ-Add Noise",
+        "ADJ-exposure-reference",
+        "ADJ-gradient-reverse",
+        "ADJ-curves-interpolation",
+        "MENU-040",
+        "MENU-041",
+        "MENU-042",
+        "MENU-043",
+        "MENU-044",
+        "MENU-045",
+        "MENU-046",
+        "MENU-047",
+        "MENU-048",
+        "MENU-049",
+        "MENU-050",
+        "MENU-051",
+        "MENU-052",
+        "MENU-053",
+        "MENU-054",
+        "MENU-055",
+        "MENU-056",
+        "MENU-057",
+        "MENU-058",
+        "MENU-059"
+      ]
+    },
+    {
+      "id": "UP-005",
+      "status": "失败",
+      "selectors": [
+        "FX-*",
+        "FLOW-effects-ui"
+      ],
+      "note": "CPU渲染替代GPU是架构差异；始终可编辑的要求未实现。",
+      "evidence": [
+        "FLOW-effects-ui",
+        "FX-stroke",
+        "FX-shadow",
+        "FX-colorOverlay",
+        "FX-innerShadow",
+        "FX-outerGlow",
+        "FX-innerGlow",
+        "FX-shadow-angle"
+      ]
+    },
+    {
+      "id": "UP-006",
+      "status": "失败",
+      "selectors": [
+        "CMD-mergeSelection",
+        "CMD-mergeGroup",
+        "EDGE-merge-group-key",
+        "EDGE-merge-multi-key"
+      ],
+      "note": "API与单组Ctrl+E通过，非相邻多选快捷合并会吞掉未选中层。",
+      "evidence": [
+        "EDGE-merge-group-key",
+        "CMD-mergeSelection",
+        "CMD-mergeGroup",
+        "EDGE-merge-multi-key"
+      ]
+    },
+    {
+      "id": "UP-007",
+      "status": "失败",
+      "selectors": [
+        "FLOW-nested-*",
+        "FLOW-layer-context",
+        "REGRESSION-147"
+      ],
+      "note": "嵌套拖拽破坏层级，右键缺失。",
+      "evidence": [
+        "FLOW-nested-drag-false",
+        "FLOW-nested-drag-true",
+        "FLOW-nested-command",
+        "FLOW-layer-context",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-008",
+      "status": "失败",
+      "selectors": [
+        "PARITY-cross-doc-copy",
+        "PARITY-cross-doc-drag"
+      ],
+      "note": "跨项目复制组通过，拖到标签无效果。",
+      "evidence": [
+        "PARITY-cross-doc-copy",
+        "PARITY-cross-doc-drag"
+      ]
+    },
+    {
+      "id": "UP-009",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-move-*",
+        "REGRESSION-147"
+      ],
+      "note": "常规非破坏性变换有正例；未覆盖全部组合和大图。",
+      "evidence": [
+        "TOOL-move-move",
+        "TOOL-move-scale",
+        "TOOL-move-rotate",
+        "TOOL-move-warp-meta",
+        "TOOL-move-warp-ctrl",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-010",
+      "status": "失败",
+      "selectors": [
+        "TOOL-move-warp-*",
+        "FLOW-warp-shift"
+      ],
+      "note": "Windows修饰键和锁轴失败。",
+      "evidence": [
+        "FLOW-warp-shift",
+        "TOOL-move-warp-meta",
+        "TOOL-move-warp-ctrl"
+      ]
+    },
+    {
+      "id": "UP-011",
+      "status": "失败",
+      "selectors": [
+        "FLOW-group-move",
+        "FLOW-multiselect-move"
+      ],
+      "note": "组/选中集合没有正确展开到应变换的像素。",
+      "evidence": [
+        "FLOW-group-move",
+        "FLOW-multiselect-move"
+      ]
+    },
+    {
+      "id": "UP-012",
+      "status": "失败",
+      "selectors": [
+        "PARAM-move-snap",
+        "EDGE-snap-*"
+      ],
+      "note": "鼠标点吸附有差分，图层边缘/缩放目标计算错误。",
+      "evidence": [
+        "EDGE-snap-layer-edge",
+        "EDGE-snap-scaled-target",
+        "PARAM-move-snap"
+      ]
+    },
+    {
+      "id": "UP-013",
+      "status": "部分通过",
+      "selectors": [
+        "PARITY-arrow-*",
+        "FLOW-nudge-history",
+        "REGRESSION-147"
+      ],
+      "note": "输入精确变换和方向位移有正例，历史重复。",
+      "evidence": [
+        "FLOW-nudge-history",
+        "PARITY-arrow-Left-false-false",
+        "PARITY-arrow-Left-false-true",
+        "PARITY-arrow-Left-true-false",
+        "PARITY-arrow-Left-true-true",
+        "PARITY-arrow-Right-false-false",
+        "PARITY-arrow-Right-false-true",
+        "PARITY-arrow-Right-true-false",
+        "PARITY-arrow-Right-true-true",
+        "PARITY-arrow-Up-false-false",
+        "PARITY-arrow-Up-false-true",
+        "PARITY-arrow-Up-true-false",
+        "PARITY-arrow-Up-true-true",
+        "PARITY-arrow-Down-false-false",
+        "PARITY-arrow-Down-false-true",
+        "PARITY-arrow-Down-true-false",
+        "PARITY-arrow-Down-true-true",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-014",
+      "status": "通过",
+      "selectors": [
+        "MENU-033",
+        "MENU-034",
+        "REGRESSION-147"
+      ],
+      "note": "所测图层/画布翻转与回放通过。",
+      "evidence": [
+        "MENU-033",
+        "MENU-034",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-015",
+      "status": "失败",
+      "selectors": [
+        "TOOL-lasso-polygon",
+        "FLOW-tab-tool",
+        "PARITY-cycle-*",
+        "EDGE-selection-booleans",
+        "EDGE-crop-*"
+      ],
+      "note": "多边形套索和模式循环失败。",
+      "evidence": [
+        "FLOW-tab-tool",
+        "EDGE-crop-selection",
+        "EDGE-crop-symmetric",
+        "EDGE-crop-snap",
+        "EDGE-crop-cancel",
+        "EDGE-selection-booleans",
+        "PARITY-cycle-marquee",
+        "PARITY-cycle-lasso",
+        "PARITY-cycle-wand",
+        "PARITY-cycle-blur",
+        "TOOL-lasso-polygon"
+      ]
+    },
+    {
+      "id": "UP-016",
+      "status": "部分通过",
+      "selectors": [
+        "MENU-07*",
+        "PARAM-objectSelect-sensitivity"
+      ],
+      "note": "主体与选区算子可运行；只认证合成样本，不认证真实主体分割质量。",
+      "evidence": [
+        "MENU-070",
+        "MENU-071",
+        "MENU-072",
+        "MENU-073",
+        "MENU-074",
+        "MENU-075",
+        "MENU-076",
+        "MENU-077",
+        "MENU-078",
+        "MENU-079",
+        "PARAM-objectSelect-sensitivity"
+      ]
+    },
+    {
+      "id": "UP-017",
+      "status": "失败",
+      "selectors": [
+        "FLOW-selection-move-*",
+        "PARITY-outline-move",
+        "PARITY-arrow-*-true",
+        "EDGE-selection-booleans",
+        "EDGE-crop-*"
+      ],
+      "note": "布尔选区有回归，轮廓/内部像素交互失败。",
+      "evidence": [
+        "FLOW-selection-move-false",
+        "FLOW-selection-move-true",
+        "EDGE-crop-selection",
+        "EDGE-crop-symmetric",
+        "EDGE-crop-snap",
+        "EDGE-crop-cancel",
+        "EDGE-selection-booleans",
+        "PARITY-arrow-Left-false-true",
+        "PARITY-arrow-Left-true-true",
+        "PARITY-arrow-Right-false-true",
+        "PARITY-arrow-Right-true-true",
+        "PARITY-arrow-Up-false-true",
+        "PARITY-arrow-Up-true-true",
+        "PARITY-arrow-Down-false-true",
+        "PARITY-arrow-Down-true-true",
+        "PARITY-outline-move"
+      ]
+    },
+    {
+      "id": "UP-018",
+      "status": "部分通过",
+      "selectors": [
+        "MENU-077",
+        "MENU-078",
+        "REGRESSION-147"
+      ],
+      "note": "像素/蒙版转选区有正例；上游“Mask Black Areas”与本地白覆盖语义还需单独确认，未冒认完全一致。",
+      "evidence": [
+        "MENU-077",
+        "MENU-078",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-019",
+      "status": "失败",
+      "selectors": [
+        "MENU-027",
+        "KEY-edit.contentAware"
+      ],
+      "note": "内容识别填充无效果；延展照片质量也未认证。",
+      "evidence": [
+        "MENU-027",
+        "KEY-edit.contentAware"
+      ]
+    },
+    {
+      "id": "UP-020",
+      "status": "失败",
+      "selectors": [
+        "TOOL-brush-*",
+        "TOOL-eraser-*",
+        "FLOW-brush-shift"
+      ],
+      "note": "基础绘画可运行，Shift直线缺失。",
+      "evidence": [
+        "FLOW-brush-shift",
+        "TOOL-brush-paint",
+        "TOOL-brush-erase",
+        "TOOL-eraser-default"
+      ]
+    },
+    {
+      "id": "UP-021",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-healing-*"
+      ],
+      "note": "仅通过合成污点样本和回放，不是照片修复质量验收。",
+      "evidence": [
+        "TOOL-healing-default"
+      ]
+    },
+    {
+      "id": "UP-022",
+      "status": "失败",
+      "selectors": [
+        "TOOL-clone-*",
+        "PARAM-clone-*"
+      ],
+      "note": "源偏移基础失败，不能验收参数变体。",
+      "evidence": [
+        "PARAM-clone-size",
+        "PARAM-clone-hardness",
+        "PARAM-clone-opacity",
+        "PARAM-clone-aligned",
+        "PARAM-clone-sampleAllLayers",
+        "TOOL-clone-default"
+      ]
+    },
+    {
+      "id": "UP-023",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-blur-*",
+        "REGRESSION-147"
+      ],
+      "note": "像素/蒙版模糊有浏览器回归，不含真实高位深图。",
+      "evidence": [
+        "TOOL-blur-pixels",
+        "TOOL-blur-mask",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-024",
+      "status": "失败",
+      "selectors": [
+        "FLOW-shape-edit",
+        "FLOW-gradient-edit"
+      ],
+      "note": "画完后不能按原版继续编辑。",
+      "evidence": [
+        "FLOW-shape-edit",
+        "FLOW-gradient-edit"
+      ]
+    },
+    {
+      "id": "UP-025",
+      "status": "部分通过",
+      "selectors": [
+        "TOOL-type-*",
+        "PARAM-type-*",
+        "REGRESSION-147"
+      ],
+      "note": "基本文字内联/段落/变换有测试，全部run交互和外部软件互操作未认证。",
+      "evidence": [
+        "PARAM-type-content",
+        "PARAM-type-fontName",
+        "PARAM-type-fontSize",
+        "PARAM-type-color",
+        "PARAM-type-align",
+        "PARAM-type-tracking",
+        "PARAM-type-lineSpacing",
+        "PARAM-type-bold",
+        "PARAM-type-italic",
+        "TOOL-type-left",
+        "TOOL-type-center",
+        "TOOL-type-right",
+        "TOOL-type-point",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-026",
+      "status": "失败",
+      "selectors": [
+        "EDGE-eyedropper-*",
+        "EDGE-global-color-picker",
+        "PARAM-type-color"
+      ],
+      "note": "文字颜色弹窗存在，绘画全局选择器和单层取色错误。",
+      "evidence": [
+        "EDGE-eyedropper-layer-size",
+        "EDGE-eyedropper-layer-transform",
+        "EDGE-global-color-picker",
+        "PARAM-type-color"
+      ]
+    },
+    {
+      "id": "UP-027",
+      "status": "未实现",
+      "selectors": [
+        "PARITY-raw-filter-entry",
+        "RAW-UI-*"
+      ],
+      "note": "只有RAW导入，普通图层Camera Raw滤镜入口及四组UI缺失。",
+      "evidence": [
+        "PARITY-raw-filter-entry",
+        "RAW-UI-光效",
+        "RAW-UI-颜色",
+        "RAW-UI-曲线",
+        "RAW-UI-颜色混合",
+        "RAW-UI-颜色分级",
+        "RAW-UI-细节",
+        "RAW-UI-光学",
+        "RAW-UI-几何"
+      ]
+    },
+    {
+      "id": "UP-028",
+      "status": "失败",
+      "selectors": [
+        "PARITY-adjust-*",
+        "MENU-048",
+        "MENU-049",
+        "ADJ-*"
+      ],
+      "note": "原版破坏性编辑器被替换为调整层，完整参数与数值仍有差距。",
+      "evidence": [
+        "ADJ-Hue/Saturation",
+        "ADJ-Levels",
+        "ADJ-Curves",
+        "ADJ-Exposure",
+        "ADJ-Gradient Map",
+        "ADJ-Grain",
+        "ADJ-Black & White",
+        "ADJ-Color Balance",
+        "ADJ-Invert",
+        "ADJ-Gaussian Blur",
+        "ADJ-Motion Blur",
+        "ADJ-Add Noise",
+        "ADJ-exposure-reference",
+        "ADJ-gradient-reverse",
+        "ADJ-curves-interpolation",
+        "MENU-048",
+        "MENU-049",
+        "PARITY-adjust-Curves",
+        "PARITY-adjust-Levels",
+        "PARITY-adjust-Hue/Saturation",
+        "PARITY-adjust-selection"
+      ]
+    },
+    {
+      "id": "UP-029",
+      "status": "失败",
+      "selectors": [
+        "ADJ-Gaussian Blur",
+        "ADJ-Motion Blur"
+      ],
+      "note": "调整层返回缓冲未接入合成。",
+      "evidence": [
+        "ADJ-Gaussian Blur",
+        "ADJ-Motion Blur"
+      ]
+    },
+    {
+      "id": "UP-030",
+      "status": "部分通过",
+      "selectors": [
+        "MENU-06*"
+      ],
+      "note": "固定滤镜可产生效果，未完整验证可调参数/真实照片质量。",
+      "evidence": [
+        "MENU-060",
+        "MENU-061",
+        "MENU-062",
+        "MENU-063",
+        "MENU-064",
+        "MENU-065",
+        "MENU-066",
+        "MENU-067",
+        "MENU-068",
+        "MENU-069"
+      ]
+    },
+    {
+      "id": "UP-031",
+      "status": "未实现",
+      "selectors": [
+        "FLOW-filter-preview"
+      ],
+      "note": "缺少具有取消/确认的实时预览面板。",
+      "evidence": [
+        "FLOW-filter-preview"
+      ]
+    },
+    {
+      "id": "UP-032",
+      "status": "部分通过",
+      "selectors": [
+        "KEY-file.new",
+        "KEY-file.close",
+        "PARITY-cross-doc-copy",
+        "REGRESSION-147"
+      ],
+      "note": "多标签基础通过；新建入口不一致，真实宿主未测。",
+      "evidence": [
+        "PARITY-cross-doc-copy",
+        "KEY-file.new",
+        "KEY-file.close",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-033",
+      "status": "未实现",
+      "selectors": [
+        "FLOW-command-palette"
+      ],
+      "note": "没有Ctrl+F命令搜索面板。",
+      "evidence": [
+        "FLOW-command-palette"
+      ]
+    },
+    {
+      "id": "UP-034",
+      "status": "未实现",
+      "selectors": [
+        "FLOW-canvas-only"
+      ],
+      "note": "没有F全屏黑底仅画布模式。",
+      "evidence": [
+        "FLOW-canvas-only"
+      ]
+    },
+    {
+      "id": "UP-035",
+      "status": "失败",
+      "selectors": [
+        "FLOW-grid-*",
+        "FLOW-guide-*",
+        "EDGE-lock-guides",
+        "MENU-088"
+      ],
+      "note": "网格细分、参考线交互及吸附入口失败。",
+      "evidence": [
+        "FLOW-grid-enable",
+        "FLOW-grid-subdivisions",
+        "FLOW-guide-move",
+        "FLOW-guide-history",
+        "EDGE-lock-guides",
+        "MENU-088"
+      ]
+    },
+    {
+      "id": "UP-036",
+      "status": "失败",
+      "selectors": [
+        "TOOL-crop-*",
+        "EDGE-selection-booleans",
+        "EDGE-crop-*"
+      ],
+      "note": "非所有固定比例能保持，其他场景有正例。",
+      "evidence": [
+        "EDGE-crop-selection",
+        "EDGE-crop-symmetric",
+        "EDGE-crop-snap",
+        "EDGE-crop-cancel",
+        "EDGE-selection-booleans",
+        "TOOL-crop-free",
+        "TOOL-crop-1:1",
+        "TOOL-crop-4:3",
+        "TOOL-crop-3:4",
+        "TOOL-crop-16:9",
+        "TOOL-crop-9:16",
+        "TOOL-crop-3:2",
+        "TOOL-crop-2:3"
+      ]
+    },
+    {
+      "id": "UP-037",
+      "status": "失败",
+      "selectors": [
+        "FLOW-canvas-width",
+        "FLOW-image-aspect",
+        "MENU-030"
+      ],
+      "note": "表单强制正方形，底层尺寸/修边另有通过例。",
+      "evidence": [
+        "FLOW-canvas-width",
+        "FLOW-image-aspect",
+        "MENU-030"
+      ]
+    },
+    {
+      "id": "UP-038",
+      "status": "失败",
+      "selectors": [
+        "RENDER-*",
+        "REGRESSION-147"
+      ],
+      "note": "降采样基础回归通过，像素网格出现可见错误。",
+      "evidence": [
+        "RENDER-grid-position",
+        "RENDER-grid-threshold",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-039",
+      "status": "失败",
+      "selectors": [
+        "FORMAT-*",
+        "PSD-*",
+        "RAW-neutral-*",
+        "PARITY-psd-before-apply"
+      ],
+      "note": "已见RAW/TIFF/报告时机失败；真实HEIC/PSB/相机文件未测。",
+      "evidence": [
+        "FORMAT-png",
+        "FORMAT-jpeg",
+        "FORMAT-webp",
+        "FORMAT-bmp",
+        "FORMAT-gif",
+        "FORMAT-svg",
+        "FORMAT-tiff-{\"bitDepth\":8}",
+        "FORMAT-tiff-{\"bitDepth\":16}",
+        "FORMAT-tiff-{\"big\":true}",
+        "FORMAT-tiff-{\"compression\":5}",
+        "FORMAT-tiff-{\"compression\":32773}",
+        "FORMAT-tiff-{\"tile\":true}",
+        "FORMAT-tiff-unsupported-rejection",
+        "FORMAT-raw-1",
+        "FORMAT-raw-5",
+        "FORMAT-raw-32773",
+        "FORMAT-real-CR2",
+        "FORMAT-real-NEF",
+        "FORMAT-real-ARW",
+        "FORMAT-real-ORF",
+        "FORMAT-real-PEF",
+        "FORMAT-real-SRW",
+        "FORMAT-real-RW2",
+        "FORMAT-real-CR3",
+        "FORMAT-real-RAF",
+        "FORMAT-real-AVIF",
+        "FORMAT-real-HEIC",
+        "FORMAT-real-HEIF",
+        "FORMAT-real-PSB",
+        "PSD-basic-roundtrip",
+        "PSD-roundtrip-rotation",
+        "PSD-roundtrip-placed-mask",
+        "PSD-roundtrip-group-mask",
+        "PSD-roundtrip-effects",
+        "PSD-roundtrip-text",
+        "PARITY-psd-before-apply",
+        "RAW-neutral-normalization",
+        "RAW-neutral-bayer"
+      ]
+    },
+    {
+      "id": "UP-040",
+      "status": "部分通过",
+      "selectors": [
+        "PARITY-psd-large-fallback",
+        "REGRESSION-147"
+      ],
+      "note": "历史预算按deviceMemory变化存在；缺少大PSD裁层降级，不做危险内存压力测试。",
+      "evidence": [
+        "PARITY-psd-large-fallback",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-041",
+      "status": "失败",
+      "selectors": [
+        "FLOW-jpeg-format",
+        "PARITY-jpeg-shortcut",
+        "KEY-edit.copyMerged"
+      ],
+      "note": "复制合并通过；JPEG格式和实时预览失败。",
+      "evidence": [
+        "FLOW-jpeg-format",
+        "PARITY-jpeg-shortcut",
+        "KEY-edit.copyMerged"
+      ]
+    },
+    {
+      "id": "UP-042",
+      "status": "部分通过",
+      "selectors": [
+        "KEY-file.save",
+        "KEY-file.saveAs",
+        "REGRESSION-147"
+      ],
+      "note": "并发保存模拟文件系统测试通过，真实磁盘原子替换/权限故障未测。",
+      "evidence": [
+        "KEY-file.save",
+        "KEY-file.saveAs",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-043",
+      "status": "失败",
+      "selectors": [
+        "KEY-*",
+        "PARITY-*",
+        "EDGE-shortcut-conflict"
+      ],
+      "note": "原版115定义与本地68注册项分别列出，不用键名存在代替语义正确。",
+      "evidence": [
+        "EDGE-shortcut-conflict",
+        "PARITY-opacity-0",
+        "PARITY-opacity-1",
+        "PARITY-opacity-2",
+        "PARITY-opacity-3",
+        "PARITY-opacity-4",
+        "PARITY-opacity-5",
+        "PARITY-opacity-6",
+        "PARITY-opacity-7",
+        "PARITY-opacity-8",
+        "PARITY-opacity-9",
+        "PARITY-arrow-Left-false-false",
+        "PARITY-arrow-Left-false-true",
+        "PARITY-arrow-Left-true-false",
+        "PARITY-arrow-Left-true-true",
+        "PARITY-arrow-Right-false-false",
+        "PARITY-arrow-Right-false-true",
+        "PARITY-arrow-Right-true-false",
+        "PARITY-arrow-Right-true-true",
+        "PARITY-arrow-Up-false-false",
+        "PARITY-arrow-Up-false-true",
+        "PARITY-arrow-Up-true-false",
+        "PARITY-arrow-Up-true-true",
+        "PARITY-arrow-Down-false-false",
+        "PARITY-arrow-Down-false-true",
+        "PARITY-arrow-Down-true-false",
+        "PARITY-arrow-Down-true-true",
+        "PARITY-ctrl-t",
+        "PARITY-adjust-Curves",
+        "PARITY-adjust-Levels",
+        "PARITY-adjust-Hue/Saturation",
+        "PARITY-jpeg-shortcut",
+        "PARITY-shift-delete",
+        "PARITY-delete",
+        "PARITY-layer-via-copy",
+        "PARITY-cycle-marquee",
+        "PARITY-cycle-lasso",
+        "PARITY-cycle-wand",
+        "PARITY-cycle-blur",
+        "PARITY-blend-cycle--1",
+        "PARITY-blend-cycle-1",
+        "PARITY-shape-cycle",
+        "PARITY-select-tool",
+        "PARITY-text-Left-false",
+        "PARITY-text-Left-true",
+        "PARITY-text-Right-false",
+        "PARITY-text-Right-true",
+        "PARITY-text-Up-false",
+        "PARITY-text-Up-true",
+        "PARITY-text-Down-false",
+        "PARITY-text-Down-true",
+        "PARITY-mask-link-ui",
+        "PARITY-mask-transform",
+        "PARITY-outline-move",
+        "PARITY-adjust-selection",
+        "PARITY-psd-before-apply",
+        "PARITY-cross-doc-copy",
+        "PARITY-cross-doc-drag",
+        "PARITY-layer-lock-ui",
+        "PARITY-raw-filter-entry",
+        "PARITY-psd-large-fallback",
+        "PARITY-pixel-grid-toggle",
+        "KEY-tool.move",
+        "KEY-tool.marquee",
+        "KEY-tool.lasso",
+        "KEY-tool.wand",
+        "KEY-tool.crop",
+        "KEY-tool.brush",
+        "KEY-tool.gradient",
+        "KEY-tool.eraser",
+        "KEY-tool.healing",
+        "KEY-tool.clone",
+        "KEY-tool.blur",
+        "KEY-tool.shape",
+        "KEY-tool.type",
+        "KEY-tool.eyedropper",
+        "KEY-tool.hand",
+        "KEY-tool.zoom",
+        "KEY-file.new",
+        "KEY-file.newLayer",
+        "KEY-file.open",
+        "KEY-file.save",
+        "KEY-file.saveAs",
+        "KEY-file.exportPng",
+        "KEY-file.exportJpeg",
+        "KEY-file.close",
+        "KEY-edit.undo",
+        "KEY-edit.redo",
+        "KEY-edit.cut",
+        "KEY-edit.copy",
+        "KEY-edit.copyMerged",
+        "KEY-edit.paste",
+        "KEY-edit.fillForeground",
+        "KEY-edit.fillBackground",
+        "KEY-edit.clear",
+        "KEY-edit.contentAware",
+        "KEY-canvas.size",
+        "KEY-canvas.imageSize",
+        "KEY-select.all",
+        "KEY-select.deselect",
+        "KEY-select.inverse",
+        "KEY-select.subject",
+        "KEY-adjust.curves",
+        "KEY-adjust.levels",
+        "KEY-adjust.hueSaturation",
+        "KEY-adjust.invertPixels",
+        "KEY-adjust.invertLayer",
+        "KEY-layer.duplicate",
+        "KEY-layer.clipping",
+        "KEY-layer.group",
+        "KEY-layer.ungroup",
+        "KEY-layer.up",
+        "KEY-layer.down",
+        "KEY-layer.mergeDown",
+        "KEY-view.fit",
+        "KEY-view.actual",
+        "KEY-view.zoomIn",
+        "KEY-view.zoomOut",
+        "KEY-view.rulers",
+        "KEY-view.grid",
+        "KEY-view.guides",
+        "KEY-view.snap",
+        "KEY-view.transformControls",
+        "KEY-brush.smaller",
+        "KEY-brush.bigger",
+        "KEY-brush.softer",
+        "KEY-brush.harder",
+        "KEY-tool.swapColors",
+        "KEY-tool.resetColors",
+        "KEY-help.shortcuts",
+        "KEY-customize-ui",
+        "KEY-input-guard"
+      ]
+    },
+    {
+      "id": "UP-044",
+      "status": "失败",
+      "selectors": [
+        "FLOW-label-scrub"
+      ],
+      "note": "拖的是标签，不是数字输入框。",
+      "evidence": [
+        "FLOW-label-scrub"
+      ]
+    },
+    {
+      "id": "UP-045",
+      "status": "不适用",
+      "selectors": [
+        "VALIDATION-RELEASE"
+      ],
+      "note": "Sparkle/macOS签名公证不属于OTools插件；本地发布脚本静态回归通过，真实市场更新未发布验证。",
+      "evidence": [
+        "VALIDATION-RELEASE"
+      ]
+    },
+    {
+      "id": "UP-046",
+      "status": "失败",
+      "selectors": [
+        "COMP-*",
+        "SECURITY-id-path",
+        "REGRESSION-147"
+      ],
+      "note": "包结构和watcher有正例，但字段兼容/安全不满足上游写入合约。",
+      "evidence": [
+        "COMP-native-Curves",
+        "COMP-native-Gradient Map",
+        "COMP-shape-native-save",
+        "COMP-exact-clipping-source",
+        "SECURITY-id-path",
+        "REGRESSION-147"
+      ]
+    },
+    {
+      "id": "UP-047",
+      "status": "不适用",
+      "selectors": [],
+      "note": "原版 macOS/Xcode/签名公证/DMG 打包环境要求，插件形态应由 OTools 构建/发布体系替代，不算功能测试通过。",
+      "evidence": []
+    },
+    {
+      "id": "UP-048",
+      "status": "不适用",
+      "selectors": [],
+      "note": "原版 macOS/Xcode/签名公证/DMG 打包环境要求，插件形态应由 OTools 构建/发布体系替代，不算功能测试通过。",
+      "evidence": []
+    },
+    {
+      "id": "UP-049",
+      "status": "不适用",
+      "selectors": [],
+      "note": "原版 macOS/Xcode/签名公证/DMG 打包环境要求，插件形态应由 OTools 构建/发布体系替代，不算功能测试通过。",
+      "evidence": []
+    },
+    {
+      "id": "UP-050",
+      "status": "不适用",
+      "selectors": [],
+      "note": "原版 macOS/Xcode/签名公证/DMG 打包环境要求，插件形态应由 OTools 构建/发布体系替代，不算功能测试通过。",
+      "evidence": []
+    },
+    {
+      "id": "UP-051",
+      "status": "不适用",
+      "selectors": [],
+      "note": "原版 macOS/Xcode/签名公证/DMG 打包环境要求，插件形态应由 OTools 构建/发布体系替代，不算功能测试通过。",
+      "evidence": []
+    }
+  ]
+}

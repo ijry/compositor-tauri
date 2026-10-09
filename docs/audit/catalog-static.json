@@ -1,0 +1,2693 @@
+{
+  "generatedAt": "2026-10-08T13:44:52.959Z",
+  "localSha": "b508f9a8d1d5ee74a1b0bec6c308338c4987dc91",
+  "upstreamSha": "fa41b9b6693b8e1b3a01a13a9ea112edd8e008e3",
+  "menus": [
+    {
+      "id": "MENU-001",
+      "category": "文件",
+      "label": "新建画布",
+      "action": {
+        "kind": "command",
+        "command": "newCanvas"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-002",
+      "category": "文件",
+      "label": "打开图片…",
+      "action": {
+        "kind": "command",
+        "command": "openImage"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-003",
+      "category": "文件",
+      "label": "导入 Photoshop 文档…",
+      "action": {
+        "kind": "command",
+        "command": "openPsd"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-004",
+      "category": "文件",
+      "label": "导入相机 RAW…",
+      "action": {
+        "kind": "command",
+        "command": "openRaw"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-005",
+      "category": "文件",
+      "label": "打开 .comp 工程包…",
+      "action": {
+        "kind": "command",
+        "command": "openComp"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-006",
+      "category": "文件",
+      "label": "最近工程",
+      "action": {
+        "kind": "command",
+        "command": "recentList"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-007",
+      "category": "文件",
+      "label": "示例 · 渐变与文字",
+      "action": {
+        "kind": "command",
+        "command": "sample",
+        "payload": "gradient"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-008",
+      "category": "文件",
+      "label": "示例 · 图层组与蒙版",
+      "action": {
+        "kind": "command",
+        "command": "sample",
+        "payload": "mask"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-009",
+      "category": "文件",
+      "label": "示例 · 调整层",
+      "action": {
+        "kind": "command",
+        "command": "sample",
+        "payload": "adjustment"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-010",
+      "category": "文件",
+      "label": "保存工程",
+      "action": {
+        "kind": "command",
+        "command": "saveComp"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-011",
+      "category": "文件",
+      "label": "另存为…",
+      "action": {
+        "kind": "command",
+        "command": "saveCompAs"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-012",
+      "category": "文件",
+      "label": "监视工程变化（热重载）",
+      "action": {
+        "kind": "command",
+        "command": "watchComp"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-013",
+      "category": "文件",
+      "label": "导出 PNG…",
+      "action": {
+        "kind": "command",
+        "command": "exportImage",
+        "payload": {
+          "format": "png",
+          "quality": 1,
+          "scale": 1,
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-014",
+      "category": "文件",
+      "label": "导出 JPEG…",
+      "action": {
+        "kind": "command",
+        "command": "exportImage",
+        "payload": {
+          "format": "jpeg",
+          "quality": 0.92,
+          "scale": 1,
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-015",
+      "category": "文件",
+      "label": "导出 WebP…",
+      "action": {
+        "kind": "command",
+        "command": "exportImage",
+        "payload": {
+          "format": "webp",
+          "quality": 0.9,
+          "scale": 1,
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-016",
+      "category": "文件",
+      "label": "导出 PSD…",
+      "action": {
+        "kind": "command",
+        "command": "exportPsd"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-017",
+      "category": "文件",
+      "label": "关闭文档",
+      "action": {
+        "kind": "command",
+        "command": "closeDocument"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-018",
+      "category": "编辑",
+      "label": "撤销",
+      "action": {
+        "kind": "command",
+        "command": "undo"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-019",
+      "category": "编辑",
+      "label": "重做",
+      "action": {
+        "kind": "command",
+        "command": "redo"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-020",
+      "category": "编辑",
+      "label": "剪切",
+      "action": {
+        "kind": "command",
+        "command": "cut"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-021",
+      "category": "编辑",
+      "label": "复制",
+      "action": {
+        "kind": "command",
+        "command": "copy"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-022",
+      "category": "编辑",
+      "label": "复制合并",
+      "action": {
+        "kind": "command",
+        "command": "copyMerged"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-023",
+      "category": "编辑",
+      "label": "粘贴",
+      "action": {
+        "kind": "command",
+        "command": "paste"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-024",
+      "category": "编辑",
+      "label": "填充前景色",
+      "action": {
+        "kind": "command",
+        "command": "fillForeground"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-025",
+      "category": "编辑",
+      "label": "填充背景色",
+      "action": {
+        "kind": "command",
+        "command": "fillBackground"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-026",
+      "category": "编辑",
+      "label": "清除",
+      "action": {
+        "kind": "command",
+        "command": "clearSelection"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-027",
+      "category": "编辑",
+      "label": "内容识别填充",
+      "action": {
+        "kind": "command",
+        "command": "contentAwareFill"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-028",
+      "category": "图像",
+      "label": "画布大小…",
+      "action": {
+        "kind": "dialog",
+        "dialog": "canvasSize"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-029",
+      "category": "图像",
+      "label": "图像大小…",
+      "action": {
+        "kind": "dialog",
+        "dialog": "imageSize"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-030",
+      "category": "图像",
+      "label": "修边",
+      "action": {
+        "kind": "command",
+        "command": "trim"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-031",
+      "category": "图像",
+      "label": "旋转画布 90°",
+      "action": {
+        "kind": "command",
+        "command": "rotateCanvasAll",
+        "payload": 90
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-032",
+      "category": "图像",
+      "label": "旋转画布 180°",
+      "action": {
+        "kind": "command",
+        "command": "rotateCanvasAll",
+        "payload": 180
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-033",
+      "category": "图像",
+      "label": "水平翻转画布",
+      "action": {
+        "kind": "command",
+        "command": "flipCanvasH"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-034",
+      "category": "图像",
+      "label": "垂直翻转画布",
+      "action": {
+        "kind": "command",
+        "command": "flipCanvasV"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-035",
+      "category": "图层",
+      "label": "新建图层",
+      "action": {
+        "kind": "command",
+        "command": "newLayer"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-036",
+      "category": "图层",
+      "label": "新建组",
+      "action": {
+        "kind": "command",
+        "command": "newGroup"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-037",
+      "category": "图层",
+      "label": "复制图层",
+      "action": {
+        "kind": "command",
+        "command": "duplicateLayer"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-038",
+      "category": "图层",
+      "label": "删除图层",
+      "action": {
+        "kind": "command",
+        "command": "deleteLayer"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-039",
+      "category": "图层",
+      "label": "上移一层",
+      "action": {
+        "kind": "command",
+        "command": "moveLayerUp"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-040",
+      "category": "图层",
+      "label": "下移一层",
+      "action": {
+        "kind": "command",
+        "command": "moveLayerDown"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-041",
+      "category": "图层",
+      "label": "向下合并",
+      "action": {
+        "kind": "command",
+        "command": "mergeDown"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-042",
+      "category": "图层",
+      "label": "合并所有图层",
+      "action": {
+        "kind": "command",
+        "command": "flatten"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-043",
+      "category": "图层",
+      "label": "添加图层蒙版",
+      "action": {
+        "kind": "command",
+        "command": "addMask"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-044",
+      "category": "图层",
+      "label": "从选区生成蒙版",
+      "action": {
+        "kind": "command",
+        "command": "maskFromSelection"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-045",
+      "category": "图层",
+      "label": "应用蒙版",
+      "action": {
+        "kind": "command",
+        "command": "applyMask"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-046",
+      "category": "图层",
+      "label": "反相蒙版",
+      "action": {
+        "kind": "command",
+        "command": "invertMask"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-047",
+      "category": "调整层",
+      "label": "Hue/Saturation",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Hue/Saturation"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-048",
+      "category": "调整层",
+      "label": "Levels",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Levels"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-049",
+      "category": "调整层",
+      "label": "Curves",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Curves"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-050",
+      "category": "调整层",
+      "label": "Exposure",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Exposure"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-051",
+      "category": "调整层",
+      "label": "Gradient Map",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Gradient Map"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-052",
+      "category": "调整层",
+      "label": "Grain",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Grain"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-053",
+      "category": "调整层",
+      "label": "Black & White",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Black & White"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-054",
+      "category": "调整层",
+      "label": "Color Balance",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Color Balance"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-055",
+      "category": "调整层",
+      "label": "Invert",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Invert"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-056",
+      "category": "调整层",
+      "label": "Gaussian Blur",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Gaussian Blur"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-057",
+      "category": "调整层",
+      "label": "Motion Blur",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Motion Blur"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-058",
+      "category": "调整层",
+      "label": "Add Noise",
+      "action": {
+        "kind": "command",
+        "command": "addAdjustment",
+        "payload": "Add Noise"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-059",
+      "category": "滤镜",
+      "label": "添加杂色",
+      "action": {
+        "kind": "command",
+        "command": "filterAddNoise",
+        "payload": {
+          "amount": 10
+        }
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-060",
+      "category": "滤镜",
+      "label": "渐晕",
+      "action": {
+        "kind": "command",
+        "command": "filterVignette",
+        "payload": {
+          "amount": -40
+        }
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-061",
+      "category": "滤镜",
+      "label": "辉光",
+      "action": {
+        "kind": "command",
+        "command": "filterBloom"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-062",
+      "category": "滤镜",
+      "label": "色调反差",
+      "action": {
+        "kind": "command",
+        "command": "filterTonalContrast"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-063",
+      "category": "滤镜",
+      "label": "镜头校正",
+      "action": {
+        "kind": "command",
+        "command": "filterLensCorrection"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-064",
+      "category": "滤镜",
+      "label": "移除背景",
+      "action": {
+        "kind": "command",
+        "command": "filterRemoveBackground"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-065",
+      "category": "滤镜",
+      "label": "USM 锐化",
+      "action": {
+        "kind": "command",
+        "command": "filterSharpen"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-066",
+      "category": "滤镜",
+      "label": "降噪",
+      "action": {
+        "kind": "command",
+        "command": "filterDenoise"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-067",
+      "category": "滤镜",
+      "label": "抖动",
+      "action": {
+        "kind": "command",
+        "command": "filterDither"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-068",
+      "category": "选择",
+      "label": "全选",
+      "action": {
+        "kind": "command",
+        "command": "selectAll"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-069",
+      "category": "选择",
+      "label": "取消选择",
+      "action": {
+        "kind": "command",
+        "command": "deselect"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-070",
+      "category": "选择",
+      "label": "反选",
+      "action": {
+        "kind": "command",
+        "command": "inverseSelection"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-071",
+      "category": "选择",
+      "label": "选择主体",
+      "action": {
+        "kind": "command",
+        "command": "selectSubject"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-072",
+      "category": "选择",
+      "label": "色彩范围…",
+      "action": {
+        "kind": "dialog",
+        "dialog": "colorRange"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-073",
+      "category": "选择",
+      "label": "扩展 8px",
+      "action": {
+        "kind": "command",
+        "command": "selectionExpand",
+        "payload": 8
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-074",
+      "category": "选择",
+      "label": "收缩 8px",
+      "action": {
+        "kind": "command",
+        "command": "selectionContract",
+        "payload": 8
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-075",
+      "category": "选择",
+      "label": "羽化 8px",
+      "action": {
+        "kind": "command",
+        "command": "selectionFeather",
+        "payload": {
+          "radius": 8
+        }
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-076",
+      "category": "选择",
+      "label": "选区边界",
+      "action": {
+        "kind": "command",
+        "command": "selectionBoundary"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-077",
+      "category": "选择",
+      "label": "由图层像素建立选区",
+      "action": {
+        "kind": "command",
+        "command": "loadLayerPixelsAsSelection"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-078",
+      "category": "选择",
+      "label": "由蒙版建立选区",
+      "action": {
+        "kind": "command",
+        "command": "loadMaskAsSelection"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-079",
+      "category": "视图",
+      "label": "放大",
+      "action": {
+        "kind": "command",
+        "command": "zoomIn"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-080",
+      "category": "视图",
+      "label": "缩小",
+      "action": {
+        "kind": "command",
+        "command": "zoomOut"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-081",
+      "category": "视图",
+      "label": "恢复默认面板布局",
+      "action": {
+        "kind": "layout",
+        "command": "resetPanels"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-082",
+      "category": "视图",
+      "label": "适配画布",
+      "action": {
+        "kind": "command",
+        "command": "fitCanvas"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-083",
+      "category": "视图",
+      "label": "实际像素",
+      "action": {
+        "kind": "command",
+        "command": "actualPixels"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-084",
+      "category": "视图",
+      "label": "显示标尺",
+      "action": {
+        "kind": "command",
+        "command": "toggleRulers"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-085",
+      "category": "视图",
+      "label": "显示网格",
+      "action": {
+        "kind": "command",
+        "command": "toggleGrid"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-086",
+      "category": "视图",
+      "label": "网格设置…",
+      "action": {
+        "kind": "command",
+        "command": "gridSettings"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-087",
+      "category": "视图",
+      "label": "显示参考线",
+      "action": {
+        "kind": "command",
+        "command": "toggleGuides"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-088",
+      "category": "视图",
+      "label": "吸附设置…",
+      "action": {
+        "kind": "command",
+        "command": "snapSettings"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-089",
+      "category": "视图",
+      "label": "显示变换控件",
+      "action": {
+        "kind": "command",
+        "command": "toggleTransformControls"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-090",
+      "category": "视图",
+      "label": "主题：暗色",
+      "action": {
+        "kind": "command",
+        "command": "setTheme",
+        "payload": "dark"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-091",
+      "category": "视图",
+      "label": "主题：亮色",
+      "action": {
+        "kind": "command",
+        "command": "setTheme",
+        "payload": "light"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-092",
+      "category": "视图",
+      "label": "主题：跟随系统",
+      "action": {
+        "kind": "command",
+        "command": "setTheme",
+        "payload": "system"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-093",
+      "category": "帮助",
+      "label": "键盘快捷键（可自定义）…",
+      "action": {
+        "kind": "command",
+        "command": "shortcuts"
+      },
+      "source": "src/App.vue"
+    },
+    {
+      "id": "MENU-094",
+      "category": "帮助",
+      "label": "关于合成器",
+      "action": {
+        "kind": "command",
+        "command": "about"
+      },
+      "source": "src/App.vue"
+    }
+  ],
+  "commands": [
+    {
+      "name": "newLayer",
+      "source": "src/composables/commands.ts",
+      "line": 127
+    },
+    {
+      "name": "duplicateLayer",
+      "source": "src/composables/commands.ts",
+      "line": 134
+    },
+    {
+      "name": "deleteLayer",
+      "source": "src/composables/commands.ts",
+      "line": 149
+    },
+    {
+      "name": "moveLayerUp",
+      "source": "src/composables/commands.ts",
+      "line": 157
+    },
+    {
+      "name": "moveLayerDown",
+      "source": "src/composables/commands.ts",
+      "line": 158
+    },
+    {
+      "name": "moveLayerTo",
+      "source": "src/composables/commands.ts",
+      "line": 168
+    },
+    {
+      "name": "toggleVisibility",
+      "source": "src/composables/commands.ts",
+      "line": 260
+    },
+    {
+      "name": "toggleLock",
+      "source": "src/composables/commands.ts",
+      "line": 264
+    },
+    {
+      "name": "toggleClipping",
+      "source": "src/composables/commands.ts",
+      "line": 271
+    },
+    {
+      "name": "group",
+      "source": "src/composables/commands.ts",
+      "line": 275
+    },
+    {
+      "name": "ungroup",
+      "source": "src/composables/commands.ts",
+      "line": 283
+    },
+    {
+      "name": "mergeDown",
+      "source": "src/composables/commands.ts",
+      "line": 291
+    },
+    {
+      "name": "mergeSelection",
+      "source": "src/composables/commands.ts",
+      "line": 299
+    },
+    {
+      "name": "mergeGroup",
+      "source": "src/composables/commands.ts",
+      "line": 307
+    },
+    {
+      "name": "flatten",
+      "source": "src/composables/commands.ts",
+      "line": 315
+    },
+    {
+      "name": "newGroup",
+      "source": "src/composables/commands.ts",
+      "line": 321
+    },
+    {
+      "name": "addMask",
+      "source": "src/composables/commands.ts",
+      "line": 330
+    },
+    {
+      "name": "maskFromSelection",
+      "source": "src/composables/commands.ts",
+      "line": 345
+    },
+    {
+      "name": "applyMask",
+      "source": "src/composables/commands.ts",
+      "line": 355
+    },
+    {
+      "name": "deleteMask",
+      "source": "src/composables/commands.ts",
+      "line": 369
+    },
+    {
+      "name": "toggleMask",
+      "source": "src/composables/commands.ts",
+      "line": 383
+    },
+    {
+      "name": "maskTarget",
+      "source": "src/composables/commands.ts",
+      "line": 387
+    },
+    {
+      "name": "invertMask",
+      "source": "src/composables/commands.ts",
+      "line": 396
+    },
+    {
+      "name": "invertPixels",
+      "source": "src/composables/commands.ts",
+      "line": 397
+    },
+    {
+      "name": "addAdjustment",
+      "source": "src/composables/commands.ts",
+      "line": 408
+    },
+    {
+      "name": "selectAll",
+      "source": "src/composables/commands.ts",
+      "line": 418
+    },
+    {
+      "name": "deselect",
+      "source": "src/composables/commands.ts",
+      "line": 424
+    },
+    {
+      "name": "inverseSelection",
+      "source": "src/composables/commands.ts",
+      "line": 430
+    },
+    {
+      "name": "selectSubject",
+      "source": "src/composables/commands.ts",
+      "line": 437
+    },
+    {
+      "name": "selectColorRange",
+      "source": "src/composables/commands.ts",
+      "line": 445
+    },
+    {
+      "name": "wandSelect",
+      "source": "src/composables/commands.ts",
+      "line": 451
+    },
+    {
+      "name": "selectionExpand",
+      "source": "src/composables/commands.ts",
+      "line": 465
+    },
+    {
+      "name": "selectionContract",
+      "source": "src/composables/commands.ts",
+      "line": 466
+    },
+    {
+      "name": "selectionBoundary",
+      "source": "src/composables/commands.ts",
+      "line": 467
+    },
+    {
+      "name": "selectionFeather",
+      "source": "src/composables/commands.ts",
+      "line": 468
+    },
+    {
+      "name": "transformSelection",
+      "source": "src/composables/commands.ts",
+      "line": 479
+    },
+    {
+      "name": "loadLayerPixelsAsSelection",
+      "source": "src/composables/commands.ts",
+      "line": 484
+    },
+    {
+      "name": "loadMaskAsSelection",
+      "source": "src/composables/commands.ts",
+      "line": 495
+    },
+    {
+      "name": "fillForeground",
+      "source": "src/composables/commands.ts",
+      "line": 509
+    },
+    {
+      "name": "fillBackground",
+      "source": "src/composables/commands.ts",
+      "line": 510
+    },
+    {
+      "name": "clearSelection",
+      "source": "src/composables/commands.ts",
+      "line": 511
+    },
+    {
+      "name": "contentAwareFill",
+      "source": "src/composables/commands.ts",
+      "line": 524
+    },
+    {
+      "name": "copy",
+      "source": "src/composables/commands.ts",
+      "line": 552
+    },
+    {
+      "name": "copyLayer",
+      "source": "src/composables/commands.ts",
+      "line": 553
+    },
+    {
+      "name": "copyMerged",
+      "source": "src/composables/commands.ts",
+      "line": 554
+    },
+    {
+      "name": "cut",
+      "source": "src/composables/commands.ts",
+      "line": 560
+    },
+    {
+      "name": "paste",
+      "source": "src/composables/commands.ts",
+      "line": 568
+    },
+    {
+      "name": "flattenClipboard",
+      "source": "src/composables/commands.ts",
+      "line": 575
+    },
+    {
+      "name": "canvasSize",
+      "source": "src/composables/commands.ts",
+      "line": 578
+    },
+    {
+      "name": "imageSize",
+      "source": "src/composables/commands.ts",
+      "line": 585
+    },
+    {
+      "name": "rotateCanvasAll",
+      "source": "src/composables/commands.ts",
+      "line": 592
+    },
+    {
+      "name": "flipCanvasH",
+      "source": "src/composables/commands.ts",
+      "line": 599
+    },
+    {
+      "name": "flipCanvasV",
+      "source": "src/composables/commands.ts",
+      "line": 605
+    },
+    {
+      "name": "trim",
+      "source": "src/composables/commands.ts",
+      "line": 611
+    },
+    {
+      "name": "filterAddNoise",
+      "source": "src/composables/commands.ts",
+      "line": 625
+    },
+    {
+      "name": "filterVignette",
+      "source": "src/composables/commands.ts",
+      "line": 631
+    },
+    {
+      "name": "filterBloom",
+      "source": "src/composables/commands.ts",
+      "line": 641
+    },
+    {
+      "name": "filterTonalContrast",
+      "source": "src/composables/commands.ts",
+      "line": 646
+    },
+    {
+      "name": "filterLensCorrection",
+      "source": "src/composables/commands.ts",
+      "line": 651
+    },
+    {
+      "name": "filterRemoveBackground",
+      "source": "src/composables/commands.ts",
+      "line": 656
+    },
+    {
+      "name": "filterSharpen",
+      "source": "src/composables/commands.ts",
+      "line": 658
+    },
+    {
+      "name": "filterDenoise",
+      "source": "src/composables/commands.ts",
+      "line": 663
+    },
+    {
+      "name": "filterDither",
+      "source": "src/composables/commands.ts",
+      "line": 668
+    },
+    {
+      "name": "newCanvas",
+      "source": "src/composables/commands-io.ts",
+      "line": 90
+    },
+    {
+      "name": "openImage",
+      "source": "src/composables/commands-io.ts",
+      "line": 118
+    },
+    {
+      "name": "openPsd",
+      "source": "src/composables/commands-io.ts",
+      "line": 126
+    },
+    {
+      "name": "openRaw",
+      "source": "src/composables/commands-io.ts",
+      "line": 138
+    },
+    {
+      "name": "openComp",
+      "source": "src/composables/commands-io.ts",
+      "line": 160
+    },
+    {
+      "name": "openRecent",
+      "source": "src/composables/commands-io.ts",
+      "line": 166
+    },
+    {
+      "name": "saveComp",
+      "source": "src/composables/commands-io.ts",
+      "line": 171
+    },
+    {
+      "name": "saveCompAs",
+      "source": "src/composables/commands-io.ts",
+      "line": 185
+    },
+    {
+      "name": "watchComp",
+      "source": "src/composables/commands-io.ts",
+      "line": 197
+    },
+    {
+      "name": "unwatchComp",
+      "source": "src/composables/commands-io.ts",
+      "line": 224
+    },
+    {
+      "name": "exportImage",
+      "source": "src/composables/commands-io.ts",
+      "line": 230
+    },
+    {
+      "name": "exportPsd",
+      "source": "src/composables/commands-io.ts",
+      "line": 246
+    },
+    {
+      "name": "sample",
+      "source": "src/composables/commands-io.ts",
+      "line": 261
+    },
+    {
+      "name": "setTheme",
+      "source": "src/composables/commands-io.ts",
+      "line": 271
+    },
+    {
+      "name": "undo",
+      "source": "src/composables/commands-io.ts",
+      "line": 278
+    },
+    {
+      "name": "redo",
+      "source": "src/composables/commands-io.ts",
+      "line": 285
+    },
+    {
+      "name": "zoomIn",
+      "source": "src/composables/commands-io.ts",
+      "line": 294
+    },
+    {
+      "name": "zoomOut",
+      "source": "src/composables/commands-io.ts",
+      "line": 295
+    },
+    {
+      "name": "fitCanvas",
+      "source": "src/composables/commands-io.ts",
+      "line": 296
+    },
+    {
+      "name": "actualPixels",
+      "source": "src/composables/commands-io.ts",
+      "line": 297
+    },
+    {
+      "name": "toggleRulers",
+      "source": "src/composables/commands-io.ts",
+      "line": 298
+    },
+    {
+      "name": "toggleGrid",
+      "source": "src/composables/commands-io.ts",
+      "line": 299
+    },
+    {
+      "name": "toggleGuides",
+      "source": "src/composables/commands-io.ts",
+      "line": 300
+    },
+    {
+      "name": "toggleTransformControls",
+      "source": "src/composables/commands-io.ts",
+      "line": 301
+    },
+    {
+      "name": "gridSettings",
+      "source": "src/composables/commands-io.ts",
+      "line": 302
+    },
+    {
+      "name": "shortcuts",
+      "source": "src/composables/commands-io.ts",
+      "line": 303
+    },
+    {
+      "name": "about",
+      "source": "src/composables/commands-io.ts",
+      "line": 304
+    },
+    {
+      "name": "recentList",
+      "source": "src/composables/commands-io.ts",
+      "line": 305
+    },
+    {
+      "name": "closeDocument",
+      "source": "src/composables/commands-io.ts",
+      "line": 306
+    },
+    {
+      "name": "applyRawDevelop",
+      "source": "src/composables/commands-io.ts",
+      "line": 310
+    }
+  ],
+  "bindings": [
+    {
+      "command": "newCanvas",
+      "source": "src/App.vue",
+      "line": 24
+    },
+    {
+      "command": "openImage",
+      "source": "src/App.vue",
+      "line": 25
+    },
+    {
+      "command": "openPsd",
+      "source": "src/App.vue",
+      "line": 26
+    },
+    {
+      "command": "openRaw",
+      "source": "src/App.vue",
+      "line": 27
+    },
+    {
+      "command": "openComp",
+      "source": "src/App.vue",
+      "line": 28
+    },
+    {
+      "command": "recentList",
+      "source": "src/App.vue",
+      "line": 29
+    },
+    {
+      "command": "sample",
+      "source": "src/App.vue",
+      "line": 31
+    },
+    {
+      "command": "sample",
+      "source": "src/App.vue",
+      "line": 32
+    },
+    {
+      "command": "sample",
+      "source": "src/App.vue",
+      "line": 33
+    },
+    {
+      "command": "saveComp",
+      "source": "src/App.vue",
+      "line": 35
+    },
+    {
+      "command": "saveCompAs",
+      "source": "src/App.vue",
+      "line": 36
+    },
+    {
+      "command": "watchComp",
+      "source": "src/App.vue",
+      "line": 37
+    },
+    {
+      "command": "exportImage",
+      "source": "src/App.vue",
+      "line": 39
+    },
+    {
+      "command": "exportImage",
+      "source": "src/App.vue",
+      "line": 40
+    },
+    {
+      "command": "exportImage",
+      "source": "src/App.vue",
+      "line": 41
+    },
+    {
+      "command": "exportPsd",
+      "source": "src/App.vue",
+      "line": 42
+    },
+    {
+      "command": "closeDocument",
+      "source": "src/App.vue",
+      "line": 44
+    },
+    {
+      "command": "undo",
+      "source": "src/App.vue",
+      "line": 50
+    },
+    {
+      "command": "redo",
+      "source": "src/App.vue",
+      "line": 51
+    },
+    {
+      "command": "cut",
+      "source": "src/App.vue",
+      "line": 53
+    },
+    {
+      "command": "copy",
+      "source": "src/App.vue",
+      "line": 54
+    },
+    {
+      "command": "copyMerged",
+      "source": "src/App.vue",
+      "line": 55
+    },
+    {
+      "command": "paste",
+      "source": "src/App.vue",
+      "line": 56
+    },
+    {
+      "command": "fillForeground",
+      "source": "src/App.vue",
+      "line": 58
+    },
+    {
+      "command": "fillBackground",
+      "source": "src/App.vue",
+      "line": 59
+    },
+    {
+      "command": "clearSelection",
+      "source": "src/App.vue",
+      "line": 60
+    },
+    {
+      "command": "contentAwareFill",
+      "source": "src/App.vue",
+      "line": 61
+    },
+    {
+      "command": "trim",
+      "source": "src/App.vue",
+      "line": 69
+    },
+    {
+      "command": "rotateCanvasAll",
+      "source": "src/App.vue",
+      "line": 71
+    },
+    {
+      "command": "rotateCanvasAll",
+      "source": "src/App.vue",
+      "line": 72
+    },
+    {
+      "command": "flipCanvasH",
+      "source": "src/App.vue",
+      "line": 73
+    },
+    {
+      "command": "flipCanvasV",
+      "source": "src/App.vue",
+      "line": 74
+    },
+    {
+      "command": "newLayer",
+      "source": "src/App.vue",
+      "line": 80
+    },
+    {
+      "command": "newGroup",
+      "source": "src/App.vue",
+      "line": 81
+    },
+    {
+      "command": "duplicateLayer",
+      "source": "src/App.vue",
+      "line": 82
+    },
+    {
+      "command": "deleteLayer",
+      "source": "src/App.vue",
+      "line": 83
+    },
+    {
+      "command": "moveLayerUp",
+      "source": "src/App.vue",
+      "line": 85
+    },
+    {
+      "command": "moveLayerDown",
+      "source": "src/App.vue",
+      "line": 86
+    },
+    {
+      "command": "mergeDown",
+      "source": "src/App.vue",
+      "line": 87
+    },
+    {
+      "command": "flatten",
+      "source": "src/App.vue",
+      "line": 88
+    },
+    {
+      "command": "addMask",
+      "source": "src/App.vue",
+      "line": 90
+    },
+    {
+      "command": "maskFromSelection",
+      "source": "src/App.vue",
+      "line": 91
+    },
+    {
+      "command": "applyMask",
+      "source": "src/App.vue",
+      "line": 92
+    },
+    {
+      "command": "invertMask",
+      "source": "src/App.vue",
+      "line": 93
+    },
+    {
+      "command": "addAdjustment",
+      "source": "src/App.vue",
+      "line": 101
+    },
+    {
+      "command": "filterAddNoise",
+      "source": "src/App.vue",
+      "line": 106
+    },
+    {
+      "command": "filterVignette",
+      "source": "src/App.vue",
+      "line": 107
+    },
+    {
+      "command": "filterBloom",
+      "source": "src/App.vue",
+      "line": 108
+    },
+    {
+      "command": "filterTonalContrast",
+      "source": "src/App.vue",
+      "line": 109
+    },
+    {
+      "command": "filterLensCorrection",
+      "source": "src/App.vue",
+      "line": 110
+    },
+    {
+      "command": "filterRemoveBackground",
+      "source": "src/App.vue",
+      "line": 111
+    },
+    {
+      "command": "filterSharpen",
+      "source": "src/App.vue",
+      "line": 112
+    },
+    {
+      "command": "filterDenoise",
+      "source": "src/App.vue",
+      "line": 113
+    },
+    {
+      "command": "filterDither",
+      "source": "src/App.vue",
+      "line": 114
+    },
+    {
+      "command": "selectAll",
+      "source": "src/App.vue",
+      "line": 120
+    },
+    {
+      "command": "deselect",
+      "source": "src/App.vue",
+      "line": 121
+    },
+    {
+      "command": "inverseSelection",
+      "source": "src/App.vue",
+      "line": 122
+    },
+    {
+      "command": "selectSubject",
+      "source": "src/App.vue",
+      "line": 124
+    },
+    {
+      "command": "selectionExpand",
+      "source": "src/App.vue",
+      "line": 127
+    },
+    {
+      "command": "selectionContract",
+      "source": "src/App.vue",
+      "line": 128
+    },
+    {
+      "command": "selectionFeather",
+      "source": "src/App.vue",
+      "line": 129
+    },
+    {
+      "command": "selectionBoundary",
+      "source": "src/App.vue",
+      "line": 130
+    },
+    {
+      "command": "loadLayerPixelsAsSelection",
+      "source": "src/App.vue",
+      "line": 132
+    },
+    {
+      "command": "loadMaskAsSelection",
+      "source": "src/App.vue",
+      "line": 133
+    },
+    {
+      "command": "zoomIn",
+      "source": "src/App.vue",
+      "line": 139
+    },
+    {
+      "command": "zoomOut",
+      "source": "src/App.vue",
+      "line": 140
+    },
+    {
+      "command": "fitCanvas",
+      "source": "src/App.vue",
+      "line": 142
+    },
+    {
+      "command": "actualPixels",
+      "source": "src/App.vue",
+      "line": 143
+    },
+    {
+      "command": "toggleRulers",
+      "source": "src/App.vue",
+      "line": 145
+    },
+    {
+      "command": "toggleGrid",
+      "source": "src/App.vue",
+      "line": 146
+    },
+    {
+      "command": "gridSettings",
+      "source": "src/App.vue",
+      "line": 147
+    },
+    {
+      "command": "toggleGuides",
+      "source": "src/App.vue",
+      "line": 148
+    },
+    {
+      "command": "snapSettings",
+      "source": "src/App.vue",
+      "line": 149
+    },
+    {
+      "command": "toggleTransformControls",
+      "source": "src/App.vue",
+      "line": 150
+    },
+    {
+      "command": "setTheme",
+      "source": "src/App.vue",
+      "line": 152
+    },
+    {
+      "command": "setTheme",
+      "source": "src/App.vue",
+      "line": 153
+    },
+    {
+      "command": "setTheme",
+      "source": "src/App.vue",
+      "line": 154
+    },
+    {
+      "command": "shortcuts",
+      "source": "src/App.vue",
+      "line": 160
+    },
+    {
+      "command": "about",
+      "source": "src/App.vue",
+      "line": 161
+    },
+    {
+      "command": "newCanvas",
+      "source": "src/App.vue",
+      "line": 232
+    },
+    {
+      "command": "fitCanvas",
+      "source": "src/App.vue",
+      "line": 251
+    },
+    {
+      "command": "newCanvas",
+      "source": "src/components/dialogs/DialogHost.vue",
+      "line": 53
+    },
+    {
+      "command": "canvasSize",
+      "source": "src/components/dialogs/DialogHost.vue",
+      "line": 59
+    },
+    {
+      "command": "imageSize",
+      "source": "src/components/dialogs/DialogHost.vue",
+      "line": 65
+    },
+    {
+      "command": "exportImage",
+      "source": "src/components/dialogs/DialogHost.vue",
+      "line": 71
+    },
+    {
+      "command": "openRecent",
+      "source": "src/components/dialogs/DialogHost.vue",
+      "line": 184
+    },
+    {
+      "command": "selectColorRange",
+      "source": "src/components/dialogs/DialogHost.vue",
+      "line": 203
+    },
+    {
+      "command": "applyRawDevelop",
+      "source": "src/components/dialogs/DialogHost.vue",
+      "line": 208
+    },
+    {
+      "command": "undo",
+      "source": "src/components/panels/HistoryPanel.vue",
+      "line": 52
+    },
+    {
+      "command": "redo",
+      "source": "src/components/panels/HistoryPanel.vue",
+      "line": 52
+    },
+    {
+      "command": "moveLayerTo",
+      "source": "src/components/panels/LayersPanel.vue",
+      "line": 188
+    },
+    {
+      "command": "newLayer",
+      "source": "src/components/panels/LayersPanel.vue",
+      "line": 221
+    },
+    {
+      "command": "duplicateLayer",
+      "source": "src/components/panels/LayersPanel.vue",
+      "line": 222
+    },
+    {
+      "command": "mergeDown",
+      "source": "src/components/panels/LayersPanel.vue",
+      "line": 224
+    },
+    {
+      "command": "toggleClipping",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 106
+    },
+    {
+      "command": "toggleMask",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 145
+    },
+    {
+      "command": "maskTarget",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 146
+    },
+    {
+      "command": "invertMask",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 147
+    },
+    {
+      "command": "applyMask",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 148
+    },
+    {
+      "command": "deleteMask",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 149
+    },
+    {
+      "command": "addMask",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 152
+    },
+    {
+      "command": "maskFromSelection",
+      "source": "src/components/panels/PropertiesPanel.vue",
+      "line": 153
+    },
+    {
+      "command": "sample",
+      "source": "src/components/StartPage.vue",
+      "line": 24
+    },
+    {
+      "command": "setTheme",
+      "source": "src/components/StartPage.vue",
+      "line": 30
+    },
+    {
+      "command": "newCanvas",
+      "source": "src/components/StartPage.vue",
+      "line": 42
+    },
+    {
+      "command": "openImage",
+      "source": "src/components/StartPage.vue",
+      "line": 47
+    },
+    {
+      "command": "openComp",
+      "source": "src/components/StartPage.vue",
+      "line": 52
+    },
+    {
+      "command": "openPsd",
+      "source": "src/components/StartPage.vue",
+      "line": 57
+    },
+    {
+      "command": "openRaw",
+      "source": "src/components/StartPage.vue",
+      "line": 62
+    },
+    {
+      "command": "openRecent",
+      "source": "src/components/StartPage.vue",
+      "line": 83
+    },
+    {
+      "command": "newCanvas",
+      "source": "src/composables/shortcuts.ts",
+      "line": 108
+    },
+    {
+      "command": "newLayer",
+      "source": "src/composables/shortcuts.ts",
+      "line": 109
+    },
+    {
+      "command": "openComp",
+      "source": "src/composables/shortcuts.ts",
+      "line": 110
+    },
+    {
+      "command": "saveComp",
+      "source": "src/composables/shortcuts.ts",
+      "line": 111
+    },
+    {
+      "command": "saveCompAs",
+      "source": "src/composables/shortcuts.ts",
+      "line": 112
+    },
+    {
+      "command": "closeDocument",
+      "source": "src/composables/shortcuts.ts",
+      "line": 115
+    },
+    {
+      "command": "undo",
+      "source": "src/composables/shortcuts.ts",
+      "line": 118
+    },
+    {
+      "command": "redo",
+      "source": "src/composables/shortcuts.ts",
+      "line": 119
+    },
+    {
+      "command": "cut",
+      "source": "src/composables/shortcuts.ts",
+      "line": 120
+    },
+    {
+      "command": "copy",
+      "source": "src/composables/shortcuts.ts",
+      "line": 121
+    },
+    {
+      "command": "copyMerged",
+      "source": "src/composables/shortcuts.ts",
+      "line": 122
+    },
+    {
+      "command": "paste",
+      "source": "src/composables/shortcuts.ts",
+      "line": 123
+    },
+    {
+      "command": "fillForeground",
+      "source": "src/composables/shortcuts.ts",
+      "line": 124
+    },
+    {
+      "command": "fillBackground",
+      "source": "src/composables/shortcuts.ts",
+      "line": 125
+    },
+    {
+      "command": "clearSelection",
+      "source": "src/composables/shortcuts.ts",
+      "line": 126
+    },
+    {
+      "command": "contentAwareFill",
+      "source": "src/composables/shortcuts.ts",
+      "line": 127
+    },
+    {
+      "command": "selectAll",
+      "source": "src/composables/shortcuts.ts",
+      "line": 134
+    },
+    {
+      "command": "deselect",
+      "source": "src/composables/shortcuts.ts",
+      "line": 135
+    },
+    {
+      "command": "inverseSelection",
+      "source": "src/composables/shortcuts.ts",
+      "line": 136
+    },
+    {
+      "command": "selectSubject",
+      "source": "src/composables/shortcuts.ts",
+      "line": 137
+    },
+    {
+      "command": "addAdjustment",
+      "source": "src/composables/shortcuts.ts",
+      "line": 140
+    },
+    {
+      "command": "addAdjustment",
+      "source": "src/composables/shortcuts.ts",
+      "line": 141
+    },
+    {
+      "command": "addAdjustment",
+      "source": "src/composables/shortcuts.ts",
+      "line": 142
+    },
+    {
+      "command": "invertPixels",
+      "source": "src/composables/shortcuts.ts",
+      "line": 143
+    },
+    {
+      "command": "addAdjustment",
+      "source": "src/composables/shortcuts.ts",
+      "line": 144
+    },
+    {
+      "command": "duplicateLayer",
+      "source": "src/composables/shortcuts.ts",
+      "line": 147
+    },
+    {
+      "command": "toggleClipping",
+      "source": "src/composables/shortcuts.ts",
+      "line": 148
+    },
+    {
+      "command": "group",
+      "source": "src/composables/shortcuts.ts",
+      "line": 149
+    },
+    {
+      "command": "ungroup",
+      "source": "src/composables/shortcuts.ts",
+      "line": 150
+    },
+    {
+      "command": "moveLayerUp",
+      "source": "src/composables/shortcuts.ts",
+      "line": 151
+    },
+    {
+      "command": "moveLayerDown",
+      "source": "src/composables/shortcuts.ts",
+      "line": 152
+    },
+    {
+      "command": "mergeDown",
+      "source": "src/composables/shortcuts.ts",
+      "line": 153
+    }
+  ],
+  "missingBindings": [
+    {
+      "command": "snapSettings",
+      "source": "src/App.vue",
+      "line": 149
+    }
+  ],
+  "claims": [
+    {
+      "id": "CLAIM-001",
+      "text": "0.1 插件清单 `plugin.json`（uuid/packid = `otools-compositor`，quickDev、图标、关键词）"
+    },
+    {
+      "id": "CLAIM-002",
+      "text": "0.2 `package.json` + vite（dev/build/preview 端口）+ tsconfig + UnoCSS + Element Plus"
+    },
+    {
+      "id": "CLAIM-003",
+      "text": "0.3 运行环境适配层 `src/platform/host.ts`（otools window.otools / Tauri / 浏览器三级回退：对话框、读写文件、目录列举、本地状态）"
+    },
+    {
+      "id": "CLAIM-004",
+      "text": "0.4 目录结构与中文注释基线（types / core / engine / io / tools / composables / components / panels / dialogs）"
+    },
+    {
+      "id": "CLAIM-005",
+      "text": "1.1 图层数据模型：像素层 / 调整层 / 组、变换、蒙版、剪贴蒙版、效果、形状与文字元数据（`src/types/document.ts`）"
+    },
+    {
+      "id": "CLAIM-006",
+      "text": "1.2 24 种 Photoshop 混合模式及顺序、分离式/非分离式实现（`src/core/blend.ts`）"
+    },
+    {
+      "id": "CLAIM-007",
+      "text": "1.3 色彩转换：sRGB/线性、HSL/HSV、Lab、灰度、8/16 位缓冲（`src/core/color.ts`）"
+    },
+    {
+      "id": "CLAIM-008",
+      "text": "1.4 像素缓冲与几何：仿射/单应变换、双线性/最近邻采样、包围盒、外接四边形（`src/core/geometry.ts`、`src/core/pixels.ts`）"
+    },
+    {
+      "id": "CLAIM-009",
+      "text": "2.1 图层合成器：可见性、组不透明度、蒙版、剪贴蒙版、调整层作用于下方合成结果（`src/core/engine/compositor.ts`）"
+    },
+    {
+      "id": "CLAIM-010",
+      "text": "2.2 图层效果：描边、投影、颜色叠加、内阴影、外发光、内发光（`src/core/engine/effects.ts`）"
+    },
+    {
+      "id": "CLAIM-011",
+      "text": "2.3 画布渲染器：缩放/平移/棋盘格/像素网格/降采样缓存/视图变换（`src/core/engine/renderer.ts`）"
+    },
+    {
+      "id": "CLAIM-012",
+      "text": "2.4 撤销重做历史栈（内存预算 + 快照）（`src/core/engine/history.ts`）"
+    },
+    {
+      "id": "CLAIM-013",
+      "text": "2.5 选区模型：位图蒙版 + 路径轮廓、布尔运算、羽化、扩展/收缩、边界描边（`src/core/selection.ts`、`src/core/ops/selectionOps.ts`）"
+    },
+    {
+      "id": "CLAIM-014",
+      "text": "3.1 工具框架：Tool 基类、光标、指针事件分发、临时手形/缩放、Tab 循环工具模式（`src/tools/Tool.ts`、`src/core/engine/toolHost.ts`）"
+    },
+    {
+      "id": "CLAIM-015",
+      "text": "3.2 移动/变换工具：非破坏性移动缩放旋转翻转、多层同时变换、吸附（画布/图层/参考线/网格）、方向键微调"
+    },
+    {
+      "id": "CLAIM-016",
+      "text": "3.3 自由变换/扭曲：⌘ 拖拽手柄、Shift 锁轴、单应矩阵重采样"
+    },
+    {
+      "id": "CLAIM-017",
+      "text": "3.4 裁剪工具：带吸附、比例（3:4、9:16 等）、对称裁剪、从选区起裁"
+    },
+    {
+      "id": "CLAIM-018",
+      "text": "3.5 选区工具：矩形/椭圆框选、自由套索、多边形套索、魔棒（容差/连续/全局）、对象选择、色彩范围"
+    },
+    {
+      "id": "CLAIM-019",
+      "text": "3.6 绘画工具：画笔（大小/硬度/不透明度/平滑）、橡皮擦、Shift 直线、临时前景/背景色"
+    },
+    {
+      "id": "CLAIM-020",
+      "text": "3.7 修复与仿制：污点修复画笔（内容识别）、仿制图章（对齐/单层/全图层）、修复画笔"
+    },
+    {
+      "id": "CLAIM-021",
+      "text": "3.8 滤镜类工具：高斯模糊、涂抹、液化（推/旋转/膨胀）"
+    },
+    {
+      "id": "CLAIM-022",
+      "text": "3.9 渐变工具：线性/径向/角度/对称/菱形、不透明度、抖动、混合模式"
+    },
+    {
+      "id": "CLAIM-023",
+      "text": "3.10 形状工具：矩形/圆角矩形/椭圆/直线，填充+描边，保持可编辑"
+    },
+    {
+      "id": "CLAIM-024",
+      "text": "3.11 文字工具：画布内联多行编辑、可拖拽缩放段落框、字体/字号/颜色/对齐/字距/行距、彩色与字体 run"
+    },
+    {
+      "id": "CLAIM-025",
+      "text": "3.12 吸管工具与颜色选择器（HSV 面 + 色相条 + HEX）"
+    },
+    {
+      "id": "CLAIM-026",
+      "text": "3.13 手形/缩放工具（空格临时、⌘滚轮、⌘0/1）"
+    },
+    {
+      "id": "CLAIM-027",
+      "text": "4.1 色相/饱和度（含着色）"
+    },
+    {
+      "id": "CLAIM-028",
+      "text": "4.2 色阶（含自动色阶）与曲线（RGB/R/G/B，曲线编辑器）"
+    },
+    {
+      "id": "CLAIM-029",
+      "text": "4.3 曝光度、渐变映射、颗粒"
+    },
+    {
+      "id": "CLAIM-030",
+      "text": "4.4 黑白、色彩平衡、反相"
+    },
+    {
+      "id": "CLAIM-031",
+      "text": "4.5 高斯模糊、动感模糊（调整层）"
+    },
+    {
+      "id": "CLAIM-032",
+      "text": "4.6 添加杂色（高斯/单色/可复现种子）"
+    },
+    {
+      "id": "CLAIM-033",
+      "text": "4.7 滤镜：添加杂色、渐晕、辉光/泛光、色调反差、镜头校正、移除背景"
+    },
+    {
+      "id": "CLAIM-034",
+      "text": "4.8 破坏性滤镜面板（作用于当前像素层，带选区限制与实时预览）"
+    },
+    {
+      "id": "CLAIM-035",
+      "text": "5.1 多项目标签页、脏标记、保存中继续编辑"
+    },
+    {
+      "id": "CLAIM-036",
+      "text": "5.2 标尺、参考线（拖拽生成、锁定）、网格（间距/ subdivisions）、Snap To 开关"
+    },
+    {
+      "id": "CLAIM-037",
+      "text": "5.3 画布大小（9 点锚定）、图像大小（重采样）、裁剪、旋转画布、翻转画布、修边"
+    },
+    {
+      "id": "CLAIM-038",
+      "text": "5.4 导入：JPEG / PNG / WebP / BMP / GIF 首帧 / SVG / TIFF"
+    },
+    {
+      "id": "CLAIM-039",
+      "text": "5.5 导入 PSD/PSB（8bit RGB）：图层、文件夹、蒙版、混合模式、填充形状、简单横排文字保持可编辑，转换报告"
+    },
+    {
+      "id": "CLAIM-040",
+      "text": "5.6 相机 RAW 导入（DNG/CR2/NEF/ARW 等 TIFF 容器解码 + 显影流程）"
+    },
+    {
+      "id": "CLAIM-041",
+      "text": "5.7 相机 RAW 显影面板：光效、颜色、曲线、颜色混合、颜色分级、细节、光学、几何"
+    },
+    {
+      "id": "CLAIM-042",
+      "text": "5.8 导出：PNG / JPEG（质量实时预览）/ WebP、复制合并、缩放导出"
+    },
+    {
+      "id": "CLAIM-043",
+      "text": "5.9 `.comp` 工程包读写（manifest v11 + images/ 图层 PNG + 蒙版），AI/脚本可写"
+    },
+    {
+      "id": "CLAIM-044",
+      "text": "5.10 工程热重载（约 1/3 秒轮询，保留缩放/滚动/选区，清空历史）"
+    },
+    {
+      "id": "CLAIM-045",
+      "text": "5.11 最近工程、启动页、示例工程（启动页含快速入口/最近工程/主题切换；三个示例工程由代码生成）"
+    },
+    {
+      "id": "CLAIM-046",
+      "text": "5.12 PSD 导出（写回图层/蒙版/混合模式）"
+    },
+    {
+      "id": "CLAIM-047",
+      "text": "6.1 顶部菜单栏（文件/编辑/图像/图层/选择/滤镜/视图/窗口/帮助）"
+    },
+    {
+      "id": "CLAIM-048",
+      "text": "6.2 工具栏（分组图标 + 快捷键角标 + 长按弹出组内工具）"
+    },
+    {
+      "id": "CLAIM-049",
+      "text": "6.3 工具选项头（随工具切换，含数值拖拽擦洗 scrub）"
+    },
+    {
+      "id": "CLAIM-050",
+      "text": "6.4 图层面板：缩略图、拖拽排序与嵌套进组、Option 拖拽复制、右键菜单、双击重命名、锁定/可见性"
+    },
+    {
+      "id": "CLAIM-051",
+      "text": "6.5 属性面板：变换精确数值、外观（不透明度/混合模式）、蒙版菜单、效果列表"
+    },
+    {
+      "id": "CLAIM-052",
+      "text": "6.6 历史面板、颜色面板、信息面板（坐标/尺寸/文档统计）"
+    },
+    {
+      "id": "CLAIM-053",
+      "text": "6.7 浮动面板：可拖拽移动、拖到窗口边缘停靠、可停靠到左/右/底部、可折叠、可调厚度、布局持久化"
+    },
+    {
+      "id": "CLAIM-054",
+      "text": "6.8 快捷键：Photoshop 风格快捷键、数字输入不透明度、可重映射编辑器（录制 / 冲突提示 / 单项与全部恢复 / 持久化）"
+    },
+    {
+      "id": "CLAIM-055",
+      "text": "6.9 界面文案中文化（混合模式、采样方式等显示中文）、暗色/亮色/跟随系统三档主题、CSS 变量统一配色、Element Plus 暗色变量联动"
+    },
+    {
+      "id": "CLAIM-056",
+      "text": "6.10 文案全部中文化"
+    },
+    {
+      "id": "CLAIM-057",
+      "text": "7.1 `vue-tsc --noEmit` 类型检查通过"
+    },
+    {
+      "id": "CLAIM-058",
+      "text": "7.2 `pnpm build` 产出 `dist/index.html`"
+    },
+    {
+      "id": "CLAIM-059",
+      "text": "7.3 部署脚本：同步到 `D:\\Repos\\xyito\\otools\\otools\\plugins\\otools-compositor`"
+    },
+    {
+      "id": "CLAIM-060",
+      "text": "7.4 README（开发、构建、部署、功能清单、与上游差异说明）"
+    }
+  ],
+  "upstreamFeatures": [
+    {
+      "id": "UP-001",
+      "section": "Layers",
+      "text": "Layers and folders, with opacity and Photoshop's full set of blend modes in its order — a folder's opacity dims everything inside it"
+    },
+    {
+      "id": "UP-002",
+      "section": "Layers",
+      "text": "Layer masks: paint, fill, invert, blur and feather them anywhere on the canvas, past the layer's own pixels; link or unlink them to transform a mask on its own"
+    },
+    {
+      "id": "UP-003",
+      "section": "Layers",
+      "text": "Clipping masks and folder masks"
+    },
+    {
+      "id": "UP-004",
+      "section": "Layers",
+      "text": "Adjustment layers: Hue/Saturation, Levels, Curves, Exposure, Gradient Map, Grain, Black & White, Color Balance, Invert, Gaussian Blur, Motion Blur and Noise"
+    },
+    {
+      "id": "UP-005",
+      "section": "Layers",
+      "text": "Layer effects: Stroke, Drop Shadow, Color Overlay, Inner Shadow, Outer Glow and Inner Glow, rendered on the GPU and editable at any time"
+    },
+    {
+      "id": "UP-006",
+      "section": "Layers",
+      "text": "Merge Down, Merge Layers and Merge Group (⌘E)"
+    },
+    {
+      "id": "UP-007",
+      "section": "Layers",
+      "text": "Duplicate, rename inline, reorder and nest by drag and drop; Option-drag to duplicate; a right-click menu in the Layers panel"
+    },
+    {
+      "id": "UP-008",
+      "section": "Layers",
+      "text": "Copy and paste whole layers and folders (⌘C/⌘V with no selection), within a project or between projects, or drag them between projects"
+    },
+    {
+      "id": "UP-009",
+      "section": "Transform",
+      "text": "Non-destructive move, scale, rotate and flip — images keep their full resolution however small you make them"
+    },
+    {
+      "id": "UP-010",
+      "section": "Transform",
+      "text": "Free distort (⌘-drag a handle), with Shift to lock to an axis"
+    },
+    {
+      "id": "UP-011",
+      "section": "Transform",
+      "text": "Transform several layers, or a whole folder, together"
+    },
+    {
+      "id": "UP-012",
+      "section": "Transform",
+      "text": "Snapping to canvas and layer edges and centers, with guides"
+    },
+    {
+      "id": "UP-013",
+      "section": "Transform",
+      "text": "Exact values for position, size, scale and angle, stepped with the arrow keys"
+    },
+    {
+      "id": "UP-014",
+      "section": "Transform",
+      "text": "Flip Layer and Flip Canvas, horizontal and vertical"
+    },
+    {
+      "id": "UP-015",
+      "section": "Selections",
+      "text": "Rectangle and Ellipse Marquee, Freehand and Polygonal Lasso, and the Magic tool — Wand selects by color, Object traces whatever you click (Tab switches)"
+    },
+    {
+      "id": "UP-016",
+      "section": "Selections",
+      "text": "Select Subject, and Expand, Contract and Feather on any selection"
+    },
+    {
+      "id": "UP-017",
+      "section": "Selections",
+      "text": "Add to and subtract from selections, move the outline, or move and duplicate the pixels inside"
+    },
+    {
+      "id": "UP-018",
+      "section": "Selections",
+      "text": "Load a layer's pixels or a mask as a selection"
+    },
+    {
+      "id": "UP-019",
+      "section": "Selections",
+      "text": "Content-Aware Fill, which can also extend an image past its edges"
+    },
+    {
+      "id": "UP-020",
+      "section": "Painting and retouching",
+      "text": "Brush with size, hardness, opacity and smoothing, in Paint or Erase mode (B and E), and Shift for straight lines"
+    },
+    {
+      "id": "UP-021",
+      "section": "Painting and retouching",
+      "text": "Spot Healing Brush (content-aware)"
+    },
+    {
+      "id": "UP-022",
+      "section": "Painting and retouching",
+      "text": "Clone Stamp, aligned or not, sampling one layer or all of them"
+    },
+    {
+      "id": "UP-023",
+      "section": "Painting and retouching",
+      "text": "Blur tool, on pixels or masks"
+    },
+    {
+      "id": "UP-024",
+      "section": "Painting and retouching",
+      "text": "Gradient tool and Shape tool (rectangles, rounded rectangles, ellipses and lines), which stay editable rather than being rasterized"
+    },
+    {
+      "id": "UP-025",
+      "section": "Painting and retouching",
+      "text": "Type tool (T): inline multiline editing in draggable, resizable paragraph boxes; font, size, color, alignment and spacing in the tool header; transform text and use it as a clipping mask"
+    },
+    {
+      "id": "UP-026",
+      "section": "Painting and retouching",
+      "text": "Eyedropper and a full color picker"
+    },
+    {
+      "id": "UP-027",
+      "section": "Adjustments and filters",
+      "text": "Camera Raw filter: light, color, curves, color mixer, color grading, detail, optics and geometry, in a panel beside the canvas"
+    },
+    {
+      "id": "UP-028",
+      "section": "Adjustments and filters",
+      "text": "Levels (with Auto), Curves, Hue/Saturation, Exposure, Gradient Map, Grain, Black & White, Color Balance and Invert"
+    },
+    {
+      "id": "UP-029",
+      "section": "Adjustments and filters",
+      "text": "Gaussian Blur and Motion Blur that spread past a layer's edges"
+    },
+    {
+      "id": "UP-030",
+      "section": "Adjustments and filters",
+      "text": "Add Noise, Vignette, Bloom / Glow, Tonal Contrast, Lens Correction and Remove Background"
+    },
+    {
+      "id": "UP-031",
+      "section": "Adjustments and filters",
+      "text": "Live previews, limited to the selection when there is one"
+    },
+    {
+      "id": "UP-032",
+      "section": "Canvas and files",
+      "text": "Multiple projects in tabs"
+    },
+    {
+      "id": "UP-033",
+      "section": "Canvas and files",
+      "text": "A command palette (⌘F): search every menu command and tool by name, as in Raycast or Obsidian, and run it with Return"
+    },
+    {
+      "id": "UP-034",
+      "section": "Canvas and files",
+      "text": "Canvas Only (F): the canvas alone on black over the whole screen, with every panel put away; F again brings them back"
+    },
+    {
+      "id": "UP-035",
+      "section": "Canvas and files",
+      "text": "Rulers (⌘R), guides dragged from them, a layout grid with adjustable spacing and subdivisions, and Snap To for guides, grid, layers and document bounds"
+    },
+    {
+      "id": "UP-036",
+      "section": "Canvas and files",
+      "text": "Crop with snapping, ratios including 3:4 and 9:16, and Option for symmetric cropping; with a selection, the crop starts at it"
+    },
+    {
+      "id": "UP-037",
+      "section": "Canvas and files",
+      "text": "Canvas Size, Image Size and Trim"
+    },
+    {
+      "id": "UP-038",
+      "section": "Canvas and files",
+      "text": "Sharp high-quality downsampling when zoomed out, and a pixel grid when zoomed in"
+    },
+    {
+      "id": "UP-039",
+      "section": "Canvas and files",
+      "text": "Import JPEG, PNG, HEIC, TIFF, SVG, camera RAW (with a develop step first) and Photoshop PSD and PSB (8-bit RGB; not CMYK). Photoshop folders, masks, blend modes, fill rectangles/ellipses, and simple horizontal text stay editable; other vectors and vertical text become pixels. A conversion report is shown before anything is applied."
+    },
+    {
+      "id": "UP-040",
+      "section": "Canvas and files",
+      "text": "Large documents: the memory budget scales with your Mac, and a Photoshop file too big to open has its layers cropped to the canvas instead"
+    },
+    {
+      "id": "UP-041",
+      "section": "Canvas and files",
+      "text": "Export JPEG with a live preview (⇧⌥⌘S); Copy Merged"
+    },
+    {
+      "id": "UP-042",
+      "section": "Canvas and files",
+      "text": "Keep working while a project saves"
+    },
+    {
+      "id": "UP-043",
+      "section": "Canvas and files",
+      "text": "Photoshop-style keyboard shortcuts throughout, remappable in Edit > Keyboard Shortcuts"
+    },
+    {
+      "id": "UP-044",
+      "section": "Canvas and files",
+      "text": "Drag a number's label to scrub its value, as in Photoshop"
+    },
+    {
+      "id": "UP-045",
+      "section": "Canvas and files",
+      "text": "Automatic updates, signed and notarized"
+    },
+    {
+      "id": "UP-046",
+      "section": "Works with AI agents",
+      "text": "AI agents and scripts can build and edit projects directly: a `.comp` is a folder of PNG layers and a manifest, and an open project updates live as it's written. See [Writing Compositor projects](docs/writing-comp-files.md)"
+    },
+    {
+      "id": "UP-047",
+      "section": "Requirements",
+      "text": "macOS 26.0 or later on a Mac with Apple silicon"
+    },
+    {
+      "id": "UP-048",
+      "section": "Requirements",
+      "text": "Xcode 26 or later (to build from source)"
+    },
+    {
+      "id": "UP-049",
+      "section": "Releasing",
+      "text": "a **Developer ID Application** certificate in the login keychain"
+    },
+    {
+      "id": "UP-050",
+      "section": "Releasing",
+      "text": "notarization credentials saved with `xcrun notarytool store-credentials \"compositor-notary\" …`"
+    },
+    {
+      "id": "UP-051",
+      "section": "Releasing",
+      "text": "[`create-dmg`](https://github.com/create-dmg/create-dmg) (`brew install create-dmg`)"
+    }
+  ]
+}

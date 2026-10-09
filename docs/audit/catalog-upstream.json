@@ -1,0 +1,1730 @@
+{
+  "note": "菜单项是源码控件节点（包含动态标签/ForEach模板），不是运行时展开的菜单总数。快捷键已展开源码固定循环；用于逐条语义对照，不宣称运行了 macOS。",
+  "shortcuts": [
+    {
+      "id": "NKEY-001",
+      "title": "Undo",
+      "key": "z",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 75
+    },
+    {
+      "id": "NKEY-002",
+      "title": "Redo",
+      "key": "z",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 75
+    },
+    {
+      "id": "NKEY-003",
+      "title": "New Canvas",
+      "key": "n",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 76
+    },
+    {
+      "id": "NKEY-004",
+      "title": "Open Project",
+      "key": "o",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 76
+    },
+    {
+      "id": "NKEY-005",
+      "title": "Save",
+      "key": "s",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 77
+    },
+    {
+      "id": "NKEY-006",
+      "title": "Save As",
+      "key": "s",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 77
+    },
+    {
+      "id": "NKEY-007",
+      "title": "Export PNG",
+      "key": "e",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 78
+    },
+    {
+      "id": "NKEY-008",
+      "title": "Export JPEG",
+      "key": "s",
+      "bits": 11,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 78
+    },
+    {
+      "id": "NKEY-009",
+      "title": "Close Project",
+      "key": "w",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 79
+    },
+    {
+      "id": "NKEY-010",
+      "title": "Fit Canvas",
+      "key": "0",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 79
+    },
+    {
+      "id": "NKEY-011",
+      "title": "Command Palette",
+      "key": "f",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 79
+    },
+    {
+      "id": "NKEY-012",
+      "title": "Actual Pixels",
+      "key": "1",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 80
+    },
+    {
+      "id": "NKEY-013",
+      "title": "Zoom In",
+      "key": "=",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 80
+    },
+    {
+      "id": "NKEY-014",
+      "title": "Zoom Out",
+      "key": "-",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 81
+    },
+    {
+      "id": "NKEY-015",
+      "title": "Show Transform Controls",
+      "key": "h",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 81
+    },
+    {
+      "id": "NKEY-016",
+      "title": "Hide Compositor",
+      "key": "h",
+      "bits": 3,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 82
+    },
+    {
+      "id": "NKEY-017",
+      "title": "Cut",
+      "key": "x",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 82
+    },
+    {
+      "id": "NKEY-018",
+      "title": "Copy",
+      "key": "c",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 83
+    },
+    {
+      "id": "NKEY-019",
+      "title": "Copy Merged",
+      "key": "c",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 83
+    },
+    {
+      "id": "NKEY-020",
+      "title": "Paste",
+      "key": "v",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 84
+    },
+    {
+      "id": "NKEY-021",
+      "title": "Fill with Foreground",
+      "key": "",
+      "bits": 2,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 84
+    },
+    {
+      "id": "NKEY-022",
+      "title": "Fill with Background",
+      "key": "",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 85
+    },
+    {
+      "id": "NKEY-023",
+      "title": "Content-Aware Fill",
+      "key": "",
+      "bits": 8,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 85
+    },
+    {
+      "id": "NKEY-024",
+      "title": "Select All",
+      "key": "a",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 86
+    },
+    {
+      "id": "NKEY-025",
+      "title": "Deselect",
+      "key": "d",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 86
+    },
+    {
+      "id": "NKEY-026",
+      "title": "Inverse Selection",
+      "key": "i",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 87
+    },
+    {
+      "id": "NKEY-027",
+      "title": "Select Subject",
+      "key": "a",
+      "bits": 3,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 87
+    },
+    {
+      "id": "NKEY-028",
+      "title": "Curves",
+      "key": "m",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 88
+    },
+    {
+      "id": "NKEY-029",
+      "title": "Levels",
+      "key": "l",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 88
+    },
+    {
+      "id": "NKEY-030",
+      "title": "Hue/Saturation",
+      "key": "u",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 89
+    },
+    {
+      "id": "NKEY-031",
+      "title": "Invert Pixels / Mask",
+      "key": "i",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 89
+    },
+    {
+      "id": "NKEY-032",
+      "title": "Canvas Size",
+      "key": "c",
+      "bits": 3,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 90
+    },
+    {
+      "id": "NKEY-033",
+      "title": "Image Size",
+      "key": "i",
+      "bits": 3,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 90
+    },
+    {
+      "id": "NKEY-034",
+      "title": "Transform Layer / Selection",
+      "key": "t",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 91
+    },
+    {
+      "id": "NKEY-035",
+      "title": "Duplicate / Layer via Copy",
+      "key": "j",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 91
+    },
+    {
+      "id": "NKEY-036",
+      "title": "Toggle Clipping Mask",
+      "key": "g",
+      "bits": 3,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 92
+    },
+    {
+      "id": "NKEY-037",
+      "title": "Group Layers",
+      "key": "g",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 92
+    },
+    {
+      "id": "NKEY-038",
+      "title": "Ungroup Layers",
+      "key": "g",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 93
+    },
+    {
+      "id": "NKEY-039",
+      "title": "New Blank Layer",
+      "key": "n",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 94
+    },
+    {
+      "id": "NKEY-040",
+      "title": "Move Layer Up",
+      "key": "]",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 94
+    },
+    {
+      "id": "NKEY-041",
+      "title": "Move Layer Down",
+      "key": "[",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 95
+    },
+    {
+      "id": "NKEY-042",
+      "title": "Merge Layers",
+      "key": "e",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 95
+    },
+    {
+      "id": "NKEY-043",
+      "title": "Show Grid",
+      "key": "'",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 96
+    },
+    {
+      "id": "NKEY-044",
+      "title": "Show Guides",
+      "key": ";",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 96
+    },
+    {
+      "id": "NKEY-045",
+      "title": "Show Rulers",
+      "key": "r",
+      "bits": 1,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 97
+    },
+    {
+      "id": "NKEY-046",
+      "title": "Snap",
+      "key": ";",
+      "bits": 9,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 97
+    },
+    {
+      "id": "NKEY-047",
+      "title": "Lock Guides",
+      "key": ";",
+      "bits": 3,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 98
+    },
+    {
+      "id": "NKEY-048",
+      "title": "Decrease brush hardness",
+      "key": "[",
+      "bits": 8,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 111
+    },
+    {
+      "id": "NKEY-049",
+      "title": "Increase brush hardness",
+      "key": "]",
+      "bits": 8,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 111
+    },
+    {
+      "id": "NKEY-050",
+      "title": "Previous blend mode",
+      "key": "-",
+      "bits": 8,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 112
+    },
+    {
+      "id": "NKEY-051",
+      "title": "Next blend mode",
+      "key": "=",
+      "bits": 8,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 112
+    },
+    {
+      "id": "NKEY-052",
+      "title": "Cycle shape kind",
+      "key": "u",
+      "bits": 8,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-053",
+      "title": "Toggle Levels preview",
+      "key": "p",
+      "bits": 2,
+      "origin": "静态 entry",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 125
+    },
+    {
+      "id": "NKEY-054",
+      "title": "Canvas Only: full screen on black, without panels",
+      "key": "f",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-055",
+      "title": "Select tool",
+      "key": "a",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-056",
+      "title": "Move / Transform tool",
+      "key": "v",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-057",
+      "title": "Hand tool",
+      "key": "h",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-058",
+      "title": "Zoom tool",
+      "key": "z",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-059",
+      "title": "Brush tool",
+      "key": "b",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-060",
+      "title": "Eraser",
+      "key": "e",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-061",
+      "title": "Spot Healing",
+      "key": "j",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-062",
+      "title": "Clone Stamp",
+      "key": "s",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-063",
+      "title": "Type tool",
+      "key": "t",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-064",
+      "title": "Gradient tool",
+      "key": "g",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-065",
+      "title": "Shape tool",
+      "key": "u",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-066",
+      "title": "Eyedropper tool",
+      "key": "i",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-067",
+      "title": "Marquee / cycle shape",
+      "key": "m",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-068",
+      "title": "Magic",
+      "key": "w",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-069",
+      "title": "Lasso / cycle mode",
+      "key": "l",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-070",
+      "title": "Blur / Smudge / Liquify",
+      "key": "r",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-071",
+      "title": "Crop tool",
+      "key": "c",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-072",
+      "title": "Swap foreground/background",
+      "key": "x",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-073",
+      "title": "Reset colors",
+      "key": "d",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-074",
+      "title": "Cycle tool mode",
+      "key": "\t",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-075",
+      "title": "Temporary Hand tool (hold)",
+      "key": " ",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-076",
+      "title": "Delete selection / layer / effect / lasso point",
+      "key": "",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-077",
+      "title": "Apply current canvas operation",
+      "key": "\r",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-078",
+      "title": "Cancel current canvas operation",
+      "key": "\u001b",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-079",
+      "title": "Decrease brush size",
+      "key": "[",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-080",
+      "title": "Increase brush size",
+      "key": "]",
+      "bits": 0,
+      "origin": "工具/编辑操作固定列表",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 100
+    },
+    {
+      "id": "NKEY-081",
+      "title": "Opacity digit 0 (type two for exact %)",
+      "key": "0",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-082",
+      "title": "Opacity digit 1 (type two for exact %)",
+      "key": "1",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-083",
+      "title": "Opacity digit 2 (type two for exact %)",
+      "key": "2",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-084",
+      "title": "Opacity digit 3 (type two for exact %)",
+      "key": "3",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-085",
+      "title": "Opacity digit 4 (type two for exact %)",
+      "key": "4",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-086",
+      "title": "Opacity digit 5 (type two for exact %)",
+      "key": "5",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-087",
+      "title": "Opacity digit 6 (type two for exact %)",
+      "key": "6",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-088",
+      "title": "Opacity digit 7 (type two for exact %)",
+      "key": "7",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-089",
+      "title": "Opacity digit 8 (type two for exact %)",
+      "key": "8",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-090",
+      "title": "Opacity digit 9 (type two for exact %)",
+      "key": "9",
+      "bits": 0,
+      "origin": "0...9 循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 113
+    },
+    {
+      "id": "NKEY-091",
+      "title": "Nudge Left 1 px",
+      "key": "",
+      "bits": 0,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-092",
+      "title": "Nudge Left 10 px",
+      "key": "",
+      "bits": 8,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-093",
+      "title": "Move selected pixels Left 1 px",
+      "key": "",
+      "bits": 1,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-094",
+      "title": "Move selected pixels Left 10 px",
+      "key": "",
+      "bits": 9,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-095",
+      "title": "Nudge Right 1 px",
+      "key": "",
+      "bits": 0,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-096",
+      "title": "Nudge Right 10 px",
+      "key": "",
+      "bits": 8,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-097",
+      "title": "Move selected pixels Right 1 px",
+      "key": "",
+      "bits": 1,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-098",
+      "title": "Move selected pixels Right 10 px",
+      "key": "",
+      "bits": 9,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-099",
+      "title": "Nudge Up 1 px",
+      "key": "",
+      "bits": 0,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-100",
+      "title": "Nudge Up 10 px",
+      "key": "",
+      "bits": 8,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-101",
+      "title": "Move selected pixels Up 1 px",
+      "key": "",
+      "bits": 1,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-102",
+      "title": "Move selected pixels Up 10 px",
+      "key": "",
+      "bits": 9,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-103",
+      "title": "Nudge Down 1 px",
+      "key": "",
+      "bits": 0,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-104",
+      "title": "Nudge Down 10 px",
+      "key": "",
+      "bits": 8,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-105",
+      "title": "Move selected pixels Down 1 px",
+      "key": "",
+      "bits": 1,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-106",
+      "title": "Move selected pixels Down 10 px",
+      "key": "",
+      "bits": 9,
+      "origin": "方向键循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 114
+    },
+    {
+      "id": "NKEY-107",
+      "title": "Finish editing text",
+      "key": "\r",
+      "bits": 1,
+      "origin": "文字编辑",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 118
+    },
+    {
+      "id": "NKEY-108",
+      "title": "Decrease tracking",
+      "key": "",
+      "bits": 2,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    },
+    {
+      "id": "NKEY-109",
+      "title": "Decrease tracking by 10",
+      "key": "",
+      "bits": 10,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    },
+    {
+      "id": "NKEY-110",
+      "title": "Increase tracking",
+      "key": "",
+      "bits": 2,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    },
+    {
+      "id": "NKEY-111",
+      "title": "Increase tracking by 10",
+      "key": "",
+      "bits": 10,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    },
+    {
+      "id": "NKEY-112",
+      "title": "Decrease leading",
+      "key": "",
+      "bits": 2,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    },
+    {
+      "id": "NKEY-113",
+      "title": "Decrease leading by 10",
+      "key": "",
+      "bits": 10,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    },
+    {
+      "id": "NKEY-114",
+      "title": "Increase leading",
+      "key": "",
+      "bits": 2,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    },
+    {
+      "id": "NKEY-115",
+      "title": "Increase leading by 10",
+      "key": "",
+      "bits": 10,
+      "origin": "文字编辑循环",
+      "source": "Compositor/UI/KeyboardShortcuts.swift",
+      "line": 119
+    }
+  ],
+  "menuNodes": [
+    {
+      "id": "NATIVE-MENU-001",
+      "control": "Button",
+      "expression": "\"Undo\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 28,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-002",
+      "control": "Button",
+      "expression": "\"Redo\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 34,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-003",
+      "control": "Button",
+      "expression": "session.history.canUndo ? \"Undo \\(session.history.undoName)\" : \"Undo\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 41,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-004",
+      "control": "Button",
+      "expression": "session.history.canRedo ? \"Redo \\(session.history.redoName)\" : \"Redo\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 43,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-005",
+      "control": "Button",
+      "expression": "\"New Canvas…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 48,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-006",
+      "control": "Button",
+      "expression": "\"Open Project…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 53,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-007",
+      "control": "Button",
+      "expression": "url.deletingPathExtension().lastPathComponent",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 60,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-008",
+      "control": "Button",
+      "expression": "\"Clear Menu\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 66,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-009",
+      "control": "Button",
+      "expression": "\"Import Images…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 70,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-010",
+      "control": "Button",
+      "expression": "\"Save\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 74,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-011",
+      "control": "Button",
+      "expression": "\"Save As…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 76,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-012",
+      "control": "Button",
+      "expression": "\"Export PNG…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 80,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-013",
+      "control": "Button",
+      "expression": "\"Export JPEG…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 83,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-014",
+      "control": "Button",
+      "expression": "\"Close Project\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 87,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-015",
+      "control": "Button",
+      "expression": "\"Check for Updates…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 96,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-016",
+      "control": "Button",
+      "expression": "\"Command Palette…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 99,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-017",
+      "control": "Toggle",
+      "expression": "\"Canvas Only (F)\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 105,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-018",
+      "control": "Button",
+      "expression": "\"Fit Canvas\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 110,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-019",
+      "control": "Button",
+      "expression": "\"Actual Pixels\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 113,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-020",
+      "control": "Button",
+      "expression": "\"Zoom In\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 116,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-021",
+      "control": "Button",
+      "expression": "\"Zoom Out\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 121,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-022",
+      "control": "Toggle",
+      "expression": "\"Pixel Grid (800% and above)\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 126,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-023",
+      "control": "Toggle",
+      "expression": "\"Show Transform Controls\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 128,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-024",
+      "control": "Toggle",
+      "expression": "\"Grid\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 134,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-025",
+      "control": "Toggle",
+      "expression": "\"Guides\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 136,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-026",
+      "control": "Button",
+      "expression": "\"Grid Settings…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 139,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-027",
+      "control": "Toggle",
+      "expression": "\"Rulers\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 141,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-028",
+      "control": "Toggle",
+      "expression": "\"Snap\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 144,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-029",
+      "control": "Toggle",
+      "expression": "\"Guides\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 147,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-030",
+      "control": "Toggle",
+      "expression": "\"Grid\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 149,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-031",
+      "control": "Toggle",
+      "expression": "\"Layers\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 151,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-032",
+      "control": "Toggle",
+      "expression": "\"Document Bounds\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 153,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-033",
+      "control": "Toggle",
+      "expression": "\"Lock Guides\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 158,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-034",
+      "control": "Button",
+      "expression": "\"Clear Guides\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 160,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-035",
+      "control": "Button",
+      "expression": "\"Hide Compositor\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 167,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-036",
+      "control": "Button",
+      "expression": "\"Hide Others\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 168,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-037",
+      "control": "Button",
+      "expression": "\"Show All\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 170,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-038",
+      "control": "Button",
+      "expression": "\"Cut\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 178,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-039",
+      "control": "Button",
+      "expression": "\"Copy\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 184,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-040",
+      "control": "Button",
+      "expression": "\"Copy Merged\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 190,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-041",
+      "control": "Button",
+      "expression": "\"Paste\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 192,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-042",
+      "control": "Button",
+      "expression": "\"Keyboard Shortcuts…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 202,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-043",
+      "control": "Button",
+      "expression": "\"Fill with Foreground Color\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 204,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-044",
+      "control": "Button",
+      "expression": "\"Fill with Background Color\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 210,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-045",
+      "control": "Button",
+      "expression": "\"Clear Selection Pixels\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 216,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-046",
+      "control": "Button",
+      "expression": "\"Content-Aware Fill…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 218,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-047",
+      "control": "Button",
+      "expression": "\"All\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 225,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-048",
+      "control": "Button",
+      "expression": "\"Deselect\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 234,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-049",
+      "control": "Button",
+      "expression": "\"Inverse\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 236,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-050",
+      "control": "Button",
+      "expression": "\"Layer's Pixels\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 239,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-051",
+      "control": "Button",
+      "expression": "\"Subject\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 243,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-052",
+      "control": "Button",
+      "expression": "\"Color Range…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 246,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-053",
+      "control": "Button",
+      "expression": "\"Mask's Black Areas\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 248,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-054",
+      "control": "Button",
+      "expression": "\"Expand…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 253,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-055",
+      "control": "Button",
+      "expression": "\"Contract…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 255,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-056",
+      "control": "Button",
+      "expression": "\"Feather…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 257,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-057",
+      "control": "Button",
+      "expression": "\"Curves…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 261,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-058",
+      "control": "Button",
+      "expression": "\"Levels…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 263,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-059",
+      "control": "Button",
+      "expression": "\"Hue/Saturation…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 265,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-060",
+      "control": "Button",
+      "expression": "\"\\(kind.rawValue)…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 268,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-061",
+      "control": "Button",
+      "expression": "session.isMaskSelected ? \"Invert Mask\" : \"Invert\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 271,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-062",
+      "control": "Button",
+      "expression": "\"Canvas Size…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 275,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-063",
+      "control": "Button",
+      "expression": "\"Image Size…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 278,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-064",
+      "control": "Button",
+      "expression": "\"Trim…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 281,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-065",
+      "control": "Button",
+      "expression": "\"Rotate Canvas 90° Clockwise\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 285,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-066",
+      "control": "Button",
+      "expression": "\"Rotate Canvas 90° Counterclockwise\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 287,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-067",
+      "control": "Button",
+      "expression": "\"Flip Canvas Horizontal\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 289,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-068",
+      "control": "Button",
+      "expression": "\"Flip Canvas Vertical\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 291,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-069",
+      "control": "Button",
+      "expression": "\"\\(kind.rawValue)…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 297,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-070",
+      "control": "Button",
+      "expression": "kind.rawValue + (kind.isEditable ? \"…\" : \"\")",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 304,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-071",
+      "control": "Button",
+      "expression": "\"Edit Adjustment…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 307,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-072",
+      "control": "Button",
+      "expression": "session.canTransformSelection ? \"Transform Selection\" : \"Transform Layer\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 311,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-073",
+      "control": "Button",
+      "expression": "session.selection == nil ? \"Duplicate Layer\" : \"Layer via Copy\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 313,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-074",
+      "control": "Button",
+      "expression": "session.activeLayer?.maskSourceID == nil ? \"Create Clipping Mask\" : \"Release Clipping Mask\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 316,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-075",
+      "control": "Button",
+      "expression": "\"Group Selected Layers\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 322,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-076",
+      "control": "Button",
+      "expression": "\"Ungroup Layers\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 324,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-077",
+      "control": "Button",
+      "expression": "\"Move Out of Folder\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 326,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-078",
+      "control": "Button",
+      "expression": "\"New Blank Layer\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 328,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-079",
+      "control": "Button",
+      "expression": "\"Rename Layer…\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 330,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-080",
+      "control": "Button",
+      "expression": "session.activeLayer?.isVisible == false ? \"Show Layer\" : \"Hide Layer\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 332,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-081",
+      "control": "Button",
+      "expression": "\"Move Layer Up\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 336,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-082",
+      "control": "Button",
+      "expression": "\"Move Layer Down\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 338,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-083",
+      "control": "Button",
+      "expression": "session.mergeTitle",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 341,
+      "dynamic": true
+    },
+    {
+      "id": "NATIVE-MENU-084",
+      "control": "Button",
+      "expression": "\"Flip Layer Horizontal\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 344,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-085",
+      "control": "Button",
+      "expression": "\"Flip Layer Vertical\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 346,
+      "dynamic": false
+    },
+    {
+      "id": "NATIVE-MENU-086",
+      "control": "Button",
+      "expression": "session.selectedEffect != nil ? \"Delete \" + session.selectedEffect!.kind.rawValue : session.isMaskSelected && session.activeLayer?.mask != nil ? \"Delete Layer Mask\" : session.selectedLayerIDs.count > 1 ? \"Delete Layers\" : \"Delete Layer\"",
+      "source": "Compositor/CompositorApp.swift",
+      "line": 350,
+      "dynamic": true
+    }
+  ]
+}

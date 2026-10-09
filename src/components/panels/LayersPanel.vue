@@ -47,9 +47,12 @@ function thumbnail(layer: Layer): string {
 
 const renaming = ref<string | null>(null);
 const renameText = ref('');
-const selectedIds = ref<string[]>([]);
+const selectedIds = computed<string[]>({
+  get:()=>currentDocument.value?.selectedLayerIds??[],
+  set:ids=>{if(currentDocument.value)currentDocument.value.selectedLayerIds=ids;},
+});
 // 文档切换或撤销删除后丢弃失效选择，不让旧文档 ID 影响新文档。
-watch(() => currentDocument.value?.id, () => { selectedIds.value = []; });
+
 watch(() => currentDocument.value?.layers.map(layer => layer.id), ids => {
   selectedIds.value = selectedIds.value.filter(id => ids?.includes(id));
 });
@@ -108,6 +111,7 @@ function runOnRow(layer: Layer, command: string): void {
   if (!currentDocument.value?.layers.some(item => item.id === layer.id)) return;
   currentDocument.value.activeLayerId = layer.id;
   selectedIds.value = [layer.id];
+  if(command==='deleteLayer'&&layer.mask)layer.mask.target='image';
   void commands.run(command);
 }
 function toggleVisibility(layer: Layer): void {
@@ -141,7 +145,8 @@ function onDragStart(event: DragEvent, layer: Layer): void {
   const duplicate = event.altKey;
   dragging.value = { ids, duplicate };
   if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = duplicate ? 'copy' : 'move';
+    event.dataTransfer.effectAllowed = 'copyMove';
+    event.dataTransfer.setData('application/x-compositor-layers',JSON.stringify({documentId:document.id,ids}));
     event.dataTransfer.setData('text/plain', ids.join(','));
   }
 }
@@ -213,10 +218,14 @@ function onDragEnd(): void {
 function isDragging(layer: Layer): boolean {
   return dragging.value?.ids.includes(layer.id) ?? false;
 }
+const context=ref<{x:number;y:number;id:string}|null>(null);
+function openContext(event:MouseEvent,layer:Layer){select(layer,event);context.value={x:event.clientX,y:event.clientY,id:layer.id};}
+function contextRun(command:string){const id=context.value?.id;context.value=null;const layer=currentDocument.value?.layers.find(l=>l.id===id);if(layer)runOnRow(layer,command);}
 </script>
 
 <template>
   <div class="layers-panel">
+    <div v-if="context" class="layer-context el-dropdown-menu" role="menu" :style="{position:'fixed',left:context.x+'px',top:context.y+'px',zIndex:3000}" @mouseleave="context=null"><button v-for="[cmd,label] in [['duplicateLayer','复制图层'],['toggleLock','锁定/解锁'],['addMask','添加蒙版'],['deleteMask','删除蒙版'],['ungroup','取消编组'],['mergeGroup','合并组'],['deleteLayer','删除图层']]" :key="cmd" @click="contextRun(cmd!)">{{label}}</button></div>
     <div class="panel-bar">
       <el-button size="small" text @click="commands.run('newLayer')">新建</el-button>
       <el-button size="small" text @click="commands.run('duplicateLayer')">复制</el-button>
@@ -248,6 +257,7 @@ function isDragging(layer: Layer): boolean {
         draggable="true"
         @click="select(row.layer, $event)"
         @dblclick="startRename(row.layer)"
+        @contextmenu.prevent="openContext($event,row.layer)"
         @dragstart="onDragStart($event, row.layer)"
         @dragover.prevent="onDragOver($event, row.layer)"
         @dragleave="onDragLeave"
@@ -257,6 +267,7 @@ function isDragging(layer: Layer): boolean {
         <button class="icon-btn" @click.stop="toggleVisibility(row.layer)">
           {{ row.layer.isVisible ? '👁' : '—' }}
         </button>
+        <button class="icon-btn" :title="row.layer.locked?'解锁':'锁定'" @click.stop="runOnRow(row.layer,'toggleLock')">{{row.layer.locked?'🔒':'○'}}</button>
         <button v-if="row.layer.kind === 'group'" class="icon-btn" @click.stop="row.layer.expanded = !row.layer.expanded">
           {{ row.layer.expanded ? '▾' : '▸' }}
         </button>
@@ -448,3 +459,5 @@ function isDragging(layer: Layer): boolean {
   font-size: 12px;
 }
 </style>
+
+<style scoped>.layer-context{display:grid;padding:5px;min-width:140px;background:var(--cmp-panel);box-shadow:0 4px 18px #0006}.layer-context button{background:transparent;color:var(--cmp-text);border:0;padding:7px;text-align:left;cursor:pointer}.layer-context button:hover{background:var(--cmp-panel-2)}</style>

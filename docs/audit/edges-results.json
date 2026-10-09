@@ -1,0 +1,3134 @@
+[
+  {
+    "id": "EDGE-eyedropper-layer-size",
+    "title": "吸管当前图层取样也应按取样大小平均",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "one": [
+      0,
+      200,
+      0
+    ],
+    "nine": [
+      0,
+      200,
+      0
+    ],
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-eyedropper-layer-transform",
+    "title": "吸管当前图层取样正确映射缩放图层坐标",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "actual": [
+      110,
+      115,
+      145
+    ],
+    "expected": [
+      206,
+      223,
+      97
+    ],
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-snap-layer-edge",
+    "title": "移动时图层边缘靠近参考线应吸附，不只检测鼠标点",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "origin": [
+      28,
+      16
+    ],
+    "rightEdge": 60,
+    "expectedEdge": 61,
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-snap-scaled-target",
+    "title": "缩放后的目标层边缘坐标不可再次缩放",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "point": {
+      "x": 55.5,
+      "y": 60
+    },
+    "expectedX": 56,
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-history-jump",
+    "title": "点击历史列表较早条目跳转到该历史状态",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "entries": 4,
+    "historyAfterClick": 2,
+    "expected": 0,
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-colors-swap-button",
+    "title": "颜色面板交换按钮保留原来的两种颜色",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "before": {
+      "fg": [
+        0,
+        255,
+        0
+      ],
+      "bg": [
+        0,
+        0,
+        255
+      ]
+    },
+    "after": {
+      "fg": [
+        0,
+        0,
+        255
+      ],
+      "bg": [
+        0,
+        0,
+        0
+      ]
+    },
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-colors-hex-sync",
+    "title": "吸管/快捷键修改前景色后 HEX 输入显示同步",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "hex": "00ff00",
+    "color": [
+      0,
+      0,
+      255
+    ],
+    "expected": "#0000ff",
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-chinese-anchor",
+    "title": "画布锚点选择项已中文化",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "labels": [
+      "top-left",
+      "top",
+      "top-right",
+      "left",
+      "center",
+      "right",
+      "bottom-left",
+      "bottom",
+      "bottom-right"
+    ],
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-merge-group-key",
+    "title": "Ctrl+E 选中组时合并整个组",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": [
+      "pixel",
+      "pixel",
+      "group"
+    ],
+    "after": [
+      "pixel"
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "EDGE-lock-guides",
+    "title": "Ctrl+Alt+; 切换参考线锁定",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "status": "未实现",
+    "fields": {
+      "snap": {
+        "guides": true,
+        "grid": false,
+        "layers": true,
+        "document": true
+      },
+      "guideKeys": []
+    },
+    "note": "没有参考线锁定模型/命令/快捷键；不把图层 locked 当作参考线锁定。"
+  },
+  {
+    "id": "EDGE-shortcut-conflict",
+    "title": "快捷键冲突应阻止/明确选择，不保存后静默遮蔽",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "warning": "brush 工具",
+    "saved": {
+      "key": "b",
+      "ctrl": false,
+      "shift": false,
+      "alt": false
+    },
+    "matched": "tool.brush",
+    "note": "当前允许冲突保存，提示“两条命令会同时触发”，但 findShortcut 只返回第一条。",
+    "status": "失败"
+  },
+  {
+    "id": "CMD-toggleVisibility",
+    "title": "命令合同 / toggleVisibility",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "a366f699-cfcb-45a7-b480-45b34e8e0266",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "051f1b3e-02af-4c07-b8d9-e6858628c04f",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "a366f699-cfcb-45a7-b480-45b34e8e0266",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "051f1b3e-02af-4c07-b8d9-e6858628c04f",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": false,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "57947dc5",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-toggleLock",
+    "title": "命令合同 / toggleLock",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "cf84334a-bb50-4ba9-b500-831f1fae7674",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "eb4f7856-9829-42dd-a21c-7bec33c68d44",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "cf84334a-bb50-4ba9-b500-831f1fae7674",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "eb4f7856-9829-42dd-a21c-7bec33c68d44",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-mergeSelection",
+    "title": "命令合同 / mergeSelection",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "3b98d729-0776-4511-bfd6-0cd75396d216",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "7e01b9d5-bee3-41be-aaef-b4b7750d9125",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "e3a2ba65-912e-419f-87c4-a96e4f70ed81",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "High quality",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "a4916eb",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-mergeGroup",
+    "title": "命令合同 / mergeGroup",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "347e83a9-da81-4320-8afa-11601f57a41b",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": "55fabe5b-e3c4-4786-b133-6c007632678f",
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "b7827c3a-9c7b-4567-bd49-80152882b7f6",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": "55fabe5b-e3c4-4786-b133-6c007632678f",
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "55fabe5b-e3c4-4786-b133-6c007632678f",
+          "kind": "group",
+          "name": "组",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              1,
+              1
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "High quality",
+            "warp": null
+          },
+          "pixels": null,
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "90f462ef-d115-4422-9c16-2e25427ab475",
+          "kind": "pixel",
+          "name": "组",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "High quality",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "a4916eb",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-deleteMask",
+    "title": "命令合同 / deleteMask",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "c3c20df2-ec29-4a61-84ce-899467ed6811",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "a2d07b1d-4572-4533-8aef-0575d4565d5d",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": {
+            "hash": "422f51c5",
+            "enabled": true,
+            "target": "mask"
+          },
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "c3c20df2-ec29-4a61-84ce-899467ed6811",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "a2d07b1d-4572-4533-8aef-0575d4565d5d",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-toggleMask",
+    "title": "命令合同 / toggleMask",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "2725b076-2cc3-4bea-8409-207293d0f140",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "f9f95226-78a8-45e9-a359-4f6157475a38",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": {
+            "hash": "422f51c5",
+            "enabled": true,
+            "target": "mask"
+          },
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "2725b076-2cc3-4bea-8409-207293d0f140",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "f9f95226-78a8-45e9-a359-4f6157475a38",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": {
+            "hash": "422f51c5",
+            "enabled": false,
+            "target": "mask"
+          },
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-maskTarget",
+    "title": "命令合同 / maskTarget",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "1e2e8a12-0dbf-4376-a8f3-d1862df34360",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "5d48b6f3-5dbd-4ea7-bebb-40a564aced1c",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": {
+            "hash": "422f51c5",
+            "enabled": true,
+            "target": "mask"
+          },
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "1e2e8a12-0dbf-4376-a8f3-d1862df34360",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "5d48b6f3-5dbd-4ea7-bebb-40a564aced1c",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": {
+            "hash": "422f51c5",
+            "enabled": true,
+            "target": "image"
+          },
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-wandSelect",
+    "title": "命令合同 / wandSelect",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "a39a62d1-d549-4b86-b6b2-efd0ca9a605f",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "81a2c1a3-42ba-4f29-9265-f712c032397e",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": {
+        "width": 64,
+        "height": 64,
+        "hash": "84ba7e",
+        "gray": false,
+        "count": 163
+      },
+      "layers": [
+        {
+          "id": "a39a62d1-d549-4b86-b6b2-efd0ca9a605f",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "81a2c1a3-42ba-4f29-9265-f712c032397e",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-transformSelection",
+    "title": "命令合同 / transformSelection",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": {
+        "width": 64,
+        "height": 64,
+        "hash": "e05e138a",
+        "gray": false,
+        "count": 1
+      },
+      "layers": [
+        {
+          "id": "d8391234-ad5a-405f-9a93-a2481c978fca",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "5ac19b60-9742-4a6d-a2d8-b1d879d317d8",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": {
+        "width": 64,
+        "height": 64,
+        "hash": "cf7b7232",
+        "gray": false,
+        "count": 1
+      },
+      "layers": [
+        {
+          "id": "d8391234-ad5a-405f-9a93-a2481c978fca",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "5ac19b60-9742-4a6d-a2d8-b1d879d317d8",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-copyLayer",
+    "title": "命令合同 / copyLayer",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "c731e25c-5a82-41f2-bcac-487749c7ccb8",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "f3de7e65-e875-4752-80b9-b94b8f7670e7",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "c731e25c-5a82-41f2-bcac-487749c7ccb8",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "f3de7e65-e875-4752-80b9-b94b8f7670e7",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "38668559-5ffd-4c8e-a186-c1334fe34459",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已复制"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-openRecent",
+    "title": "命令合同 / openRecent",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "d9da3e5e-4d63-4dd5-b88e-bc2b54764401",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "69224d01-f015-46f2-b622-be44a2f6cefb",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "a4916eb",
+        "visible": 4096,
+        "first": [
+          20,
+          40,
+          70,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 2,
+      "width": 16,
+      "height": 16,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 16,
+        "centerX": 8,
+        "centerY": 8
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "11111111-1111-4111-8111-111111111111",
+          "kind": "pixel",
+          "name": "参考层",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              16,
+              16
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 16,
+            "height": 16,
+            "hash": "f8435c5",
+            "visible": 256,
+            "first": [
+              200,
+              60,
+              20,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 16,
+        "height": 16,
+        "hash": "f8435c5",
+        "visible": 256,
+        "first": [
+          200,
+          60,
+          20,
+          255
+        ]
+      },
+      "dialog": null,
+      "status": "已打开工程 project.comp"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-applyRawDevelop",
+    "title": "命令合同 / applyRawDevelop",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": false,
+      "history": -1,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "b67c1e4e-7614-4485-9991-2ee5b54c26e1",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "3a69ad35-aec9-4d3a-9ce0-f2f4944dc849",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "2d50a913-a950-4c65-9e7b-763f0d24da43",
+          "kind": "pixel",
+          "name": "RAW · 未知相机",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              16,
+              16
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "High quality",
+            "warp": null
+          },
+          "pixels": {
+            "width": 16,
+            "height": 16,
+            "hash": "688335c5",
+            "visible": 256,
+            "first": [
+              255,
+              0,
+              0,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "b82818eb",
+        "visible": 4096,
+        "first": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      "dialog": "rawDevelop",
+      "status": "已打开 验收临时工程"
+    },
+    "after": {
+      "documents": 1,
+      "width": 64,
+      "height": 64,
+      "dirty": true,
+      "history": 0,
+      "tool": "move",
+      "viewport": {
+        "zoom": 10.421875,
+        "centerX": 32,
+        "centerY": 32
+      },
+      "selection": null,
+      "layers": [
+        {
+          "id": "b67c1e4e-7614-4485-9991-2ee5b54c26e1",
+          "kind": "pixel",
+          "name": "背景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              64,
+              64
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 64,
+            "height": 64,
+            "hash": "57947dc5",
+            "visible": 4096,
+            "first": [
+              20,
+              40,
+              70,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "3a69ad35-aec9-4d3a-9ce0-f2f4944dc849",
+          "kind": "pixel",
+          "name": "前景",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              16,
+              16
+            ],
+            "size": [
+              32,
+              32
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "Nearest",
+            "warp": null
+          },
+          "pixels": {
+            "width": 32,
+            "height": 32,
+            "hash": "df42a16b",
+            "visible": 1024,
+            "first": [
+              30,
+              25,
+              35,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        },
+        {
+          "id": "2d50a913-a950-4c65-9e7b-763f0d24da43",
+          "kind": "pixel",
+          "name": "RAW · 未知相机",
+          "visible": true,
+          "opacity": 1,
+          "parent": null,
+          "clipping": false,
+          "transform": {
+            "origin": [
+              0,
+              0
+            ],
+            "size": [
+              16,
+              16
+            ],
+            "rotation": 0,
+            "flipX": false,
+            "flipY": false,
+            "sampling": "High quality",
+            "warp": null
+          },
+          "pixels": {
+            "width": 16,
+            "height": 16,
+            "hash": "88d15c5",
+            "visible": 256,
+            "first": [
+              128,
+              0,
+              0,
+              255
+            ]
+          },
+          "mask": null,
+          "text": null,
+          "effects": null,
+          "adjustment": null
+        }
+      ],
+      "composite": {
+        "width": 64,
+        "height": 64,
+        "hash": "351d00eb",
+        "visible": 4096,
+        "first": [
+          128,
+          0,
+          0,
+          255
+        ]
+      },
+      "dialog": "rawDevelop",
+      "status": "已打开 验收临时工程"
+    },
+    "status": "通过"
+  },
+  {
+    "id": "CMD-unwatchComp",
+    "title": "停止工程监视后不再读取目录",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": 3,
+    "after": 3,
+    "status": "通过"
+  },
+  {
+    "id": "CMD-flattenClipboard",
+    "title": "flattenClipboard 命令有实际实现",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "status": "未实现",
+    "empty": true,
+    "note": "无界面绑定的空分支；不是一个可宣称完成的功能。"
+  },
+  {
+    "id": "EDGE-global-color-picker",
+    "title": "前景色色块可打开完整颜色选择器",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "status": "未实现",
+    "visible": 0,
+    "note": "主颜色面板只有 HEX 输入。文字工具的颜色控件有选择器，但并非全局前景色入口。"
+  },
+  {
+    "id": "EDGE-merge-multi-key",
+    "title": "Ctrl+E 合并非相邻多选层而不吞掉未选中层",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "middleId": "3ffdacee-0722-4b8d-bf5b-b7345166de53",
+    "layers": [
+      {
+        "id": "82a08009-eed3-4e7e-93f2-18208b1af793",
+        "name": "背景"
+      },
+      {
+        "id": "d9cf1df9-8f92-44b3-a338-329daf02acff",
+        "name": "第三层"
+      }
+    ],
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-temporary-hand",
+    "title": "空格临时抓手平移且不绘画，松开保留原工具",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "before": {
+      "zoom": 10.421875,
+      "centerX": 32,
+      "centerY": 32
+    },
+    "after": {
+      "zoom": 10.421875,
+      "centerX": 20,
+      "centerY": 24
+    },
+    "tool": "brush",
+    "status": "通过"
+  },
+  {
+    "id": "EDGE-crop-selection",
+    "title": "切换裁剪时采用已有选区边界，Enter 应用",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "size": [
+      20,
+      20
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "EDGE-crop-symmetric",
+    "title": "Alt 裁剪以起点为中心对称扩展",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "actual": [
+      14,
+      16
+    ],
+    "expected": [
+      28,
+      32
+    ],
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-crop-snap",
+    "title": "裁剪框靠近参考线时吸附",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "actualWidth": 21,
+    "expectedWidth": 22,
+    "status": "失败"
+  },
+  {
+    "id": "EDGE-crop-cancel",
+    "title": "Escape 取消裁剪，再按 Enter 不改变画布",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": true,
+    "size": [
+      64,
+      64
+    ],
+    "status": "通过"
+  },
+  {
+    "id": "EDGE-selection-booleans",
+    "title": "框选替换、Shift加选、Alt减选、Shift+Alt交集",
+    "kind": "edge",
+    "scope": "独立 Chromium；真实 UI 或业务 API，宿主文件服务为内存替身",
+    "pass": false,
+    "counts": [
+      100,
+      150,
+      70,
+      0
+    ],
+    "expected": [
+      100,
+      150,
+      80,
+      50
+    ],
+    "status": "失败"
+  }
+]

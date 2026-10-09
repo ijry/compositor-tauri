@@ -1,0 +1,52 @@
+[
+  {
+    "id": "FLOW-start-openPsd",
+    "replacement": [
+      "PSD报告先确认才打开文档，关闭报告不导入"
+    ],
+    "reason": "原脚本期望导入立即创建文档；本轮按上游修正为先报告、后确认。常规CI已经覆盖确认与取消。"
+  },
+  {
+    "id": "FLOW-jpeg-format",
+    "replacement": [
+      "UI-jpeg"
+    ],
+    "reason": "改用上游Ctrl+Shift+Alt+S，并等待编码预览完成；原脚本使用旧的Ctrl+Alt+S和隐藏DOM选中节点。"
+  },
+  {
+    "id": "FLOW-filter-preview",
+    "replacement": [
+      "UI-filter-preview",
+      "滤镜预览不修改源，取消无历史，应用后可撤销"
+    ],
+    "reason": "菜单改为openFilter会话；底层直接算法命令保留给脚本/API。新测试实际点击菜单验证预览与取消。"
+  },
+  {
+    "id": "PARITY-raw-filter-entry",
+    "replacement": [
+      "UI-raw-filter"
+    ],
+    "reason": "原静态用例只读取修复前catalog-static.json，新的用例实际点击当前菜单。"
+  },
+  {
+    "id": "PARITY-pixel-grid-toggle",
+    "replacement": [
+      "UI-pixel-grid"
+    ],
+    "reason": "原静态用例读取旧菜单清单，新的用例验证当前菜单开关与状态变化。"
+  },
+  {
+    "id": "EDGE-lock-guides",
+    "replacement": [
+      "UI-guides-lock"
+    ],
+    "reason": "原用例硬编码返回未实现；新用例实际锁定、拖动、解锁、再拖动。"
+  },
+  {
+    "id": "CMD-flattenClipboard",
+    "replacement": [
+      "UI-clipboard-flatten"
+    ],
+    "reason": "原静态用例在分支不为空时仅返回未验证，新用例检查真实合并像素载荷。"
+  }
+]

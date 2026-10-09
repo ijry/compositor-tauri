@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** 历史 / 颜色 / 信息面板 */
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { api, commands, currentDocument, currentHistory, historyTick } from '@/composables/useEditor';
 import { toHex } from '@/core/color';
 
@@ -15,6 +15,9 @@ const position = computed(() => {
 });
 
 const hex = ref(toHex(...api.foreground));
+watch(()=>api.foreground.join(','),()=>{hex.value=toHex(...api.foreground);});
+function jump(index:number){const history=currentHistory();if(!history)return;while(history.position>index)commands.run('undo');while(history.position<index)commands.run('redo');}
+function swap(){const color=[...api.foreground] as [number,number,number];api.setForeground([...api.background]);api.setBackground(color);}
 /** 应用十六进制前景色 */
 function applyHex(value: string): void {
   const clean = value.replace('#', '').trim();
@@ -49,7 +52,7 @@ const stats = computed(() => {
           :key="index"
           class="entry"
           :class="{ current: index === position }"
-          @click="index < position ? commands.run('undo') : commands.run('redo')"
+          @click="jump(index)"
         >
           {{ entry.label }}
         </button>
@@ -59,10 +62,10 @@ const stats = computed(() => {
     <div class="block">
       <h4>颜色</h4>
       <div class="row">
-        <span class="chip fg" :style="{ background: `rgb(${api.foreground.join(',')})` }" />
-        <el-input size="small" v-model="hex" style="width: 92px" @change="applyHex" @blur="applyHex" />
+        <el-color-picker class="chip fg" :model-value="'#'+hex.replace('#','')" color-format="hex" @change="(value:string|null)=>value&&applyHex(value)" />
+        <el-input size="small" v-model="hex" style="width: 92px" @change="applyHex" @blur="applyHex(hex)" />
         <span class="chip bg" :style="{ background: `rgb(${api.background.join(',')})` }" />
-        <el-button size="small" text @click="api.setForeground(api.background); api.setBackground([0, 0, 0])">交换 (X)</el-button>
+        <el-button size="small" text @click="swap">交换 (X)</el-button>
       </div>
     </div>
     <div class="block">

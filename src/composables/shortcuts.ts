@@ -8,7 +8,7 @@
 import { reactive } from 'vue';
 import { loadState, saveState } from '@/platform/host';
 import type { EditorApi } from '@/types/editor';
-import { openDialog, setTool, toggleUi, zoomStep, actualPixels, fitCanvas } from '@/composables/useEditor';
+import { openDialog, setTool, activateShortcutTool, cycleCurrentTool, api as editorApi, toggleUi, zoomStep, actualPixels, fitCanvas } from '@/composables/useEditor';
 import { commands } from '@/composables/useEditor';
 import { getTool, TOOL_SHORTCUTS } from '@/tools';
 
@@ -75,7 +75,7 @@ export function chordLabel(chord: ShortcutChord): string {
 
 /** 由键盘事件生成按键组合（用于匹配与录制） */
 export function chordFromEvent(event: KeyboardEvent): ShortcutChord {
-  let key = event.key;
+  let key = ({':':';','{':'[','}':']','+':'=','_':'-'} as Record<string,string>)[event.key]??event.key;
   if (key === ' ') key = 'Space';
   if (key.length === 1) key = key.toLowerCase();
   return {
@@ -101,7 +101,7 @@ function buildDefaults(): ShortcutItem[] {
 
   /* 工具（单键，无修饰） */
   for (const [key, tool] of Object.entries(TOOL_SHORTCUTS)) {
-    push(`tool.${tool}`, '工具', `${tool} 工具`, key, {}, () => setTool(tool));
+    push(`tool.${tool}`, '工具', `${getTool(tool)?.name??tool}工具`, key, {}, () => activateShortcutTool(tool));
   }
 
   /* 文件 */
@@ -111,7 +111,7 @@ function buildDefaults(): ShortcutItem[] {
   push('file.save', '文件', '保存工程', 's', { ctrl: true }, () => commands.run('saveComp'));
   push('file.saveAs', '文件', '另存为…', 's', { ctrl: true, shift: true }, () => commands.run('saveCompAs'));
   push('file.exportPng', '文件', '导出 PNG', 'e', { ctrl: true, shift: true }, () => openDialog('exportDialog', { format: 'png' }));
-  push('file.exportJpeg', '文件', '导出 JPEG', 's', { ctrl: true, alt: true }, () => openDialog('exportDialog', { format: 'jpeg' }));
+  push('file.exportJpeg', '文件', '导出 JPEG', 's', { ctrl: true, alt: true, shift:true }, () => openDialog('exportDialog', { format: 'jpeg' }));
   push('file.close', '文件', '关闭文档', 'w', { ctrl: true }, () => commands.run('closeDocument'));
 
   /* 编辑 */
@@ -123,8 +123,8 @@ function buildDefaults(): ShortcutItem[] {
   push('edit.paste', '编辑', '粘贴', 'v', { ctrl: true }, () => commands.run('paste'));
   push('edit.fillForeground', '编辑', '填充前景色', 'Delete', { alt: true }, () => commands.run('fillForeground'));
   push('edit.fillBackground', '编辑', '填充背景色', 'Delete', { ctrl: true }, () => commands.run('fillBackground'));
-  push('edit.clear', '编辑', '清除选区内容', 'Delete', { shift: true }, () => commands.run('clearSelection'));
-  push('edit.contentAware', '编辑', '内容识别填充', 'Delete', { ctrl: true, shift: true }, () => commands.run('contentAwareFill'));
+  push('edit.clear', '编辑', '清除选区内容', 'Delete', {ctrl:true,shift: true}, () => commands.run('clearSelection'));
+  push('edit.contentAware', '编辑', '内容识别填充', 'Delete', {shift:true}, () => commands.run('openFilter','contentAwareFill'));
 
   /* 画布 */
   push('canvas.size', '画布', '画布大小…', 'c', { ctrl: true, alt: true }, () => openDialog('canvasSize'));
@@ -137,11 +137,11 @@ function buildDefaults(): ShortcutItem[] {
   push('select.subject', '选择', '选择主体', 'a', { ctrl: true, alt: true }, () => commands.run('selectSubject'));
 
   /* 调整 */
-  push('adjust.curves', '调整', '曲线调整层', 'm', { ctrl: true }, () => commands.run('addAdjustment', 'Curves'));
-  push('adjust.levels', '调整', '色阶调整层', 'l', { ctrl: true }, () => commands.run('addAdjustment', 'Levels'));
-  push('adjust.hueSaturation', '调整', '色相/饱和度调整层', 'u', { ctrl: true }, () => commands.run('addAdjustment', 'Hue/Saturation'));
+  push('adjust.curves', '调整', '曲线调整层', 'm', { ctrl: true }, () => commands.run('openFilter','Curves'));
+  push('adjust.levels', '调整', '色阶调整层', 'l', { ctrl: true }, () => commands.run('openFilter','Levels'));
+  push('adjust.hueSaturation', '调整', '色相/饱和度调整层', 'u', { ctrl: true }, () => commands.run('openFilter','Hue/Saturation'));
   push('adjust.invertPixels', '调整', '反相像素 / 蒙版', 'i', { ctrl: true }, () => commands.run('invertPixels'));
-  push('adjust.invertLayer', '调整', '反相调整层', 't', { ctrl: true }, () => commands.run('addAdjustment', 'Invert'));
+  push('layer.transform', '图层', '自由变换', 't', {ctrl:true},()=>setTool('move'));
 
   /* 图层 */
   push('layer.duplicate', '图层', '复制图层', 'j', { ctrl: true }, () => commands.run('duplicateLayer'));
@@ -174,6 +174,16 @@ function buildDefaults(): ShortcutItem[] {
   /* 帮助 */
   push('help.shortcuts', '帮助', '键盘快捷键…', 'k', { ctrl: true }, () => openDialog('shortcuts'));
 
+  push('view.commandPalette','视图','搜索命令','f',{ctrl:true},()=>openDialog('commandPalette'));
+  push('view.canvasOnly','视图','仅画布','f',{},()=>{editorApi.ui.canvasOnly=!editorApi.ui.canvasOnly;editorApi.invalidate();});
+  push('view.lockGuides','视图','锁定参考线',';',{ctrl:true,alt:true},()=>{editorApi.doc.guidesLocked=!editorApi.doc.guidesLocked;editorApi.invalidate();});
+  push('tool.cycle','工具','循环工具模式','Tab',{},()=>cycleCurrentTool());
+  push('tool.cycleBack','工具','反向循环工具模式','Tab',{shift:true},()=>cycleCurrentTool(-1));
+  push('shape.cycle','工具','循环形状','u',{shift:true},()=>{setTool('shape');cycleCurrentTool();});
+  push('layer.delete','图层','删除目标','Delete',{},()=>commands.run('deleteLayer'));
+  push('blend.previous','图层','上一个混合模式','-',{shift:true},()=>commands.run('cycleBlend',-1));
+  push('blend.next','图层','下一个混合模式','=',{shift:true},()=>commands.run('cycleBlend',1));
+
   return items;
 }
 
@@ -191,9 +201,9 @@ function nudgeBrush(direction: number): void {
 function nudgeHardness(delta: number): void {
   const api = getApi();
   if (!api) return;
-  const current = api.option<number>('hardness', 70);
-  api.setToolOption('hardness', Math.max(0, Math.min(100, current + delta)));
-  api.status(`画笔硬度：${Math.max(0, Math.min(100, current + delta))}%`);
+  const current = api.option<number>('hardness', 0.7);
+  api.setToolOption('hardness', Math.max(0, Math.min(1, current + delta/100)));
+  api.status(`画笔硬度：${Math.round(Math.max(0,Math.min(1,current+delta/100))*100)}%`);
 }
 
 /** 交换前景 / 背景色 */
@@ -258,9 +268,10 @@ export function setShortcut(id: string, chord: ShortcutChord): string | null {
   const target = shortcutItems.find((item) => item.id === id);
   if (!target) return null;
   const conflict = shortcutItems.find((item) => item.id !== id && sameChord(item.chord, chord));
+  if(conflict)return conflict.title;
   target.chord = { ...chord };
   persist();
-  return conflict ? conflict.title : null;
+  return null;
 }
 
 /** 恢复单条默认 */

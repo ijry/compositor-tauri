@@ -1,0 +1,1715 @@
+[
+  {
+    "id": "ISSUE-001",
+    "title": "保存工程时图层 ID 可逃逸暂存目录",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "SECURITY-id-path",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-002",
+    "title": "原版 Curves / Gradient Map 工程字段未转换，合成报错",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "COMP-native-Curves",
+        "status": "通过",
+        "file": "formats-results.json"
+      },
+      {
+        "id": "COMP-native-Gradient Map",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-003",
+    "title": "形状保存不满足上游 UUID/ShapeKind/颜色字段约定",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "COMP-shape-native-save",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-004",
+    "title": "上游显式剪贴来源被改成相邻层",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "COMP-exact-clipping-source",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-005",
+    "title": "工程变换尺寸缺少资源上限校验",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "VALIDATION-oversized-transform",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-006",
+    "title": "PSD 导出/再导入丢失旋转、独立/组蒙版、效果和可编辑文字",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PSD-roundtrip-rotation",
+        "status": "通过",
+        "file": "formats-results.json"
+      },
+      {
+        "id": "PSD-roundtrip-placed-mask",
+        "status": "通过",
+        "file": "formats-results.json"
+      },
+      {
+        "id": "PSD-roundtrip-group-mask",
+        "status": "通过",
+        "file": "formats-results.json"
+      },
+      {
+        "id": "PSD-roundtrip-effects",
+        "status": "通过",
+        "file": "formats-results.json"
+      },
+      {
+        "id": "PSD-roundtrip-text",
+        "status": "通过",
+        "file": "formats-results.json"
+      },
+      {
+        "id": "PSD-blend-Normal",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Darken",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Multiply",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Color Burn",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Linear Burn",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Lighten",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Screen",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Color Dodge",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Linear Dodge (Add)",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Overlay",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Soft Light",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Hard Light",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Vivid Light",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Linear Light",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Pin Light",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Hard Mix",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Difference",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Exclusion",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Subtract",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Divide",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Hue",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Saturation",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Color",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-blend-Luminosity",
+        "status": "通过",
+        "file": "psd-blends.json"
+      },
+      {
+        "id": "PSD-effect-stroke",
+        "status": "通过",
+        "file": "psd-effects.json"
+      },
+      {
+        "id": "PSD-effect-shadow",
+        "status": "通过",
+        "file": "psd-effects.json"
+      },
+      {
+        "id": "PSD-effect-innerShadow",
+        "status": "通过",
+        "file": "psd-effects.json"
+      },
+      {
+        "id": "PSD-effect-colorOverlay",
+        "status": "通过",
+        "file": "psd-effects.json"
+      },
+      {
+        "id": "PSD-effect-outerGlow",
+        "status": "通过",
+        "file": "psd-effects.json"
+      },
+      {
+        "id": "PSD-effect-innerGlow",
+        "status": "通过",
+        "file": "psd-effects.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-007",
+    "title": "声明支持的分块 TIFF 不能导入",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FORMAT-tiff-{\"tile\":true}",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-008",
+    "title": "不支持的 TIFF 压缩方式被当成原始数据读入",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FORMAT-tiff-unsupported-rejection",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-009",
+    "title": "RAW 宣称 LZW 支持却拒绝标准压缩码 5",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FORMAT-raw-5",
+        "status": "通过",
+        "file": "formats-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-010",
+    "title": "欢迎页直接导入图片/RAW 没有文档时失败",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-start-openImage",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-start-openRaw",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-011",
+    "title": "导入位图没有脏标记和撤销记录",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-open-image-dirty",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-012",
+    "title": "取消 RAW 显影仍保留预先插入的图层",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RAW-cancel-import",
+        "status": "通过",
+        "file": "raw-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-013",
+    "title": "PSD 转换报告在应用之后才出现",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARITY-psd-before-apply",
+        "status": "通过",
+        "file": "parity-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-014",
+    "title": "高斯/动感模糊调整层没有渲染效果",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "ADJ-Gaussian Blur",
+        "status": "通过",
+        "file": "kernels-results.json"
+      },
+      {
+        "id": "ADJ-Motion Blur",
+        "status": "通过",
+        "file": "kernels-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-015",
+    "title": "四种混合模式与独立标准数值不符",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "BLEND-Overlay",
+        "status": "通过",
+        "file": "kernels-results.json"
+      },
+      {
+        "id": "BLEND-Soft Light",
+        "status": "通过",
+        "file": "kernels-results.json"
+      },
+      {
+        "id": "BLEND-Hard Light",
+        "status": "通过",
+        "file": "kernels-results.json"
+      },
+      {
+        "id": "BLEND-Pin Light",
+        "status": "通过",
+        "file": "kernels-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-016",
+    "title": "曝光不是上游的线性光曝光计算",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "ADJ-exposure-reference",
+        "status": "通过",
+        "file": "kernels-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-017",
+    "title": "曲线使用线性插值而不是上游形状保持 Hermite",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "ADJ-curves-interpolation",
+        "status": "通过",
+        "file": "kernels-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-018",
+    "title": "渐变映射的反向被实现为 RGB 反色",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "ADJ-gradient-reverse",
+        "status": "通过",
+        "file": "kernels-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-020",
+    "title": "现有调整层外观随临时选区改变",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARITY-adjust-selection",
+        "status": "通过",
+        "file": "parity-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-021",
+    "title": "五类调整层参数面板仅有占位文字",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "UI-adjust-Levels",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-adjust-Curves",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-adjust-Gradient Map",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-adjust-Grain",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-adjust-Color Balance",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-022",
+    "title": "六种图层效果缺少参数编辑控件",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "UI-effect-stroke",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-effect-shadow",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-effect-innerShadow",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-effect-colorOverlay",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-effect-outerGlow",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      },
+      {
+        "id": "UI-effect-innerGlow",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-023",
+    "title": "RAW 曲线/混合/分级/几何四组为占位 UI",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RAW-UI-几何",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      },
+      {
+        "id": "RAW-UI-曲线",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      },
+      {
+        "id": "RAW-UI-颜色混合",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      },
+      {
+        "id": "RAW-UI-颜色分级",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      },
+      {
+        "id": "UI-raw-groups",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-024",
+    "title": "RAW grain 与混合器 hue/saturation/luminance 未消费",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RAW-grain",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      },
+      {
+        "id": "RAW-mixer-hue",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      },
+      {
+        "id": "RAW-mixer-saturation",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      },
+      {
+        "id": "RAW-mixer-luminance",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-025",
+    "title": "RAW 红色混合器命中相反的青色色族",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RAW-mixer-red-semantics",
+        "status": "通过",
+        "file": "raw-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-026",
+    "title": "只有两个端点的 RAW 曲线被忽略",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RAW-curves-2",
+        "status": "部分通过",
+        "file": "raw-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-027",
+    "title": "缺少对普通图层的 Camera Raw Filter 入口",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "UI-raw-filter",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-028",
+    "title": "内容识别填充的选区阈值不一致，完全无效果",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FIX-content-aware",
+        "status": "通过",
+        "file": "workflow-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-029",
+    "title": "多边形套索不能累积点击顶点",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARAM-lasso-mode",
+        "status": "通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "TOOL-lasso-polygon",
+        "status": "通过",
+        "file": "tools-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-030",
+    "title": "框选羽化后选区变成全空",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-marquee-feather",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "PARAM-marquee-feather",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-031",
+    "title": "多个工具选项未接入行为或被硬编码",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARAM-move-showControls",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-marquee-antialias",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-lasso-feather",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-wand-sampleAllLayers",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-wand-antialias",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-objectSelect-feather",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-liquify-strength",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-032",
+    "title": "仿制图章没有从指定源正确复制",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARAM-clone-size",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-clone-hardness",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-clone-opacity",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-clone-aligned",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "PARAM-clone-sampleAllLayers",
+        "status": "部分通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "TOOL-clone-default",
+        "status": "通过",
+        "file": "tools-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-033",
+    "title": "固定比例裁剪跨旧画布边缘后丢失比例",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARAM-crop-ratio",
+        "status": "通过",
+        "file": "parameters-results.json"
+      },
+      {
+        "id": "TOOL-crop-16:9",
+        "status": "通过",
+        "file": "tools-results.json"
+      },
+      {
+        "id": "TOOL-crop-9:16",
+        "status": "通过",
+        "file": "tools-results.json"
+      },
+      {
+        "id": "TOOL-crop-2:3",
+        "status": "通过",
+        "file": "tools-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-034",
+    "title": "嵌套组拖动/Alt 复制将全部后代扁平化",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-nested-drag-false",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-nested-drag-true",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-nested-command",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-035",
+    "title": "组移动和多选图层移动不作用于应移动的像素层",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-group-move",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-multiselect-move",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-036",
+    "title": "选区内像素移动/复制及轮廓拖动缺少正确交互分支",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-selection-move-false",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-selection-move-true",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Left-false-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Left-true-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Right-false-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Right-true-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Up-false-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Up-true-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Down-false-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-arrow-Down-true-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-outline-move",
+        "status": "通过",
+        "file": "parity-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-037",
+    "title": "Windows Ctrl 拖手柄没有进入自由扭曲",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "TOOL-move-warp-ctrl",
+        "status": "通过",
+        "file": "tools-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-038",
+    "title": "扭曲角点时 Shift 没有锁轴",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-warp-shift",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-039",
+    "title": "方向键微移一次生成两条历史",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-nudge-history",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-040",
+    "title": "画笔 Shift 直线未实现",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-brush-shift",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-041",
+    "title": "画完的形状与渐变不能继续用参数栏编辑",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-shape-edit",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-gradient-edit",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-042",
+    "title": "蒙版无法通过 UI 解除链接并独立变换",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARITY-mask-link-ui",
+        "status": "部分通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-mask-transform",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "UI-mask-history",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-043",
+    "title": "选中蒙版时图层面板删除的是整个图层",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-mask-delete",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-044",
+    "title": "画布/图像尺寸对话框强制把高度设为宽度",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-canvas-width",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-image-aspect",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-045",
+    "title": "吸附菜单引用不存在的命令",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FIX-snap-menu",
+        "status": "通过",
+        "file": "workflow-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-046",
+    "title": "吸附只测鼠标点，且目标层缩放坐标重复变换",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-snap-layer-edge",
+        "status": "通过",
+        "file": "edges-results.json"
+      },
+      {
+        "id": "EDGE-snap-scaled-target",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-047",
+    "title": "网格启用状态割裂且 subdivisions 不绘制",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-grid-enable",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-grid-subdivisions",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-048",
+    "title": "参考线缺少已有线拖动/锁定与撤销路径",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-guide-move",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-guide-history",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "UI-guides-lock",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-049",
+    "title": "数字不透明度输入错误",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-opacity-digits",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "PARITY-opacity-0",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-1",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-2",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-3",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-4",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-5",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-6",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-7",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-8",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-opacity-9",
+        "status": "通过",
+        "file": "parity-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-050",
+    "title": "快捷键的动作与上游不符，部分会执行意外破坏性操作",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-merge-multi-key",
+        "status": "通过",
+        "file": "edges-results.json"
+      },
+      {
+        "id": "PARITY-ctrl-t",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-adjust-Curves",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-adjust-Levels",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-adjust-Hue/Saturation",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-jpeg-shortcut",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-shift-delete",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-layer-via-copy",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "KEY-layer.group",
+        "status": "通过",
+        "file": "workflow-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-051",
+    "title": "Shift 标点快捷键未规范化物理键值",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FIX-shift-keys",
+        "status": "通过",
+        "file": "workflow-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-052",
+    "title": "部分原版快捷操作/模式循环没有注册或没有接线",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-tab-tool",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "PARITY-delete",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-cycle-marquee",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-cycle-lasso",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-cycle-wand",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-cycle-blur",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-blend-cycle--1",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-blend-cycle-1",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-shape-cycle",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Left-false",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Left-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Right-false",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Right-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Up-false",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Up-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Down-false",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "PARITY-text-Down-true",
+        "status": "通过",
+        "file": "parity-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-053",
+    "title": "缺少命令面板、仅画布模式和独立选择工具",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-canvas-only",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "PARITY-select-tool",
+        "status": "通过",
+        "file": "parity-results.json"
+      },
+      {
+        "id": "UI-command-palette",
+        "status": "通过",
+        "file": "workflow-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-054",
+    "title": "JPEG 对话框忽略格式 payload，缺少质量实时预览",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "UI-jpeg",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-055",
+    "title": "破坏性滤镜没有参数/确认/取消的实时预览流程",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "UI-filter-preview",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-056",
+    "title": "数值擦洗绑在输入框而不是标签",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-label-scrub",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-057",
+    "title": "长按工具组、图层右键和锁定 UI 缺失",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-layer-context",
+        "status": "通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "FLOW-toolbar-longpress",
+        "status": "部分通过",
+        "file": "contracts-results.json"
+      },
+      {
+        "id": "UI-layer-lock",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-058",
+    "title": "历史面板点击较早条目只撤销一步",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-history-jump",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-059",
+    "title": "颜色面板交换按钮丢弃背景色、HEX 显示不跟随更新",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-colors-swap-button",
+        "status": "通过",
+        "file": "edges-results.json"
+      },
+      {
+        "id": "EDGE-colors-hex-sync",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-060",
+    "title": "停靠标题双击行为与自身说明不一致",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FLOW-panel-doubleclick",
+        "status": "通过",
+        "file": "contracts-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-061",
+    "title": "拖图层到另一个项目标签没有跨文档导入",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "PARITY-cross-doc-drag",
+        "status": "通过",
+        "file": "parity-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-062",
+    "title": "没有上游的大 PSD 按预算裁层降级",
+    "status": "未完成",
+    "note": "未完成：需要受预算约束的PSD通道解码/裁切路径，不能用解码后裁剪冒充内存降级。",
+    "evidence": [
+      {
+        "id": "PARITY-psd-large-fallback",
+        "status": "未实现",
+        "file": "parity-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-063",
+    "title": "内部像素缓冲不支持原计划承诺的 16 位处理",
+    "status": "未完成",
+    "note": "未完成：内部仍为8位缓冲。16位精度贯穿混合、滤镜、历史与导出的改造尚未完成。",
+    "evidence": [
+      {
+        "id": "COLOR-buffer16",
+        "status": "失败",
+        "file": "kernels-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-064",
+    "title": "像素网格没有用户开关",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "UI-pixel-grid",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-065",
+    "title": "全部中文化声明未成立",
+    "status": "部分修复",
+    "note": "本轮已本地化新增控件、菜单、锚点及Element Plus；全部业务异常/字体名/第三方信息尚未逐句验收。",
+    "evidence": [
+      {
+        "id": "EDGE-chinese-anchor",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": [
+      "UI-chinese"
+    ]
+  },
+  {
+    "id": "ISSUE-066",
+    "title": "存在空的 flattenClipboard 命令分支",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "UI-clipboard-flatten",
+        "status": "通过",
+        "file": "ui-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-067",
+    "title": "快捷键冲突允许保存并被第一项遮蔽",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-shortcut-conflict",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-068",
+    "title": "吸管单层取样忽略邻域大小与缩放变换",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-eyedropper-layer-size",
+        "status": "通过",
+        "file": "edges-results.json"
+      },
+      {
+        "id": "EDGE-eyedropper-layer-transform",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-069",
+    "title": "新建表单没有界面入口，始终直接创建默认画布",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "FIX-new-dialog",
+        "status": "通过",
+        "file": "workflow-regressions.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-070",
+    "title": "全局前景色色块没有完整颜色选择器入口",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-global-color-picker",
+        "status": "部分通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-071",
+    "title": "RAW 归一化把 0–255 缓冲再次乘255导致高光截断",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RAW-neutral-normalization",
+        "status": "通过",
+        "file": "raw-contract-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-072",
+    "title": "Bayer 去马赛克没有重建各位置的绿色通道",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RAW-neutral-bayer",
+        "status": "通过",
+        "file": "raw-contract-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-073",
+    "title": "像素网格混用屏幕/文档坐标，居中或平移时缺行缺列",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "RENDER-grid-position",
+        "status": "通过",
+        "file": "render-results.json"
+      },
+      {
+        "id": "RENDER-grid-threshold",
+        "status": "通过",
+        "file": "render-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-074",
+    "title": "裁剪缺少 Alt 对称和参考线吸附",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-crop-symmetric",
+        "status": "通过",
+        "file": "edges-results.json"
+      },
+      {
+        "id": "EDGE-crop-snap",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  },
+  {
+    "id": "ISSUE-075",
+    "title": "工具选区布尔运算被重复执行，减选实际保留了交集",
+    "status": "已修复",
+    "note": "审计反例已消除，限定于列出的本地验证；不代表真实宿主/外部格式全面认证。",
+    "evidence": [
+      {
+        "id": "EDGE-selection-booleans",
+        "status": "通过",
+        "file": "edges-results.json"
+      }
+    ],
+    "missing": []
+  }
+]

@@ -1,5 +1,8 @@
 <script setup lang="ts">
 /** 属性面板：变换精确数值、外观、蒙版、图层效果、调整层参数 */
+import AdjustmentControls from '@/components/controls/AdjustmentControls.vue';
+import EffectControls from '@/components/controls/EffectControls.vue';
+import { ADJUSTMENT_LABELS } from '@/core/document';
 import { computed } from 'vue';
 import { api, commands, currentDocument, thumbnailTick } from '@/composables/useEditor';
 import { BLEND_MODE_LABELS, BLEND_MODES, SAMPLING_LABELS, type Layer } from '@/types/document';
@@ -106,43 +109,16 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
         <label class="row"><input type="checkbox" :checked="layer.clipping" @change="commands.run('toggleClipping')" /> 剪贴蒙版</label>
       </section>
 
-      <section v-if="layer.kind === 'adjustment' && layer.adjustment">
-        <h4>调整：{{ layer.adjustment.kind }}</h4>
-        <template v-if="layer.adjustment.kind === 'Hue/Saturation'">
-          <label class="row">色相 <input type="range" min="-180" max="180" :value="layer.adjustment.hue" @input="setAdjustment('色相', (a) => { a.hue = Number(($event.target as HTMLInputElement).value); })" /></label>
-          <label class="row">饱和度 <input type="range" min="-100" max="100" :value="layer.adjustment.saturation" @input="setAdjustment('饱和度', (a) => { a.saturation = Number(($event.target as HTMLInputElement).value); })" /></label>
-          <label class="row">明度 <input type="range" min="-100" max="100" :value="layer.adjustment.lightness" @input="setAdjustment('明度', (a) => { a.lightness = Number(($event.target as HTMLInputElement).value); })" /></label>
-        </template>
-        <template v-else-if="layer.adjustment.kind === 'Exposure'">
-          <label class="row">曝光 <input type="range" min="-5" max="5" step="0.05" :value="layer.adjustment.exposureSettings.exposure" @input="setAdjustment('曝光度', (a) => { a.exposureSettings.exposure = Number(($event.target as HTMLInputElement).value); })" /></label>
-          <label class="row">偏移 <input type="range" min="-0.5" max="0.5" step="0.01" :value="layer.adjustment.exposureSettings.offset" @input="setAdjustment('偏移', (a) => { a.exposureSettings.offset = Number(($event.target as HTMLInputElement).value); })" /></label>
-        </template>
-        <template v-else-if="layer.adjustment.kind === 'Gaussian Blur'">
-          <label class="row">半径 <input type="range" min="0.1" max="250" step="0.5" :value="layer.adjustment.blurRadius" @input="setAdjustment('模糊半径', (a) => { a.blurRadius = Number(($event.target as HTMLInputElement).value); })" /></label>
-        </template>
-        <template v-else-if="layer.adjustment.kind === 'Motion Blur'">
-          <label class="row">角度 <input type="range" min="-90" max="90" :value="layer.adjustment.motionAngle" @input="setAdjustment('模糊角度', (a) => { a.motionAngle = Number(($event.target as HTMLInputElement).value); })" /></label>
-          <label class="row">距离 <input type="range" min="1" max="2000" :value="layer.adjustment.motionDistance" @input="setAdjustment('模糊距离', (a) => { a.motionDistance = Number(($event.target as HTMLInputElement).value); })" /></label>
-        </template>
-        <template v-else-if="layer.adjustment.kind === 'Add Noise'">
-          <label class="row">数量 <input type="range" min="0.1" max="400" :value="layer.adjustment.noiseAmount" @input="setAdjustment('杂色数量', (a) => { a.noiseAmount = Number(($event.target as HTMLInputElement).value); })" /></label>
-          <label class="row"><input type="checkbox" :checked="layer.adjustment.noiseGaussian" @change="setAdjustment('高斯杂色', (a) => { a.noiseGaussian = ($event.target as HTMLInputElement).checked; })" /> 高斯分布</label>
-          <label class="row"><input type="checkbox" :checked="layer.adjustment.noiseMonochromatic" @change="setAdjustment('单色杂色', (a) => { a.noiseMonochromatic = ($event.target as HTMLInputElement).checked; })" /> 单色</label>
-        </template>
-        <template v-else-if="layer.adjustment.kind === 'Black & White'">
-          <label v-for="key in ['reds', 'yellows', 'greens', 'cyans', 'blues', 'magentas']" :key="key" class="row">{{ key }}
-            <input type="range" min="-200" max="300" :value="(layer.adjustment.blackWhiteSettings as never as Record<string, number>)[key]" @input="setAdjustment('黑白权重', (a) => { (a.blackWhiteSettings as never as Record<string, number>)[key] = Number(($event.target as HTMLInputElement).value); })" />
-          </label>
-        </template>
-        <template v-else>
-          <p class="hint">该调整类型的完整参数可在 .comp 工程文件中编辑（与上游一致：保存后可在 manifest 中修改）。</p>
-        </template>
+      <section v-if="layer.kind === 'adjustment' && layer.adjustment" class="active-adjustment">
+        <h4>调整：{{ ADJUSTMENT_LABELS[layer.adjustment.kind] }}</h4>
+        <AdjustmentControls :model-value="layer.adjustment" :source="api.composite()" @update:model-value="value=>update('修改调整参数',l=>{l.adjustment=value})"/>
       </section>
 
       <section>
         <h4>图层蒙版</h4>
         <div v-if="layer.mask" class="row">
           <label><input type="checkbox" :checked="layer.mask.enabled" @change="commands.run('toggleMask')" /> 启用</label>
+          <label><input type="checkbox" :checked="layer.mask.linked" @change="update('链接蒙版',l=>{if(l.mask){l.mask.linked=($event.target as HTMLInputElement).checked;if(!l.mask.linked&&!l.mask.placement)l.mask.placement={x:l.transform.origin[0],y:l.transform.origin[1],width:l.transform.size[0],height:l.transform.size[1],rotation:l.transform.rotation,flipX:l.transform.flipX,flipY:l.transform.flipY,sampling:l.transform.sampling}}})"/>链接图像</label>
           <el-button size="small" @click="commands.run('maskTarget')">{{ layer.mask.target === 'mask' ? '编辑图像' : '编辑蒙版' }}</el-button>
           <el-button size="small" @click="commands.run('invertMask')">反相</el-button>
           <el-button size="small" @click="commands.run('applyMask')">应用</el-button>
@@ -161,6 +137,7 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
             <el-option v-for="item in effectNames" :key="item.key" :label="item.label" :value="item.key" />
           </el-select>
         </div>
+        <EffectControls v-if="layer.effects" :model-value="layer.effects" @update:model-value="value=>update('修改图层效果',l=>{l.effects=value})"/>
         <div v-for="item in effectNames" :key="item.key">
           <div v-if="layer.effects && layer.effects[item.key]" class="row">
             <label><input type="checkbox" :checked="layer.effects[item.key]?.enabled !== false" @change="update('切换效果', (l) => { const effect = l.effects?.[item.key]; if (effect) effect.enabled = ($event.target as HTMLInputElement).checked; })" /> {{ item.label }}</label>
@@ -174,6 +151,7 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
 
 <style scoped>
 .props {
+  display:flex;flex-direction:column;
   padding: 6px 8px;
   min-width: 0;
   width: 100%;
@@ -181,8 +159,11 @@ function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer,
 }
 
 section {
+  flex-shrink:0;
   margin-bottom: 8px;
 }
+
+.active-adjustment{order:-1;}
 
 h4 {
   margin: 0 0 4px;

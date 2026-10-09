@@ -1,0 +1,796 @@
+[
+  {
+    "name": "newLayer",
+    "source": "src/composables/commands.ts",
+    "line": 127,
+    "evidence": [
+      "MENU-035",
+      "KEY-file.newLayer"
+    ]
+  },
+  {
+    "name": "duplicateLayer",
+    "source": "src/composables/commands.ts",
+    "line": 134,
+    "evidence": [
+      "MENU-037",
+      "KEY-layer.duplicate"
+    ]
+  },
+  {
+    "name": "deleteLayer",
+    "source": "src/composables/commands.ts",
+    "line": 149,
+    "evidence": [
+      "MENU-038"
+    ]
+  },
+  {
+    "name": "moveLayerUp",
+    "source": "src/composables/commands.ts",
+    "line": 157,
+    "evidence": [
+      "MENU-039",
+      "KEY-layer.up"
+    ]
+  },
+  {
+    "name": "moveLayerDown",
+    "source": "src/composables/commands.ts",
+    "line": 158,
+    "evidence": [
+      "MENU-040",
+      "KEY-layer.down"
+    ]
+  },
+  {
+    "name": "moveLayerTo",
+    "source": "src/composables/commands.ts",
+    "line": 168,
+    "evidence": [
+      "FLOW-nested-command",
+      "FLOW-nested-drag-false",
+      "FLOW-nested-drag-true"
+    ]
+  },
+  {
+    "name": "toggleVisibility",
+    "source": "src/composables/commands.ts",
+    "line": 260,
+    "evidence": [
+      "CMD-toggleVisibility"
+    ]
+  },
+  {
+    "name": "toggleLock",
+    "source": "src/composables/commands.ts",
+    "line": 264,
+    "evidence": [
+      "CMD-toggleLock"
+    ]
+  },
+  {
+    "name": "toggleClipping",
+    "source": "src/composables/commands.ts",
+    "line": 271,
+    "evidence": [
+      "KEY-layer.clipping"
+    ]
+  },
+  {
+    "name": "group",
+    "source": "src/composables/commands.ts",
+    "line": 275,
+    "evidence": [
+      "KEY-layer.group"
+    ]
+  },
+  {
+    "name": "ungroup",
+    "source": "src/composables/commands.ts",
+    "line": 283,
+    "evidence": [
+      "KEY-layer.ungroup"
+    ]
+  },
+  {
+    "name": "mergeDown",
+    "source": "src/composables/commands.ts",
+    "line": 291,
+    "evidence": [
+      "MENU-041",
+      "KEY-layer.mergeDown"
+    ]
+  },
+  {
+    "name": "mergeSelection",
+    "source": "src/composables/commands.ts",
+    "line": 299,
+    "evidence": [
+      "CMD-mergeSelection"
+    ]
+  },
+  {
+    "name": "mergeGroup",
+    "source": "src/composables/commands.ts",
+    "line": 307,
+    "evidence": [
+      "CMD-mergeGroup"
+    ]
+  },
+  {
+    "name": "flatten",
+    "source": "src/composables/commands.ts",
+    "line": 315,
+    "evidence": [
+      "MENU-042"
+    ]
+  },
+  {
+    "name": "newGroup",
+    "source": "src/composables/commands.ts",
+    "line": 321,
+    "evidence": [
+      "MENU-036"
+    ]
+  },
+  {
+    "name": "addMask",
+    "source": "src/composables/commands.ts",
+    "line": 330,
+    "evidence": [
+      "MENU-043"
+    ]
+  },
+  {
+    "name": "maskFromSelection",
+    "source": "src/composables/commands.ts",
+    "line": 345,
+    "evidence": [
+      "MENU-044"
+    ]
+  },
+  {
+    "name": "applyMask",
+    "source": "src/composables/commands.ts",
+    "line": 355,
+    "evidence": [
+      "MENU-045"
+    ]
+  },
+  {
+    "name": "deleteMask",
+    "source": "src/composables/commands.ts",
+    "line": 369,
+    "evidence": [
+      "CMD-deleteMask"
+    ]
+  },
+  {
+    "name": "toggleMask",
+    "source": "src/composables/commands.ts",
+    "line": 383,
+    "evidence": [
+      "CMD-toggleMask"
+    ]
+  },
+  {
+    "name": "maskTarget",
+    "source": "src/composables/commands.ts",
+    "line": 387,
+    "evidence": [
+      "CMD-maskTarget"
+    ]
+  },
+  {
+    "name": "invertMask",
+    "source": "src/composables/commands.ts",
+    "line": 396,
+    "evidence": [
+      "MENU-046"
+    ]
+  },
+  {
+    "name": "invertPixels",
+    "source": "src/composables/commands.ts",
+    "line": 397,
+    "evidence": [
+      "KEY-adjust.invertPixels"
+    ]
+  },
+  {
+    "name": "addAdjustment",
+    "source": "src/composables/commands.ts",
+    "line": 408,
+    "evidence": [
+      "MENU-047",
+      "MENU-048",
+      "MENU-049",
+      "MENU-050",
+      "MENU-051",
+      "MENU-052",
+      "MENU-053",
+      "MENU-054",
+      "MENU-055",
+      "MENU-056",
+      "MENU-057",
+      "MENU-058",
+      "KEY-adjust.curves",
+      "KEY-adjust.levels",
+      "KEY-adjust.hueSaturation",
+      "KEY-adjust.invertLayer"
+    ]
+  },
+  {
+    "name": "selectAll",
+    "source": "src/composables/commands.ts",
+    "line": 418,
+    "evidence": [
+      "MENU-068",
+      "KEY-select.all"
+    ]
+  },
+  {
+    "name": "deselect",
+    "source": "src/composables/commands.ts",
+    "line": 424,
+    "evidence": [
+      "MENU-069",
+      "KEY-select.deselect"
+    ]
+  },
+  {
+    "name": "inverseSelection",
+    "source": "src/composables/commands.ts",
+    "line": 430,
+    "evidence": [
+      "MENU-070",
+      "KEY-select.inverse"
+    ]
+  },
+  {
+    "name": "selectSubject",
+    "source": "src/composables/commands.ts",
+    "line": 437,
+    "evidence": [
+      "MENU-071",
+      "KEY-select.subject"
+    ]
+  },
+  {
+    "name": "selectColorRange",
+    "source": "src/composables/commands.ts",
+    "line": 445,
+    "evidence": [
+      "MENU-072"
+    ]
+  },
+  {
+    "name": "wandSelect",
+    "source": "src/composables/commands.ts",
+    "line": 451,
+    "evidence": [
+      "CMD-wandSelect"
+    ]
+  },
+  {
+    "name": "selectionExpand",
+    "source": "src/composables/commands.ts",
+    "line": 465,
+    "evidence": [
+      "MENU-073"
+    ]
+  },
+  {
+    "name": "selectionContract",
+    "source": "src/composables/commands.ts",
+    "line": 466,
+    "evidence": [
+      "MENU-074"
+    ]
+  },
+  {
+    "name": "selectionBoundary",
+    "source": "src/composables/commands.ts",
+    "line": 467,
+    "evidence": [
+      "MENU-076"
+    ]
+  },
+  {
+    "name": "selectionFeather",
+    "source": "src/composables/commands.ts",
+    "line": 468,
+    "evidence": [
+      "MENU-075"
+    ]
+  },
+  {
+    "name": "transformSelection",
+    "source": "src/composables/commands.ts",
+    "line": 479,
+    "evidence": [
+      "CMD-transformSelection"
+    ]
+  },
+  {
+    "name": "loadLayerPixelsAsSelection",
+    "source": "src/composables/commands.ts",
+    "line": 484,
+    "evidence": [
+      "MENU-077"
+    ]
+  },
+  {
+    "name": "loadMaskAsSelection",
+    "source": "src/composables/commands.ts",
+    "line": 495,
+    "evidence": [
+      "MENU-078"
+    ]
+  },
+  {
+    "name": "fillForeground",
+    "source": "src/composables/commands.ts",
+    "line": 509,
+    "evidence": [
+      "MENU-024",
+      "KEY-edit.fillForeground"
+    ]
+  },
+  {
+    "name": "fillBackground",
+    "source": "src/composables/commands.ts",
+    "line": 510,
+    "evidence": [
+      "MENU-025",
+      "KEY-edit.fillBackground"
+    ]
+  },
+  {
+    "name": "clearSelection",
+    "source": "src/composables/commands.ts",
+    "line": 511,
+    "evidence": [
+      "MENU-026",
+      "KEY-edit.clear"
+    ]
+  },
+  {
+    "name": "contentAwareFill",
+    "source": "src/composables/commands.ts",
+    "line": 524,
+    "evidence": [
+      "MENU-027",
+      "KEY-edit.contentAware"
+    ]
+  },
+  {
+    "name": "copy",
+    "source": "src/composables/commands.ts",
+    "line": 552,
+    "evidence": [
+      "MENU-021",
+      "KEY-edit.copy"
+    ]
+  },
+  {
+    "name": "copyLayer",
+    "source": "src/composables/commands.ts",
+    "line": 553,
+    "evidence": [
+      "CMD-copyLayer"
+    ]
+  },
+  {
+    "name": "copyMerged",
+    "source": "src/composables/commands.ts",
+    "line": 554,
+    "evidence": [
+      "MENU-022",
+      "KEY-edit.copyMerged"
+    ]
+  },
+  {
+    "name": "cut",
+    "source": "src/composables/commands.ts",
+    "line": 560,
+    "evidence": [
+      "MENU-020",
+      "KEY-edit.cut"
+    ]
+  },
+  {
+    "name": "paste",
+    "source": "src/composables/commands.ts",
+    "line": 568,
+    "evidence": [
+      "MENU-023",
+      "KEY-edit.paste"
+    ]
+  },
+  {
+    "name": "flattenClipboard",
+    "source": "src/composables/commands.ts",
+    "line": 575,
+    "evidence": [
+      "CMD-flattenClipboard"
+    ]
+  },
+  {
+    "name": "canvasSize",
+    "source": "src/composables/commands.ts",
+    "line": 578,
+    "evidence": [
+      "MENU-028",
+      "FLOW-canvas-width"
+    ]
+  },
+  {
+    "name": "imageSize",
+    "source": "src/composables/commands.ts",
+    "line": 585,
+    "evidence": [
+      "MENU-029",
+      "FLOW-image-aspect"
+    ]
+  },
+  {
+    "name": "rotateCanvasAll",
+    "source": "src/composables/commands.ts",
+    "line": 592,
+    "evidence": [
+      "MENU-031",
+      "MENU-032"
+    ]
+  },
+  {
+    "name": "flipCanvasH",
+    "source": "src/composables/commands.ts",
+    "line": 599,
+    "evidence": [
+      "MENU-033"
+    ]
+  },
+  {
+    "name": "flipCanvasV",
+    "source": "src/composables/commands.ts",
+    "line": 605,
+    "evidence": [
+      "MENU-034"
+    ]
+  },
+  {
+    "name": "trim",
+    "source": "src/composables/commands.ts",
+    "line": 611,
+    "evidence": [
+      "MENU-030"
+    ]
+  },
+  {
+    "name": "filterAddNoise",
+    "source": "src/composables/commands.ts",
+    "line": 625,
+    "evidence": [
+      "MENU-059"
+    ]
+  },
+  {
+    "name": "filterVignette",
+    "source": "src/composables/commands.ts",
+    "line": 631,
+    "evidence": [
+      "MENU-060"
+    ]
+  },
+  {
+    "name": "filterBloom",
+    "source": "src/composables/commands.ts",
+    "line": 641,
+    "evidence": [
+      "MENU-061"
+    ]
+  },
+  {
+    "name": "filterTonalContrast",
+    "source": "src/composables/commands.ts",
+    "line": 646,
+    "evidence": [
+      "MENU-062"
+    ]
+  },
+  {
+    "name": "filterLensCorrection",
+    "source": "src/composables/commands.ts",
+    "line": 651,
+    "evidence": [
+      "MENU-063"
+    ]
+  },
+  {
+    "name": "filterRemoveBackground",
+    "source": "src/composables/commands.ts",
+    "line": 656,
+    "evidence": [
+      "MENU-064"
+    ]
+  },
+  {
+    "name": "filterSharpen",
+    "source": "src/composables/commands.ts",
+    "line": 658,
+    "evidence": [
+      "MENU-065"
+    ]
+  },
+  {
+    "name": "filterDenoise",
+    "source": "src/composables/commands.ts",
+    "line": 663,
+    "evidence": [
+      "MENU-066"
+    ]
+  },
+  {
+    "name": "filterDither",
+    "source": "src/composables/commands.ts",
+    "line": 668,
+    "evidence": [
+      "MENU-067"
+    ]
+  },
+  {
+    "name": "newCanvas",
+    "source": "src/composables/commands-io.ts",
+    "line": 90,
+    "evidence": [
+      "MENU-001",
+      "KEY-file.new"
+    ]
+  },
+  {
+    "name": "openImage",
+    "source": "src/composables/commands-io.ts",
+    "line": 118,
+    "evidence": [
+      "MENU-002"
+    ]
+  },
+  {
+    "name": "openPsd",
+    "source": "src/composables/commands-io.ts",
+    "line": 126,
+    "evidence": [
+      "MENU-003"
+    ]
+  },
+  {
+    "name": "openRaw",
+    "source": "src/composables/commands-io.ts",
+    "line": 138,
+    "evidence": [
+      "MENU-004"
+    ]
+  },
+  {
+    "name": "openComp",
+    "source": "src/composables/commands-io.ts",
+    "line": 160,
+    "evidence": [
+      "MENU-005",
+      "KEY-file.open"
+    ]
+  },
+  {
+    "name": "openRecent",
+    "source": "src/composables/commands-io.ts",
+    "line": 166,
+    "evidence": [
+      "CMD-openRecent"
+    ]
+  },
+  {
+    "name": "saveComp",
+    "source": "src/composables/commands-io.ts",
+    "line": 171,
+    "evidence": [
+      "MENU-010",
+      "KEY-file.save"
+    ]
+  },
+  {
+    "name": "saveCompAs",
+    "source": "src/composables/commands-io.ts",
+    "line": 185,
+    "evidence": [
+      "MENU-011",
+      "KEY-file.saveAs"
+    ]
+  },
+  {
+    "name": "watchComp",
+    "source": "src/composables/commands-io.ts",
+    "line": 197,
+    "evidence": [
+      "MENU-012"
+    ]
+  },
+  {
+    "name": "unwatchComp",
+    "source": "src/composables/commands-io.ts",
+    "line": 224,
+    "evidence": [
+      "CMD-unwatchComp"
+    ]
+  },
+  {
+    "name": "exportImage",
+    "source": "src/composables/commands-io.ts",
+    "line": 230,
+    "evidence": [
+      "MENU-013",
+      "MENU-014",
+      "MENU-015"
+    ]
+  },
+  {
+    "name": "exportPsd",
+    "source": "src/composables/commands-io.ts",
+    "line": 246,
+    "evidence": [
+      "MENU-016"
+    ]
+  },
+  {
+    "name": "sample",
+    "source": "src/composables/commands-io.ts",
+    "line": 261,
+    "evidence": [
+      "MENU-007",
+      "MENU-008",
+      "MENU-009"
+    ]
+  },
+  {
+    "name": "setTheme",
+    "source": "src/composables/commands-io.ts",
+    "line": 271,
+    "evidence": [
+      "MENU-090",
+      "MENU-091",
+      "MENU-092"
+    ]
+  },
+  {
+    "name": "undo",
+    "source": "src/composables/commands-io.ts",
+    "line": 278,
+    "evidence": [
+      "MENU-018",
+      "KEY-edit.undo"
+    ]
+  },
+  {
+    "name": "redo",
+    "source": "src/composables/commands-io.ts",
+    "line": 285,
+    "evidence": [
+      "MENU-019",
+      "KEY-edit.redo"
+    ]
+  },
+  {
+    "name": "zoomIn",
+    "source": "src/composables/commands-io.ts",
+    "line": 294,
+    "evidence": [
+      "MENU-079"
+    ]
+  },
+  {
+    "name": "zoomOut",
+    "source": "src/composables/commands-io.ts",
+    "line": 295,
+    "evidence": [
+      "MENU-080"
+    ]
+  },
+  {
+    "name": "fitCanvas",
+    "source": "src/composables/commands-io.ts",
+    "line": 296,
+    "evidence": [
+      "MENU-082"
+    ]
+  },
+  {
+    "name": "actualPixels",
+    "source": "src/composables/commands-io.ts",
+    "line": 297,
+    "evidence": [
+      "MENU-083"
+    ]
+  },
+  {
+    "name": "toggleRulers",
+    "source": "src/composables/commands-io.ts",
+    "line": 298,
+    "evidence": [
+      "MENU-084"
+    ]
+  },
+  {
+    "name": "toggleGrid",
+    "source": "src/composables/commands-io.ts",
+    "line": 299,
+    "evidence": [
+      "MENU-085"
+    ]
+  },
+  {
+    "name": "toggleGuides",
+    "source": "src/composables/commands-io.ts",
+    "line": 300,
+    "evidence": [
+      "MENU-087"
+    ]
+  },
+  {
+    "name": "toggleTransformControls",
+    "source": "src/composables/commands-io.ts",
+    "line": 301,
+    "evidence": [
+      "MENU-089"
+    ]
+  },
+  {
+    "name": "gridSettings",
+    "source": "src/composables/commands-io.ts",
+    "line": 302,
+    "evidence": [
+      "MENU-086"
+    ]
+  },
+  {
+    "name": "shortcuts",
+    "source": "src/composables/commands-io.ts",
+    "line": 303,
+    "evidence": [
+      "MENU-093"
+    ]
+  },
+  {
+    "name": "about",
+    "source": "src/composables/commands-io.ts",
+    "line": 304,
+    "evidence": [
+      "MENU-094"
+    ]
+  },
+  {
+    "name": "recentList",
+    "source": "src/composables/commands-io.ts",
+    "line": 305,
+    "evidence": [
+      "MENU-006"
+    ]
+  },
+  {
+    "name": "closeDocument",
+    "source": "src/composables/commands-io.ts",
+    "line": 306,
+    "evidence": [
+      "MENU-017",
+      "KEY-file.close"
+    ]
+  },
+  {
+    "name": "applyRawDevelop",
+    "source": "src/composables/commands-io.ts",
+    "line": 310,
+    "evidence": [
+      "CMD-applyRawDevelop"
+    ]
+  }
+]

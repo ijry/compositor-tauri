@@ -73,14 +73,20 @@ export function blendPixel(cb: [number, number, number], cs: [number, number, nu
     case 'Screen': r0 = 255 - multiply(255 - b0, 255 - s0); g0 = 255 - multiply(255 - b1, 255 - s1); b00 = 255 - multiply(255 - b2, 255 - s2); break;
     case 'Color Dodge': r0 = dodge(b0, s0); g0 = dodge(b1, s1); b00 = dodge(b2, s2); break;
     case 'Linear Dodge (Add)': r0 = b0 + s0; g0 = b1 + s1; b00 = b2 + s2; break;
-    case 'Overlay': r0 = multiply(b0, 255 - s0) + multiply(s0, 255 - b0); g0 = multiply(b1, 255 - s1) + multiply(s1, 255 - b1); b00 = multiply(b2, 255 - s2) + multiply(s2, 255 - b2); break;
-    case 'Hard Light': r0 = multiply(s0, 255 - b0) + multiply(b0, 255 - s0); g0 = multiply(s1, 255 - b1) + multiply(b1, 255 - s1); b00 = multiply(s2, 255 - b2) + multiply(b2, 255 - s2); break;
+    case 'Overlay': {
+      const overlay = (b: number, s: number) => b <= 127.5 ? 2*b*s/255 : 255-2*(255-b)*(255-s)/255;
+      r0=overlay(b0,s0); g0=overlay(b1,s1); b00=overlay(b2,s2); break;
+    }
+    case 'Hard Light': {
+      const hard = (b: number, s: number) => s <= 127.5 ? 2*b*s/255 : 255-2*(255-b)*(255-s)/255;
+      r0=hard(b0,s0); g0=hard(b1,s1); b00=hard(b2,s2); break;
+    }
     case 'Soft Light': {
       const soft = (b: number, s: number): number => {
         const sn = s / 255;
         const bn = b / 255;
         const d = bn <= 0.25 ? ((16 * bn - 12) * bn + 4) * bn : Math.sqrt(bn);
-        const result = bn + (2 * sn - 1) * (d - bn);
+        const result = sn <= 0.5 ? bn - (1 - 2*sn)*bn*(1-bn) : bn + (2*sn-1)*(d-bn);
         return result * 255;
       };
       r0 = soft(b0, s0); g0 = soft(b1, s1); b00 = soft(b2, s2);
@@ -92,7 +98,10 @@ export function blendPixel(cb: [number, number, number], cs: [number, number, nu
       break;
     }
     case 'Linear Light': r0 = b0 + 2 * s0 - 255; g0 = b1 + 2 * s1 - 255; b00 = b2 + 2 * s2 - 255; break;
-    case 'Pin Light': r0 = s0 > 127 ? Math.min(255, b0 + 2 * (s0 - 127)) : Math.max(0, b0 - 2 * (127 - s0)); g0 = s1 > 127 ? Math.min(255, b1 + 2 * (s1 - 127)) : Math.max(0, b1 - 2 * (127 - s1)); b00 = s2 > 127 ? Math.min(255, b2 + 2 * (s2 - 127)) : Math.max(0, b2 - 2 * (127 - s2)); break;
+    case 'Pin Light': {
+      const pin = (b:number,s:number) => s < 127.5 ? Math.min(b,2*s) : Math.max(b,2*s-255);
+      r0=pin(b0,s0); g0=pin(b1,s1); b00=pin(b2,s2); break;
+    }
     case 'Hard Mix': r0 = (b0 + s0 >= 255 ? 255 : 0); g0 = (b1 + s1 >= 255 ? 255 : 0); b00 = (b2 + s2 >= 255 ? 255 : 0); break;
     case 'Difference': r0 = Math.abs(b0 - s0); g0 = Math.abs(b1 - s1); b00 = Math.abs(b2 - s2); break;
     case 'Exclusion': r0 = b0 + s0 - 2 * multiply(b0, s0); g0 = b1 + s1 - 2 * multiply(b1, s1); b00 = b2 + s2 - 2 * multiply(b2, s2); break;

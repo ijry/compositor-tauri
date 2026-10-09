@@ -1,0 +1,1895 @@
+{
+  "tools": [
+    {
+      "id": "move",
+      "name": "移动 / 变换",
+      "group": "move",
+      "shortcut": "V",
+      "defaults": {
+        "snap": true,
+        "transformAll": false,
+        "showControls": true
+      },
+      "specs": [
+        {
+          "key": "snap",
+          "label": "自动对齐",
+          "type": "boolean"
+        },
+        {
+          "key": "transformAll",
+          "label": "变换所有图层",
+          "type": "boolean"
+        },
+        {
+          "key": "showControls",
+          "label": "显示变换控件",
+          "type": "boolean"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp",
+        "onKeyDown"
+      ]
+    },
+    {
+      "id": "marquee",
+      "name": "矩形框选",
+      "group": "select",
+      "shortcut": "M",
+      "defaults": {
+        "shape": "rect",
+        "feather": 0,
+        "antialias": true
+      },
+      "specs": [
+        {
+          "key": "shape",
+          "label": "形状",
+          "type": "select",
+          "options": [
+            {
+              "value": "rect",
+              "label": "矩形"
+            },
+            {
+              "value": "ellipse",
+              "label": "椭圆"
+            }
+          ]
+        },
+        {
+          "key": "feather",
+          "label": "羽化",
+          "type": "number",
+          "min": 0,
+          "max": 250,
+          "step": 0.5,
+          "unit": "px"
+        },
+        {
+          "key": "antialias",
+          "label": "消除锯齿",
+          "type": "boolean"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "lasso",
+      "name": "套索",
+      "group": "select",
+      "shortcut": "L",
+      "defaults": {
+        "mode": "free",
+        "feather": 0
+      },
+      "specs": [
+        {
+          "key": "mode",
+          "label": "模式",
+          "type": "select",
+          "options": [
+            {
+              "value": "free",
+              "label": "自由"
+            },
+            {
+              "value": "polygon",
+              "label": "多边形"
+            }
+          ]
+        },
+        {
+          "key": "feather",
+          "label": "羽化",
+          "type": "number",
+          "min": 0,
+          "max": 250,
+          "step": 0.5,
+          "unit": "px"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp",
+        "onKeyDown"
+      ]
+    },
+    {
+      "id": "wand",
+      "name": "魔棒",
+      "group": "magic",
+      "shortcut": "W",
+      "defaults": {
+        "tolerance": 32,
+        "contiguous": true,
+        "sampleAllLayers": true,
+        "feather": 0,
+        "antialias": true
+      },
+      "specs": [
+        {
+          "key": "tolerance",
+          "label": "容差",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "key": "contiguous",
+          "label": "连续",
+          "type": "boolean"
+        },
+        {
+          "key": "sampleAllLayers",
+          "label": "所有图层取样",
+          "type": "boolean"
+        },
+        {
+          "key": "feather",
+          "label": "羽化",
+          "type": "number",
+          "min": 0,
+          "max": 250,
+          "step": 0.5,
+          "unit": "px"
+        },
+        {
+          "key": "antialias",
+          "label": "消除锯齿",
+          "type": "boolean"
+        }
+      ],
+      "handlers": [
+        "onDown"
+      ]
+    },
+    {
+      "id": "objectSelect",
+      "name": "对象选择",
+      "group": "magic",
+      "shortcut": "W",
+      "defaults": {
+        "sensitivity": 50,
+        "feather": 1
+      },
+      "specs": [
+        {
+          "key": "sensitivity",
+          "label": "灵敏度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "key": "feather",
+          "label": "羽化",
+          "type": "number",
+          "min": 0,
+          "max": 20,
+          "step": 0.5,
+          "unit": "px"
+        }
+      ],
+      "handlers": [
+        "onDown"
+      ]
+    },
+    {
+      "id": "crop",
+      "name": "裁剪",
+      "group": "crop",
+      "shortcut": "C",
+      "defaults": {
+        "ratio": "free"
+      },
+      "specs": [
+        {
+          "key": "ratio",
+          "label": "比例",
+          "type": "select",
+          "options": [
+            {
+              "value": "free",
+              "label": "自由"
+            },
+            {
+              "value": "1:1",
+              "label": "1:1"
+            },
+            {
+              "value": "4:3",
+              "label": "4:3"
+            },
+            {
+              "value": "3:4",
+              "label": "3:4"
+            },
+            {
+              "value": "16:9",
+              "label": "16:9"
+            },
+            {
+              "value": "9:16",
+              "label": "9:16"
+            },
+            {
+              "value": "3:2",
+              "label": "3:2"
+            },
+            {
+              "value": "2:3",
+              "label": "2:3"
+            }
+          ]
+        }
+      ],
+      "handlers": [
+        "activate",
+        "deactivate",
+        "onDown",
+        "onMove",
+        "onUp",
+        "onDblClick",
+        "onKeyDown"
+      ]
+    },
+    {
+      "id": "brush",
+      "name": "画笔",
+      "group": "paint",
+      "shortcut": "B",
+      "defaults": {
+        "size": 40,
+        "hardness": 0.7,
+        "opacity": 1,
+        "smoothing": 50,
+        "mode": "paint"
+      },
+      "specs": [
+        {
+          "key": "size",
+          "label": "大小",
+          "type": "number",
+          "min": 1,
+          "max": 2500,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "hardness",
+          "label": "硬度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "opacity",
+          "label": "不透明度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "smoothing",
+          "label": "平滑",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "mode",
+          "label": "模式",
+          "type": "select",
+          "options": [
+            {
+              "value": "paint",
+              "label": "绘制"
+            },
+            {
+              "value": "erase",
+              "label": "擦除"
+            }
+          ]
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "gradient",
+      "name": "渐变",
+      "group": "paint",
+      "shortcut": "G",
+      "defaults": {
+        "type": "linear",
+        "opacity": 100,
+        "reverse": false,
+        "dither": true,
+        "from": [
+          255,
+          255,
+          255
+        ],
+        "to": [
+          0,
+          0,
+          0
+        ]
+      },
+      "specs": [
+        {
+          "key": "type",
+          "label": "类型",
+          "type": "select",
+          "options": [
+            {
+              "value": "linear",
+              "label": "线性"
+            },
+            {
+              "value": "radial",
+              "label": "径向"
+            },
+            {
+              "value": "angle",
+              "label": "角度"
+            },
+            {
+              "value": "reflected",
+              "label": "对称"
+            },
+            {
+              "value": "diamond",
+              "label": "菱形"
+            }
+          ]
+        },
+        {
+          "key": "opacity",
+          "label": "不透明度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "reverse",
+          "label": "反向",
+          "type": "boolean"
+        },
+        {
+          "key": "dither",
+          "label": "抖动",
+          "type": "boolean"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "eraser",
+      "name": "橡皮擦",
+      "group": "paint",
+      "shortcut": "E",
+      "defaults": {
+        "size": 40,
+        "hardness": 0.7,
+        "opacity": 1,
+        "smoothing": 50,
+        "mode": "erase"
+      },
+      "specs": [
+        {
+          "key": "size",
+          "label": "大小",
+          "type": "number",
+          "min": 1,
+          "max": 2500,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "hardness",
+          "label": "硬度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "opacity",
+          "label": "不透明度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "smoothing",
+          "label": "平滑",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "healing",
+      "name": "污点修复",
+      "group": "retouch",
+      "shortcut": "J",
+      "defaults": {
+        "size": 30,
+        "spacing": 200
+      },
+      "specs": [
+        {
+          "key": "size",
+          "label": "大小",
+          "type": "number",
+          "min": 1,
+          "max": 500,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "spacing",
+          "label": "采样范围",
+          "type": "number",
+          "min": 5,
+          "max": 200,
+          "step": 1,
+          "unit": "px"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "clone",
+      "name": "仿制图章",
+      "group": "retouch",
+      "shortcut": "S",
+      "defaults": {
+        "size": 40,
+        "hardness": 0.5,
+        "opacity": 1,
+        "aligned": true,
+        "sampleAllLayers": true
+      },
+      "specs": [
+        {
+          "key": "size",
+          "label": "大小",
+          "type": "number",
+          "min": 1,
+          "max": 1000,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "hardness",
+          "label": "硬度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "opacity",
+          "label": "不透明度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "aligned",
+          "label": "对齐",
+          "type": "boolean"
+        },
+        {
+          "key": "sampleAllLayers",
+          "label": "所有图层取样",
+          "type": "boolean"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "blur",
+      "name": "模糊",
+      "group": "retouch",
+      "shortcut": "R",
+      "defaults": {
+        "size": 40,
+        "hardness": 0.5,
+        "strength": 0.5,
+        "target": "pixels"
+      },
+      "specs": [
+        {
+          "key": "size",
+          "label": "大小",
+          "type": "number",
+          "min": 1,
+          "max": 1000,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "hardness",
+          "label": "硬度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "strength",
+          "label": "强度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "key": "target",
+          "label": "目标",
+          "type": "select",
+          "options": [
+            {
+              "value": "pixels",
+              "label": "像素"
+            },
+            {
+              "value": "mask",
+              "label": "蒙版"
+            }
+          ]
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "smudge",
+      "name": "涂抹",
+      "group": "retouch",
+      "shortcut": "R",
+      "defaults": {
+        "size": 40,
+        "strength": 50
+      },
+      "specs": [
+        {
+          "key": "size",
+          "label": "大小",
+          "type": "number",
+          "min": 1,
+          "max": 1000,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "strength",
+          "label": "强度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "liquify",
+      "name": "液化",
+      "group": "retouch",
+      "shortcut": "R",
+      "defaults": {
+        "size": 60,
+        "mode": "push",
+        "strength": 50
+      },
+      "specs": [
+        {
+          "key": "mode",
+          "label": "模式",
+          "type": "select",
+          "options": [
+            {
+              "value": "push",
+              "label": "向前变形"
+            },
+            {
+              "value": "twirl",
+              "label": "旋转"
+            },
+            {
+              "value": "bloat",
+              "label": "膨胀"
+            }
+          ]
+        },
+        {
+          "key": "size",
+          "label": "大小",
+          "type": "number",
+          "min": 5,
+          "max": 500,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "strength",
+          "label": "强度",
+          "type": "number",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "shape",
+      "name": "形状",
+      "group": "draw",
+      "shortcut": "U",
+      "defaults": {
+        "kind": "rectangle",
+        "fill": true,
+        "cornerRadius": 0,
+        "strokeWidth": 0
+      },
+      "specs": [
+        {
+          "key": "kind",
+          "label": "形状",
+          "type": "select",
+          "options": [
+            {
+              "value": "rectangle",
+              "label": "矩形"
+            },
+            {
+              "value": "roundedRectangle",
+              "label": "圆角矩形"
+            },
+            {
+              "value": "ellipse",
+              "label": "椭圆"
+            },
+            {
+              "value": "line",
+              "label": "直线"
+            }
+          ]
+        },
+        {
+          "key": "fill",
+          "label": "填充",
+          "type": "boolean"
+        },
+        {
+          "key": "cornerRadius",
+          "label": "圆角",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "strokeWidth",
+          "label": "描边宽度",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "type",
+      "name": "文字",
+      "group": "draw",
+      "shortcut": "T",
+      "defaults": {
+        "content": "文字",
+        "fontName": "PingFang SC",
+        "fontSize": 72,
+        "color": [
+          0,
+          0,
+          0
+        ],
+        "align": "left",
+        "tracking": 0,
+        "lineSpacing": 0,
+        "bold": false,
+        "italic": false
+      },
+      "specs": [
+        {
+          "key": "content",
+          "label": "内容",
+          "type": "select",
+          "options": []
+        },
+        {
+          "key": "fontName",
+          "label": "字体",
+          "type": "select",
+          "options": []
+        },
+        {
+          "key": "fontSize",
+          "label": "字号",
+          "type": "number",
+          "min": 6,
+          "max": 800,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "color",
+          "label": "颜色",
+          "type": "color"
+        },
+        {
+          "key": "align",
+          "label": "对齐",
+          "type": "select",
+          "options": [
+            {
+              "value": "left",
+              "label": "左"
+            },
+            {
+              "value": "center",
+              "label": "中"
+            },
+            {
+              "value": "right",
+              "label": "右"
+            }
+          ]
+        },
+        {
+          "key": "tracking",
+          "label": "字距",
+          "type": "number",
+          "min": -100,
+          "max": 500,
+          "step": 1
+        },
+        {
+          "key": "lineSpacing",
+          "label": "行距",
+          "type": "number",
+          "min": 0,
+          "max": 800,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "key": "bold",
+          "label": "加粗",
+          "type": "boolean"
+        },
+        {
+          "key": "italic",
+          "label": "倾斜",
+          "type": "boolean"
+        }
+      ],
+      "handlers": [
+        "activate",
+        "deactivate",
+        "onDown",
+        "onMove",
+        "onUp",
+        "onDblClick",
+        "onKeyDown"
+      ]
+    },
+    {
+      "id": "eyedropper",
+      "name": "吸管",
+      "group": "sample",
+      "shortcut": "I",
+      "defaults": {
+        "sample": "composite",
+        "size": 1
+      },
+      "specs": [
+        {
+          "key": "sample",
+          "label": "取样",
+          "type": "select",
+          "options": [
+            {
+              "value": "composite",
+              "label": "所有图层"
+            },
+            {
+              "value": "layer",
+              "label": "当前图层"
+            }
+          ]
+        },
+        {
+          "key": "size",
+          "label": "取样大小",
+          "type": "number",
+          "min": 1,
+          "max": 51,
+          "step": 2,
+          "unit": "px"
+        }
+      ],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onKeyDown"
+      ]
+    },
+    {
+      "id": "hand",
+      "name": "抓手",
+      "group": "view",
+      "shortcut": "H",
+      "defaults": {},
+      "specs": [],
+      "handlers": [
+        "onDown",
+        "onMove",
+        "onUp"
+      ]
+    },
+    {
+      "id": "zoom",
+      "name": "缩放",
+      "group": "view",
+      "shortcut": "Z",
+      "defaults": {},
+      "specs": [],
+      "handlers": [
+        "onDown"
+      ]
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "tool.move",
+      "group": "工具",
+      "title": "move 工具",
+      "chord": {
+        "key": "v",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.marquee",
+      "group": "工具",
+      "title": "marquee 工具",
+      "chord": {
+        "key": "m",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.lasso",
+      "group": "工具",
+      "title": "lasso 工具",
+      "chord": {
+        "key": "l",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.wand",
+      "group": "工具",
+      "title": "wand 工具",
+      "chord": {
+        "key": "w",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.crop",
+      "group": "工具",
+      "title": "crop 工具",
+      "chord": {
+        "key": "c",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.brush",
+      "group": "工具",
+      "title": "brush 工具",
+      "chord": {
+        "key": "b",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.gradient",
+      "group": "工具",
+      "title": "gradient 工具",
+      "chord": {
+        "key": "g",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.eraser",
+      "group": "工具",
+      "title": "eraser 工具",
+      "chord": {
+        "key": "e",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.healing",
+      "group": "工具",
+      "title": "healing 工具",
+      "chord": {
+        "key": "j",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.clone",
+      "group": "工具",
+      "title": "clone 工具",
+      "chord": {
+        "key": "s",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.blur",
+      "group": "工具",
+      "title": "blur 工具",
+      "chord": {
+        "key": "r",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.shape",
+      "group": "工具",
+      "title": "shape 工具",
+      "chord": {
+        "key": "u",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.type",
+      "group": "工具",
+      "title": "type 工具",
+      "chord": {
+        "key": "t",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.eyedropper",
+      "group": "工具",
+      "title": "eyedropper 工具",
+      "chord": {
+        "key": "i",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.hand",
+      "group": "工具",
+      "title": "hand 工具",
+      "chord": {
+        "key": "h",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "tool.zoom",
+      "group": "工具",
+      "title": "zoom 工具",
+      "chord": {
+        "key": "z",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => setTool(tool)"
+    },
+    {
+      "id": "file.new",
+      "group": "文件",
+      "title": "新建画布",
+      "chord": {
+        "key": "n",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"newCanvas\")"
+    },
+    {
+      "id": "file.newLayer",
+      "group": "文件",
+      "title": "新建图层",
+      "chord": {
+        "key": "n",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"newLayer\")"
+    },
+    {
+      "id": "file.open",
+      "group": "文件",
+      "title": "打开 .comp 工程",
+      "chord": {
+        "key": "o",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"openComp\")"
+    },
+    {
+      "id": "file.save",
+      "group": "文件",
+      "title": "保存工程",
+      "chord": {
+        "key": "s",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"saveComp\")"
+    },
+    {
+      "id": "file.saveAs",
+      "group": "文件",
+      "title": "另存为…",
+      "chord": {
+        "key": "s",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"saveCompAs\")"
+    },
+    {
+      "id": "file.exportPng",
+      "group": "文件",
+      "title": "导出 PNG",
+      "chord": {
+        "key": "e",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => openDialog(\"exportDialog\", { format: \"png\" })"
+    },
+    {
+      "id": "file.exportJpeg",
+      "group": "文件",
+      "title": "导出 JPEG",
+      "chord": {
+        "key": "s",
+        "ctrl": true,
+        "shift": false,
+        "alt": true
+      },
+      "actionSource": "() => openDialog(\"exportDialog\", { format: \"jpeg\" })"
+    },
+    {
+      "id": "file.close",
+      "group": "文件",
+      "title": "关闭文档",
+      "chord": {
+        "key": "w",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"closeDocument\")"
+    },
+    {
+      "id": "edit.undo",
+      "group": "编辑",
+      "title": "撤销",
+      "chord": {
+        "key": "z",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"undo\")"
+    },
+    {
+      "id": "edit.redo",
+      "group": "编辑",
+      "title": "重做",
+      "chord": {
+        "key": "z",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"redo\")"
+    },
+    {
+      "id": "edit.cut",
+      "group": "编辑",
+      "title": "剪切",
+      "chord": {
+        "key": "x",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"cut\")"
+    },
+    {
+      "id": "edit.copy",
+      "group": "编辑",
+      "title": "复制",
+      "chord": {
+        "key": "c",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"copy\")"
+    },
+    {
+      "id": "edit.copyMerged",
+      "group": "编辑",
+      "title": "复制合并",
+      "chord": {
+        "key": "c",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"copyMerged\")"
+    },
+    {
+      "id": "edit.paste",
+      "group": "编辑",
+      "title": "粘贴",
+      "chord": {
+        "key": "v",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"paste\")"
+    },
+    {
+      "id": "edit.fillForeground",
+      "group": "编辑",
+      "title": "填充前景色",
+      "chord": {
+        "key": "Delete",
+        "ctrl": false,
+        "shift": false,
+        "alt": true
+      },
+      "actionSource": "() => commands.run(\"fillForeground\")"
+    },
+    {
+      "id": "edit.fillBackground",
+      "group": "编辑",
+      "title": "填充背景色",
+      "chord": {
+        "key": "Delete",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"fillBackground\")"
+    },
+    {
+      "id": "edit.clear",
+      "group": "编辑",
+      "title": "清除选区内容",
+      "chord": {
+        "key": "Delete",
+        "ctrl": false,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"clearSelection\")"
+    },
+    {
+      "id": "edit.contentAware",
+      "group": "编辑",
+      "title": "内容识别填充",
+      "chord": {
+        "key": "Delete",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"contentAwareFill\")"
+    },
+    {
+      "id": "canvas.size",
+      "group": "画布",
+      "title": "画布大小…",
+      "chord": {
+        "key": "c",
+        "ctrl": true,
+        "shift": false,
+        "alt": true
+      },
+      "actionSource": "() => openDialog(\"canvasSize\")"
+    },
+    {
+      "id": "canvas.imageSize",
+      "group": "画布",
+      "title": "图像大小…",
+      "chord": {
+        "key": "i",
+        "ctrl": true,
+        "shift": false,
+        "alt": true
+      },
+      "actionSource": "() => openDialog(\"imageSize\")"
+    },
+    {
+      "id": "select.all",
+      "group": "选择",
+      "title": "全选",
+      "chord": {
+        "key": "a",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"selectAll\")"
+    },
+    {
+      "id": "select.deselect",
+      "group": "选择",
+      "title": "取消选择",
+      "chord": {
+        "key": "d",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"deselect\")"
+    },
+    {
+      "id": "select.inverse",
+      "group": "选择",
+      "title": "反选",
+      "chord": {
+        "key": "i",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"inverseSelection\")"
+    },
+    {
+      "id": "select.subject",
+      "group": "选择",
+      "title": "选择主体",
+      "chord": {
+        "key": "a",
+        "ctrl": true,
+        "shift": false,
+        "alt": true
+      },
+      "actionSource": "() => commands.run(\"selectSubject\")"
+    },
+    {
+      "id": "adjust.curves",
+      "group": "调整",
+      "title": "曲线调整层",
+      "chord": {
+        "key": "m",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"addAdjustment\", \"Curves\")"
+    },
+    {
+      "id": "adjust.levels",
+      "group": "调整",
+      "title": "色阶调整层",
+      "chord": {
+        "key": "l",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"addAdjustment\", \"Levels\")"
+    },
+    {
+      "id": "adjust.hueSaturation",
+      "group": "调整",
+      "title": "色相/饱和度调整层",
+      "chord": {
+        "key": "u",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"addAdjustment\", \"Hue/Saturation\")"
+    },
+    {
+      "id": "adjust.invertPixels",
+      "group": "调整",
+      "title": "反相像素 / 蒙版",
+      "chord": {
+        "key": "i",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"invertPixels\")"
+    },
+    {
+      "id": "adjust.invertLayer",
+      "group": "调整",
+      "title": "反相调整层",
+      "chord": {
+        "key": "t",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"addAdjustment\", \"Invert\")"
+    },
+    {
+      "id": "layer.duplicate",
+      "group": "图层",
+      "title": "复制图层",
+      "chord": {
+        "key": "j",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"duplicateLayer\")"
+    },
+    {
+      "id": "layer.clipping",
+      "group": "图层",
+      "title": "创建剪贴蒙版",
+      "chord": {
+        "key": "g",
+        "ctrl": true,
+        "shift": false,
+        "alt": true
+      },
+      "actionSource": "() => commands.run(\"toggleClipping\")"
+    },
+    {
+      "id": "layer.group",
+      "group": "图层",
+      "title": "编组",
+      "chord": {
+        "key": "g",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"group\")"
+    },
+    {
+      "id": "layer.ungroup",
+      "group": "图层",
+      "title": "取消编组",
+      "chord": {
+        "key": "g",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"ungroup\")"
+    },
+    {
+      "id": "layer.up",
+      "group": "图层",
+      "title": "上移一层",
+      "chord": {
+        "key": "]",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"moveLayerUp\")"
+    },
+    {
+      "id": "layer.down",
+      "group": "图层",
+      "title": "下移一层",
+      "chord": {
+        "key": "[",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"moveLayerDown\")"
+    },
+    {
+      "id": "layer.mergeDown",
+      "group": "图层",
+      "title": "向下合并",
+      "chord": {
+        "key": "e",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => commands.run(\"mergeDown\")"
+    },
+    {
+      "id": "view.fit",
+      "group": "视图",
+      "title": "适配画布",
+      "chord": {
+        "key": "0",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => fitCanvas()"
+    },
+    {
+      "id": "view.actual",
+      "group": "视图",
+      "title": "实际像素",
+      "chord": {
+        "key": "1",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => actualPixels()"
+    },
+    {
+      "id": "view.zoomIn",
+      "group": "视图",
+      "title": "放大",
+      "chord": {
+        "key": "=",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => zoomStep(1)"
+    },
+    {
+      "id": "view.zoomOut",
+      "group": "视图",
+      "title": "缩小",
+      "chord": {
+        "key": "-",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => zoomStep(-1)"
+    },
+    {
+      "id": "view.rulers",
+      "group": "视图",
+      "title": "显示标尺",
+      "chord": {
+        "key": "r",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => toggleUi(\"rulers\")"
+    },
+    {
+      "id": "view.grid",
+      "group": "视图",
+      "title": "显示网格",
+      "chord": {
+        "key": "'",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => toggleUi(\"grid\")"
+    },
+    {
+      "id": "view.guides",
+      "group": "视图",
+      "title": "显示参考线",
+      "chord": {
+        "key": ";",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => toggleUi(\"guides\")"
+    },
+    {
+      "id": "view.snap",
+      "group": "视图",
+      "title": "吸附设置…",
+      "chord": {
+        "key": ";",
+        "ctrl": true,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => openDialog(\"snapSettings\")"
+    },
+    {
+      "id": "view.transformControls",
+      "group": "视图",
+      "title": "显示变换控件",
+      "chord": {
+        "key": "h",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => toggleUi(\"transformControls\")"
+    },
+    {
+      "id": "brush.smaller",
+      "group": "工具选项",
+      "title": "减小画笔大小",
+      "chord": {
+        "key": "[",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => nudgeBrush(-1)"
+    },
+    {
+      "id": "brush.bigger",
+      "group": "工具选项",
+      "title": "增大画笔大小",
+      "chord": {
+        "key": "]",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => nudgeBrush(1)"
+    },
+    {
+      "id": "brush.softer",
+      "group": "工具选项",
+      "title": "减小画笔硬度",
+      "chord": {
+        "key": "[",
+        "ctrl": false,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => nudgeHardness(-10)"
+    },
+    {
+      "id": "brush.harder",
+      "group": "工具选项",
+      "title": "增大画笔硬度",
+      "chord": {
+        "key": "]",
+        "ctrl": false,
+        "shift": true,
+        "alt": false
+      },
+      "actionSource": "() => nudgeHardness(10)"
+    },
+    {
+      "id": "tool.swapColors",
+      "group": "工具选项",
+      "title": "交换前景/背景色",
+      "chord": {
+        "key": "x",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => swapColors()"
+    },
+    {
+      "id": "tool.resetColors",
+      "group": "工具选项",
+      "title": "复位颜色",
+      "chord": {
+        "key": "d",
+        "ctrl": false,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => resetColors()"
+    },
+    {
+      "id": "help.shortcuts",
+      "group": "帮助",
+      "title": "键盘快捷键…",
+      "chord": {
+        "key": "k",
+        "ctrl": true,
+        "shift": false,
+        "alt": false
+      },
+      "actionSource": "() => openDialog(\"shortcuts\")"
+    }
+  ],
+  "rawDefaults": {
+    "exposure": 0,
+    "highlights": 0,
+    "shadows": 0,
+    "whites": 0,
+    "blacks": 0,
+    "brightness": 0,
+    "contrast": 0,
+    "saturation": 0,
+    "temperature": 0,
+    "tint": 0,
+    "vibrance": 0,
+    "clarity": 0,
+    "dehaze": 0,
+    "curvePoints": [
+      [
+        0,
+        0
+      ],
+      [
+        255,
+        255
+      ]
+    ],
+    "colorMixer": [
+      {
+        "hue": 0,
+        "saturation": 0,
+        "luminance": 0,
+        "red": 0,
+        "orange": 0,
+        "yellow": 0,
+        "green": 0,
+        "aqua": 0,
+        "blue": 0,
+        "purple": 0,
+        "magenta": 0
+      }
+    ],
+    "colorGrading": {
+      "shadows": [
+        0,
+        0,
+        0
+      ],
+      "mids": [
+        0,
+        0,
+        0
+      ],
+      "highlights": [
+        0,
+        0,
+        0
+      ]
+    },
+    "sharpening": 0,
+    "radius": 1,
+    "detail": 25,
+    "denoise": 0,
+    "vignette": 0,
+    "grain": 0,
+    "removeCA": 0,
+    "distortion": 0,
+    "defringe": 0,
+    "cropLeft": 0,
+    "cropTop": 0,
+    "cropRight": 0,
+    "cropBottom": 0
+  },
+  "rawGroups": [
+    {
+      "id": "light",
+      "label": "光效"
+    },
+    {
+      "id": "color",
+      "label": "颜色"
+    },
+    {
+      "id": "curve",
+      "label": "曲线"
+    },
+    {
+      "id": "mixer",
+      "label": "颜色混合"
+    },
+    {
+      "id": "grading",
+      "label": "颜色分级"
+    },
+    {
+      "id": "detail",
+      "label": "细节"
+    },
+    {
+      "id": "optics",
+      "label": "光学"
+    },
+    {
+      "id": "geometry",
+      "label": "几何"
+    }
+  ],
+  "blendModes": [
+    "Normal",
+    "Darken",
+    "Multiply",
+    "Color Burn",
+    "Linear Burn",
+    "Lighten",
+    "Screen",
+    "Color Dodge",
+    "Linear Dodge (Add)",
+    "Overlay",
+    "Soft Light",
+    "Hard Light",
+    "Vivid Light",
+    "Linear Light",
+    "Pin Light",
+    "Hard Mix",
+    "Difference",
+    "Exclusion",
+    "Subtract",
+    "Divide",
+    "Hue",
+    "Saturation",
+    "Color",
+    "Luminosity"
+  ]
+}

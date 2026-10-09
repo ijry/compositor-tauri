@@ -1,0 +1,218 @@
+[
+  {
+    "id": "PSD-blend-Normal",
+    "title": "PSD混合模式往返 Normal",
+    "status": "通过",
+    "before": "a4916eb",
+    "after": "a4916eb",
+    "expected": "Normal",
+    "actual": "Normal"
+  },
+  {
+    "id": "PSD-blend-Darken",
+    "title": "PSD混合模式往返 Darken",
+    "status": "通过",
+    "before": "72e346a9",
+    "after": "72e346a9",
+    "expected": "Darken",
+    "actual": "Darken"
+  },
+  {
+    "id": "PSD-blend-Multiply",
+    "title": "PSD混合模式往返 Multiply",
+    "status": "通过",
+    "before": "487df9a2",
+    "after": "487df9a2",
+    "expected": "Multiply",
+    "actual": "Multiply"
+  },
+  {
+    "id": "PSD-blend-Color Burn",
+    "title": "PSD混合模式往返 Color Burn",
+    "status": "通过",
+    "before": "5be20fe6",
+    "after": "5be20fe6",
+    "expected": "Color Burn",
+    "actual": "Color Burn"
+  },
+  {
+    "id": "PSD-blend-Linear Burn",
+    "title": "PSD混合模式往返 Linear Burn",
+    "status": "通过",
+    "before": "78409632",
+    "after": "78409632",
+    "expected": "Linear Burn",
+    "actual": "Linear Burn"
+  },
+  {
+    "id": "PSD-blend-Lighten",
+    "title": "PSD混合模式往返 Lighten",
+    "status": "通过",
+    "before": "1667ceb7",
+    "after": "1667ceb7",
+    "expected": "Lighten",
+    "actual": "Lighten"
+  },
+  {
+    "id": "PSD-blend-Screen",
+    "title": "PSD混合模式往返 Screen",
+    "status": "通过",
+    "before": "d14de5ca",
+    "after": "d14de5ca",
+    "expected": "Screen",
+    "actual": "Screen"
+  },
+  {
+    "id": "PSD-blend-Color Dodge",
+    "title": "PSD混合模式往返 Color Dodge",
+    "status": "通过",
+    "before": "e4828cc6",
+    "after": "e4828cc6",
+    "expected": "Color Dodge",
+    "actual": "Color Dodge"
+  },
+  {
+    "id": "PSD-blend-Linear Dodge (Add)",
+    "title": "PSD混合模式往返 Linear Dodge (Add)",
+    "status": "通过",
+    "before": "52432e0e",
+    "after": "52432e0e",
+    "expected": "Linear Dodge (Add)",
+    "actual": "Linear Dodge (Add)"
+  },
+  {
+    "id": "PSD-blend-Overlay",
+    "title": "PSD混合模式往返 Overlay",
+    "status": "通过",
+    "before": "6898b069",
+    "after": "6898b069",
+    "expected": "Overlay",
+    "actual": "Overlay"
+  },
+  {
+    "id": "PSD-blend-Soft Light",
+    "title": "PSD混合模式往返 Soft Light",
+    "status": "通过",
+    "before": "d2de80f1",
+    "after": "d2de80f1",
+    "expected": "Soft Light",
+    "actual": "Soft Light"
+  },
+  {
+    "id": "PSD-blend-Hard Light",
+    "title": "PSD混合模式往返 Hard Light",
+    "status": "通过",
+    "before": "c8eea333",
+    "after": "c8eea333",
+    "expected": "Hard Light",
+    "actual": "Hard Light"
+  },
+  {
+    "id": "PSD-blend-Vivid Light",
+    "title": "PSD混合模式往返 Vivid Light",
+    "status": "通过",
+    "before": "877c0fe4",
+    "after": "877c0fe4",
+    "expected": "Vivid Light",
+    "actual": "Vivid Light"
+  },
+  {
+    "id": "PSD-blend-Linear Light",
+    "title": "PSD混合模式往返 Linear Light",
+    "status": "通过",
+    "before": "20b8ef41",
+    "after": "20b8ef41",
+    "expected": "Linear Light",
+    "actual": "Linear Light"
+  },
+  {
+    "id": "PSD-blend-Pin Light",
+    "title": "PSD混合模式往返 Pin Light",
+    "status": "通过",
+    "before": "708be28f",
+    "after": "708be28f",
+    "expected": "Pin Light",
+    "actual": "Pin Light"
+  },
+  {
+    "id": "PSD-blend-Hard Mix",
+    "title": "PSD混合模式往返 Hard Mix",
+    "status": "通过",
+    "before": "591d08b",
+    "after": "591d08b",
+    "expected": "Hard Mix",
+    "actual": "Hard Mix"
+  },
+  {
+    "id": "PSD-blend-Difference",
+    "title": "PSD混合模式往返 Difference",
+    "status": "通过",
+    "before": "f305c833",
+    "after": "f305c833",
+    "expected": "Difference",
+    "actual": "Difference"
+  },
+  {
+    "id": "PSD-blend-Exclusion",
+    "title": "PSD混合模式往返 Exclusion",
+    "status": "通过",
+    "before": "29366931",
+    "after": "29366931",
+    "expected": "Exclusion",
+    "actual": "Exclusion"
+  },
+  {
+    "id": "PSD-blend-Subtract",
+    "title": "PSD混合模式往返 Subtract",
+    "status": "通过",
+    "before": "b9e0ed",
+    "after": "b9e0ed",
+    "expected": "Subtract",
+    "actual": "Subtract"
+  },
+  {
+    "id": "PSD-blend-Divide",
+    "title": "PSD混合模式往返 Divide",
+    "status": "通过",
+    "before": "8d836312",
+    "after": "8d836312",
+    "expected": "Divide",
+    "actual": "Divide"
+  },
+  {
+    "id": "PSD-blend-Hue",
+    "title": "PSD混合模式往返 Hue",
+    "status": "通过",
+    "before": "b99e9dfe",
+    "after": "b99e9dfe",
+    "expected": "Hue",
+    "actual": "Hue"
+  },
+  {
+    "id": "PSD-blend-Saturation",
+    "title": "PSD混合模式往返 Saturation",
+    "status": "通过",
+    "before": "a89520b2",
+    "after": "a89520b2",
+    "expected": "Saturation",
+    "actual": "Saturation"
+  },
+  {
+    "id": "PSD-blend-Color",
+    "title": "PSD混合模式往返 Color",
+    "status": "通过",
+    "before": "1d523dca",
+    "after": "1d523dca",
+    "expected": "Color",
+    "actual": "Color"
+  },
+  {
+    "id": "PSD-blend-Luminosity",
+    "title": "PSD混合模式往返 Luminosity",
+    "status": "通过",
+    "before": "3a7e4c0",
+    "after": "3a7e4c0",
+    "expected": "Luminosity",
+    "actual": "Luminosity"
+  }
+]

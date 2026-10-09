@@ -6,6 +6,7 @@
  *  - 通过编辑器接口拿到当前绘制目标（图层像素或图层蒙版）；
  *  - 按下时开始交互（记录快照），松开时提交为一条历史记录。
  */
+import { compositeDocument } from '@/core/engine/compositor';
 import { spotHeal } from '@/core/filters/contentAware';
 import { cloneBuffer, maskToBuffer } from '@/core/pixels';
 import { applyMatrix } from '@/core/geometry';
@@ -108,6 +109,9 @@ function smoothPoint(editor: EditorApi, point: Point): Point {
   return state.smoothed;
 }
 
+/** 上一次笔画端点只在同文档同图层使用，Shift点击可连接直线。 */
+let brushEndpoint: {docId:string;layerId:string;point:Point}|null=null;
+
 /** 画笔工具 */
 export const brushTool: ToolDefinition = {
   id: 'brush',
@@ -125,18 +129,12 @@ export const brushTool: ToolDefinition = {
     { key: 'mode', label: '模式', type: 'select', options: [{ value: 'paint', label: '绘制' }, { value: 'erase', label: '擦除' }] },
   ],
   onDown(editor, event) {
-    startPaint(editor, event.doc);
-    if (!state.active) return;
-    const params = paintParams(editor);
-    const erase = editor.option<string>('mode', 'paint') === 'erase';
-    paintDab(editor.doc, state.target!, {
-      x: event.doc.x,
-      y: event.doc.y,
-      ...params,
-      color: brushColor(editor, erase),
-      erase,
-      flow: 1,
-    });
+    startPaint(editor,event.doc);if(!state.active||!state.target)return;
+    const params=paintParams(editor),erase=editor.option<string>('mode','paint')==='erase';
+    const options={...params,color:brushColor(editor,erase),erase,flow:1};
+    if(event.shift&&brushEndpoint?.docId===editor.doc.id&&brushEndpoint.layerId===state.target.layer.id)dabAlongLine(editor.doc,state.target,brushEndpoint.point,event.doc,Math.max(.5,params.radius*.12),options);
+    else paintDab(editor.doc,state.target,{x:event.doc.x,y:event.doc.y,...options});
+    state.last=event.doc;
     editor.markLayerDirty(state.target!.layer.id);
   },
   onMove(editor, event) {
@@ -158,6 +156,7 @@ export const brushTool: ToolDefinition = {
     editor.markLayerDirty(state.target.layer.id);
   },
   onUp(editor) {
+    if(state.target)brushEndpoint={docId:editor.doc.id,layerId:state.target.layer.id,point:{...state.last}};
     finishPaint(editor, '画笔');
   },
   drawOverlay(context) {
@@ -265,80 +264,43 @@ export const cloneTool: ToolDefinition = {
     { key: 'aligned', label: '对齐', type: 'boolean' },
     { key: 'sampleAllLayers', label: '所有图层取样', type: 'boolean' },
   ],
-  onDown(editor, event) {
-    // ⌥ 点击设置采样源
-    if (event.alt) {
-      state.cloneSource = event.doc;
-      editor.status('已设置仿制源');
-      return;
-    }
-    startPaint(editor, event.doc);
-    state.cloneOrigin = state.cloneSource ? event.doc : null;
+  onDown(editor,event) {
+    if(event.alt){state.cloneSource={...event.doc};cloneOffset=null;editor.status('已设置仿制源');return;}
+    if(!state.cloneSource){editor.status('请先按Alt点击设置仿制源');return;}
+    startPaint(editor,event.doc);if(!state.active||!state.target)return;
+    const layer=state.target.layer;
+    if(!editor.option<boolean>('aligned',true)||!cloneOffset)cloneOffset={x:state.cloneSource.x-event.doc.x,y:state.cloneSource.y-event.doc.y};
+    cloneSample=cloneBuffer(editor.option<boolean>('sampleAllLayers',true)?editor.composite():compositeDocument({...editor.doc,layers:[{...layer,parentId:null,clipping:false}]},editor.doc.width,editor.doc.height,{scale:1}).buffer);
+    cloneDab(editor,event.doc);state.last=event.doc;
   },
-  onMove(editor, event) {
-    if (!state.active || !state.target || !state.cloneSource || !state.cloneOrigin) return;
-    const aligned = editor.option<boolean>('aligned', true);
-    const origin = aligned ? state.cloneOrigin : state.cloneSource;
-    const offset = { x: event.doc.x - origin.x, y: event.doc.y - origin.y };
-    const params = paintParams(editor);
-    // 直接把源区域的像素复制到当前位置（按笔尖圆形范围取样）
-    const layer = state.target.layer;
-    if (layer.kind !== 'pixel' || !layer.pixels) return;
-    const mapping = makeLayerMapping(layer);
-    const radius = params.radius / mapping.scale;
-    stampClone(editor, layer.pixels, mapping.toLocal(event.doc), offset, radius, params);
-    state.cloneOrigin = event.doc;
-    editor.markLayerDirty(layer.id);
+  onMove(editor,event) {
+    if(!state.active||!state.target||!cloneSample||!cloneOffset)return;
+    const distance=Math.hypot(event.doc.x-state.last.x,event.doc.y-state.last.y),steps=Math.max(1,Math.ceil(distance/Math.max(1,paintParams(editor).radius*.2)));
+    for(let i=1;i<=steps;i++)cloneDab(editor,{x:state.last.x+(event.doc.x-state.last.x)*i/steps,y:state.last.y+(event.doc.y-state.last.y)*i/steps});
+    state.last=event.doc;editor.markLayerDirty(state.target.layer.id);
   },
-  onUp(editor) {
-    finishPaint(editor, '仿制图章');
-  },
+  onUp(editor){finishPaint(editor,'仿制图章');cloneSample=null;},
   animate() {
     return true;
   },
 };
 
-/**
- * 仿制落笔：以当前笔尖位置为中心，按偏移量从图层自身像素取样复制。
- * 硬度决定笔尖边缘羽化，不透明度决定与原像素的混合比例。
- */
-function stampClone(
-  editor: EditorApi,
-  pixels: import('@/types/document').PixelBuffer,
-  center: Point,
-  offset: Point,
-  radius: number,
-  params: { hardness: number; opacity: number },
-): void {
-  const snapshot = new Uint8ClampedArray(pixels.data);
-  const selection = editor.doc.selection;
-  const inner = radius * Math.max(0, Math.min(1, params.hardness));
-  const x0 = Math.max(0, Math.floor(center.x - radius));
-  const x1 = Math.min(pixels.width - 1, Math.ceil(center.x + radius));
-  const y0 = Math.max(0, Math.floor(center.y - radius));
-  const y1 = Math.min(pixels.height - 1, Math.ceil(center.y + radius));
-  for (let y = y0; y <= y1; y += 1) {
-    for (let x = x0; x <= x1; x += 1) {
-      const distance = Math.hypot(x - center.x, y - center.y);
-      if (distance > radius) continue;
-      const falloff = distance <= inner ? 1 : 1 - (distance - inner) / Math.max(1e-4, radius - inner);
-      const sx = Math.round(x + offset.x);
-      const sy = Math.round(y + offset.y);
-      if (sx < 0 || sy < 0 || sx >= pixels.width || sy >= pixels.height) continue;
-      let coverage = falloff * params.opacity;
-      if (selection) {
-        const px = Math.min(selection.width - 1, Math.max(0, Math.floor(x)));
-        const py = Math.min(selection.height - 1, Math.max(0, Math.floor(y)));
-        coverage *= selection.data[py * selection.width + px]! / 255;
-      }
-      if (coverage <= 0) continue;
-      const si = (sy * pixels.width + sx) * 4;
-      const di = (y * pixels.width + x) * 4;
-      for (let k = 0; k < 4; k += 1) {
-        pixels.data[di + k] = snapshot[di + k]! * (1 - coverage) + snapshot[si + k]! * coverage;
-      }
-    }
+let cloneOffset:Point|null=null;
+let cloneSample:import('@/types/document').PixelBuffer|null=null;
+/** 从笔画开始时的不可变文档样本采样，避免边画边污染仿制源。 */
+function cloneDab(editor:EditorApi,point:Point):void {
+  const layer=state.target?.layer;if(!layer?.pixels||!cloneOffset||!cloneSample)return;
+  const map=makeLayerMapping(layer),center=map.toLocal(point),params=paintParams(editor),radius=params.radius/map.scale,inner=radius*params.hardness,pixels=layer.pixels;
+  for(let y=Math.max(0,Math.floor(center.y-radius));y<Math.min(pixels.height,Math.ceil(center.y+radius));y++)for(let x=Math.max(0,Math.floor(center.x-radius));x<Math.min(pixels.width,Math.ceil(center.x+radius));x++) {
+    const distance=Math.hypot(x+.5-center.x,y+.5-center.y);if(distance>radius)continue;
+    const doc=map.toDoc({x:x+.5,y:y+.5}),sx=Math.floor(doc.x+cloneOffset.x),sy=Math.floor(doc.y+cloneOffset.y);
+    if(sx<0||sy<0||sx>=cloneSample.width||sy>=cloneSample.height)continue;
+    let amount=(distance<=inner?1:(radius-distance)/Math.max(.001,radius-inner))*params.opacity;
+    const selection=editor.doc.selection;if(selection){const px=Math.floor(doc.x),py=Math.floor(doc.y);amount*=px>=0&&py>=0&&px<selection.width&&py<selection.height?selection.data[py*selection.width+px]!/255:0;}
+    const di=(y*pixels.width+x)*4,si=(sy*cloneSample.width+sx)*4;
+    for(let c=0;c<4;c++)pixels.data[di+c]=pixels.data[di+c]!*(1-amount)+cloneSample.data[si+c]!*amount;
   }
+  editor.markLayerDirty(layer.id);
 }
 
 /** 模糊工具 */
@@ -468,7 +430,7 @@ export const liquifyTool: ToolDefinition = {
     const mode = editor.option<string>('mode', 'push');
     const dx = event.doc.x - state.last.x;
     const dy = event.doc.y - state.last.y;
-    if (mode === 'push') warpRegion(layer.pixels, local, radius, dx / mapping.scale, dy / mapping.scale, 0);
+    if (mode === 'push') warpRegion(layer.pixels, local, radius, dx * strength / mapping.scale, dy * strength / mapping.scale, 0);
     else if (mode === 'twirl') warpRegion(layer.pixels, local, radius, 0, 0, strength * 0.3);
     else warpRegion(layer.pixels, local, radius, -dx / mapping.scale * 0.5, -dy / mapping.scale * 0.5, strength * 0.05);
     layer.contentKey += 1;

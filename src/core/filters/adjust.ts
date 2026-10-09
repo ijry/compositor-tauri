@@ -7,7 +7,7 @@
  * 每个函数都支持「覆盖率」参数（来自选区与调整层蒙版），
  * 计算出新颜色后按覆盖率与原像素混合，因此调整永远不会越过选区边界。
  */
-import { rgbToHsl, hslToRgb, makeRandom, fastLuma } from '@/core/color';
+import { rgbToHsl, hslToRgb, makeRandom, fastLuma, srgbToLinear, linearToSrgb } from '@/core/color';
 import { gaussianBlurBuffer, motionBlurBuffer } from '@/core/filters/blur';
 import { cloneBuffer, createBuffer } from '@/core/pixels';
 import type {
@@ -46,16 +46,18 @@ export function buildLevelsLut(range: LevelRange): Uint8ClampedArray {
 /** 由曲线生成 0-255 查找表（点按 x 递增，分段线性） */
 export function buildCurveLut(points: [number, number][]): Uint8ClampedArray {
   const lut = new Uint8ClampedArray(256);
-  const sorted = [...points].sort((a, b) => a[0] - b[0]);
-  if (sorted.length === 0) return lut.fill(0) && lut;
-  if (sorted.length === 1) return lut.fill(sorted[0][1]) && lut;
-  let index = 0;
-  for (let i = 0; i < 256; i += 1) {
-    while (index < sorted.length - 2 && sorted[index + 1][0] < i) index += 1;
-    const [x0, y0] = sorted[index];
-    const [x1, y1] = sorted[index + 1];
-    if (x1 === x0) lut[i] = y1;
-    else lut[i] = y0 + ((i - x0) / (x1 - x0)) * (y1 - y0);
+  const sorted = [...new Map(points.filter(p=>Number.isFinite(p[0])&&Number.isFinite(p[1])).map(p=>[p[0],p])).values()].sort((a,b)=>a[0]-b[0]);
+  if (!sorted.length) { for(let i=0;i<256;i++)lut[i]=i; return lut; }
+  if(sorted.length===1)return lut.fill(sorted[0]![1]);
+  const slopes=sorted.slice(1).map((p,i)=>(p[1]-sorted[i]![1])/(p[0]-sorted[i]![0]));
+  const tangents=sorted.map((_,i)=>i===0?slopes[0]!:i===sorted.length-1?slopes.at(-1)!:slopes[i-1]!*slopes[i]!<=0?0:2/(1/slopes[i-1]!+1/slopes[i]!));
+  let at=0;
+  for(let x=0;x<256;x++) {
+    if(x<=sorted[0]![0]){lut[x]=sorted[0]![1];continue;}
+    if(x>=sorted.at(-1)![0]){lut[x]=sorted.at(-1)![1];continue;}
+    while(at<sorted.length-2&&sorted[at+1]![0]<x)at++;
+    const [x0,y0]=sorted[at]!,[x1,y1]=sorted[at+1]!,span=x1-x0,t=(x-x0)/span,t2=t*t,t3=t2*t;
+    lut[x]=(2*t3-3*t2+1)*y0+(t3-2*t2+t)*span*tangents[at]!+(-2*t3+3*t2)*y1+(t3-t2)*span*tangents[at+1]!;
   }
   return lut;
 }
@@ -75,7 +77,7 @@ function gradientStops(settings: GradientMapSettings): { position: number; color
 /** 渐变映射取值：按亮度在色标之间插值，`reversed` 反转明暗 */
 export function gradientMapColor(settings: GradientMapSettings, value: number): [number, number, number] {
   const stops = gradientStops(settings);
-  const t = Math.max(0, Math.min(1, value / 255));
+  const t = Math.max(0, Math.min(1, settings.reversed ? 1-value/255 : value/255));
   let index = 0;
   while (index < stops.length - 2 && stops[index + 1].position < t) index += 1;
   const a = stops[index];
@@ -87,7 +89,7 @@ export function gradientMapColor(settings: GradientMapSettings, value: number): 
     a.color[1] + (b.color[1] - a.color[1]) * k,
     a.color[2] + (b.color[2] - a.color[2]) * k,
   ];
-  return settings.reversed ? [255 - color[0], 255 - color[1], 255 - color[2]] : color;
+  return color;
 }
 /* ------------------------------ 各类调整 ------------------------------ */
 
@@ -162,9 +164,9 @@ export function applyExposure(
   const gammaValue = Math.max(0.01, gamma);
   const { data } = buffer;
   for (let i = 0; i < data.length; i += 4) {
-    const r = Math.pow(Math.max(0, (data[i] * factor + offset * 255) / 255), gammaValue) * 255;
-    const g = Math.pow(Math.max(0, (data[i + 1] * factor + offset * 255) / 255), gammaValue) * 255;
-    const b = Math.pow(Math.max(0, (data[i + 2] * factor + offset * 255) / 255), gammaValue) * 255;
+    // 在未编码的线性光中加档位，然后重新编码为sRGB。
+    const expose=(v:number)=>linearToSrgb(Math.pow(Math.max(0,srgbToLinear(v)*factor+offset),1/gammaValue));
+    const r=expose(data[i]!),g=expose(data[i+1]!),b=expose(data[i+2]!);
     writeWithCoverage(data, i, r, g, b, coverage);
   }
 }

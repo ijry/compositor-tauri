@@ -30,9 +30,11 @@ import { importPsd } from '@/io/psd';
 
 
 
+import { createFilterSession } from '@/composables/filterSession';
 import { createIoCommands } from '@/composables/commands-io';
 import { actualPixels, closeCurrent, currentHistory, fitCanvas, hasDocument, invalidate, openDialog, openDocument, reloadDocument, findOpenProject, documentRevision, canReloadDocument, toggleUi, zoomStep } from '@/composables/useEditor';
 import type { EditorApi } from '@/types/editor';
+import { BLEND_MODES } from '@/types/document';
 import type { AdjustmentKind, CompDocument, Layer, PixelBuffer } from '@/types/document';
 
 /** 剪贴板（内部实现） */
@@ -123,6 +125,10 @@ export function createCommands(api: EditorApi) {
     }
     // 注意：这里不再取 api.doc，由顶部的惰性代理在真正访问时才解析（newCanvas 时还没有文档）
     switch (name) {
+      case 'snapSettings': api.openDialog('snapSettings'); break;
+      case 'cycleBlend': {const layer=api.activeLayer();if(!layer)break;const at=BLEND_MODES.indexOf(layer.blendMode),next=BLEND_MODES[(at+Number(payload)+BLEND_MODES.length)%BLEND_MODES.length]!;recordLayerProperty('切换混合模式',layer,layer.blendMode,next,(l,v)=>{l.blendMode=v;});break;}
+      case 'clearGuides': {const before=doc.guides.map(g=>({...g})),target=api.doc;target.guides=[];api.pushHistory('清除参考线',()=>{target.guides=before.map(g=>({...g}));},()=>{target.guides=[];});break;}
+      case 'openFilter':{const session=createFilterSession(api,String(payload));if(session)api.openDialog('filterDialog',session);else api.status('请选择未锁定的像素图层');break;}
       /* ---------------- 图层 ---------------- */
       case 'newLayer': {
         const beforeStructure = captureStructure();
@@ -132,6 +138,7 @@ export function createCommands(api: EditorApi) {
         break;
       }
       case 'duplicateLayer': {
+        if(doc.selection){const captured=captureClipboard(doc,api.activeLayer());if(captured){const before=captureStructure();pasteClipboard(doc,captured);pushStructureHistory('通过拷贝新建图层',before,captureStructure());}break;}
         const layer = api.activeLayer();
         if (!layer) break;
         const beforeStructure = captureStructure();
@@ -139,7 +146,7 @@ export function createCommands(api: EditorApi) {
         const originals = doc.layers.filter(item => included.has(item.id));
         const copies = originals.map(item => duplicateLayerCore(item, item.id === layer.id ? ' 副本' : ''));
         const mapping = new Map(originals.map((item, index) => [item.id, copies[index]!.id]));
-        for (const copy of copies) copy.parentId = copy.parentId ? mapping.get(copy.parentId) ?? copy.parentId : null;
+        for (const copy of copies){copy.parentId = copy.parentId ? mapping.get(copy.parentId) ?? copy.parentId : null;if(copy.maskSourceId)copy.maskSourceId=mapping.get(copy.maskSourceId)??copy.maskSourceId;}
         const index = doc.layers.findIndex(item => item.id === layer.id);
         doc.layers.splice(index + 1, 0, ...copies);
         doc.activeLayerId = mapping.get(layer.id)!;
@@ -147,7 +154,8 @@ export function createCommands(api: EditorApi) {
         break;
       }
       case 'deleteLayer': {
-        const ids = (payload as string[] | undefined) ?? (doc.activeLayerId ? [doc.activeLayerId] : []);
+        if(api.activeLayer()?.mask?.target==='mask'){await run('deleteMask');break;}
+        const ids = (payload as string[] | undefined) ?? (doc.selectedLayerIds?.length ? doc.selectedLayerIds : doc.activeLayerId?[doc.activeLayerId]:[]);
         if (ids.length === 0) break;
         const beforeStructure = captureStructure();
         removeLayersCore(doc, ids);
@@ -249,7 +257,13 @@ export function createCommands(api: EditorApi) {
           insertIndex = doc.layers.length;
         }
         // working 已按原数组顺序排好，直接设置父级并插入
-        for (const layer of working) layer.parentId = parentId;
+        const remap=new Map(entries.map((entry,i)=>[entry.source.id,working[i]!.id]));
+        // 只有选中子树的根换父组；后代继续引用子树内原父级/副本父级。
+        for(let i=0;i<working.length;i++) {
+          const source=entries[i]!.source,originalParent=beforeStructure.parents[source.id];
+          working[i]!.parentId=originalParent&&pickedIds.has(originalParent)?(options.duplicate?remap.get(originalParent)!:originalParent):parentId;
+          if(working[i]!.maskSourceId && remap.has(working[i]!.maskSourceId!))working[i]!.maskSourceId=remap.get(working[i]!.maskSourceId!)!;
+        }
         doc.layers.splice(Math.max(0, Math.min(doc.layers.length, insertIndex)), 0, ...working);
         doc.activeLayerId = working[working.length - 1]?.id ?? doc.activeLayerId;
 
@@ -273,7 +287,7 @@ export function createCommands(api: EditorApi) {
         recordLayerProperty('剪贴蒙版',layer,layer.clipping,!layer.clipping,(target,value)=>{target.clipping=value;});
         break;
       }      case 'group': {
-        const ids = (payload as string[] | undefined) ?? doc.layers.filter((item) => item.parentId === doc.activeLayerId && item.isVisible).slice(-3).map((item) => item.id);
+        const ids = (payload as string[] | undefined) ?? (doc.selectedLayerIds?.length ? doc.selectedLayerIds : doc.activeLayerId?[doc.activeLayerId]:[]);
         if (ids.length === 0) break;
         const beforeStructure = captureStructure();
         groupLayersCore(doc, ids);
@@ -289,6 +303,7 @@ export function createCommands(api: EditorApi) {
         break;
       }
       case 'mergeDown': {
+        if((doc.selectedLayerIds?.length??0)>1){await run('mergeSelection',doc.selectedLayerIds);break;}
         const layer = api.activeLayer();
         if (!layer) break;
         const beforeStructure = captureStructure();
@@ -297,7 +312,7 @@ export function createCommands(api: EditorApi) {
         break;
       }
       case 'mergeSelection': {
-        const ids = (payload as string[] | undefined) ?? (doc.activeLayerId ? [doc.activeLayerId] : []);
+        const ids = (payload as string[] | undefined) ?? (doc.selectedLayerIds?.length ? doc.selectedLayerIds : doc.activeLayerId?[doc.activeLayerId]:[]);
         if (ids.length < 2) break;
         const beforeStructure = captureStructure();
         mergeLayersCore(doc, ids);
@@ -533,7 +548,7 @@ export function createCommands(api: EditorApi) {
             const value = selection && dx >= 0 && dy >= 0 && dx < selection.width && dy < selection.height
               ? selection.data[dy * selection.width + dx]!
               : 255;
-            hole[y * layer.pixels.width + x] = value > 8 ? 1 : 0;
+            hole[y * layer.pixels.width + x] = value;
           }
         }
         const snapshot = api.snapshotLayer(layer.id);
@@ -565,14 +580,16 @@ export function createCommands(api: EditorApi) {
         await run('clearSelection');
         break;
       }
+      case 'pastePayload':
       case 'paste': {
-        if(!clipboard)break;
+        const data=name==='pastePayload'?payload as ClipboardPayload:clipboard;
+        if(!data)break;
         const before=captureStructure();
-        pasteClipboard(api.doc,clipboard);
+        pasteClipboard(api.doc,data);
         pushStructureHistory('粘贴',before,captureStructure());
         break;
       }
-      case 'flattenClipboard': break;
+      case 'flattenClipboard': {const captured=captureClipboard(doc,api.activeLayer(),true);if(captured)clipboard=captured;break;}
 
       /* ---------------- 画布 ---------------- */
       case 'canvasSize': {

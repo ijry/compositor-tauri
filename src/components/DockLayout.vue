@@ -153,7 +153,7 @@ function cycleDock(id: PanelId): void {
     <!-- 左侧停靠 -->
     <div v-if="left.length > 0" class="dock dock-left">
       <div v-for="panel in left" :key="panel.id" class="dock-panel" :style="panelStyle(panel.id)">
-        <header class="dock-header" @dblclick="toggleCollapse(panel.id)">
+        <header class="dock-header" @dblclick="toggleFloat(panel.id)">
           <button class="chev" :class="{ collapsed: panel.collapsed }" @click="toggleCollapse(panel.id)">{{ panel.collapsed ? '›' : '‹' }}</button>
           <span v-if="!panel.collapsed" class="title">{{ panel.title }}</span>
           <span class="spacer" />
@@ -177,7 +177,7 @@ function cycleDock(id: PanelId): void {
     <!-- 右侧停靠 -->
     <div v-if="right.length > 0" class="dock dock-right">
       <div v-for="panel in right" :key="panel.id" class="dock-panel" :style="panelStyle(panel.id)">
-        <header class="dock-header" @dblclick="toggleCollapse(panel.id)">
+        <header class="dock-header" @dblclick="toggleFloat(panel.id)">
           <button class="chev" :class="{ collapsed: panel.collapsed }" @click="toggleCollapse(panel.id)">{{ panel.collapsed ? '‹' : '›' }}</button>
           <span v-if="!panel.collapsed" class="title">{{ panel.title }}</span>
           <span class="spacer" />
@@ -196,7 +196,7 @@ function cycleDock(id: PanelId): void {
     <!-- 底部停靠 -->
     <div v-if="bottom.length > 0" class="dock dock-bottom">
       <div v-for="panel in bottom" :key="panel.id" class="dock-panel horizontal" :style="panelStyle(panel.id)">
-        <header class="dock-header" @dblclick="toggleCollapse(panel.id)">
+        <header class="dock-header" @dblclick="toggleFloat(panel.id)">
           <button class="chev down" :class="{ collapsed: panel.collapsed }" @click="toggleCollapse(panel.id)">{{ panel.collapsed ? '⌄' : '⌃' }}</button>
           <span v-if="!panel.collapsed" class="title">{{ panel.title }}</span>
           <span class="spacer" />

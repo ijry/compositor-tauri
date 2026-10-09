@@ -1,0 +1,1579 @@
+[
+  {
+    "id": "PARAM-move-snap",
+    "kind": "parameter",
+    "tool": "move",
+    "key": "snap",
+    "title": "移动 / 变换 / 自动对齐",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"e2df9bcb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[28,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"47b3e7eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[29,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-move-transformAll",
+    "kind": "parameter",
+    "tool": "move",
+    "key": "transformAll",
+    "title": "移动 / 变换 / 变换所有图层",
+    "default": false,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"47b3e7eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[29,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"160fb14b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[13,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[29,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-move-showControls",
+    "kind": "parameter",
+    "tool": "move",
+    "key": "showControls",
+    "title": "移动 / 变换 / 显示变换控件",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "4af19163",
+      "3128e343"
+    ]
+  },
+  {
+    "id": "PARAM-marquee-shape",
+    "kind": "parameter",
+    "tool": "marquee",
+    "key": "shape",
+    "title": "矩形框选 / 形状",
+    "default": "rect",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-marquee-rect",
+      "TOOL-marquee-ellipse"
+    ],
+    "options": [
+      {
+        "value": "rect",
+        "label": "矩形"
+      },
+      {
+        "value": "ellipse",
+        "label": "椭圆"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-marquee-feather",
+    "kind": "parameter",
+    "tool": "marquee",
+    "key": "feather",
+    "title": "矩形框选 / 羽化",
+    "default": 0,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      6
+    ],
+    "observed": [
+      0,
+      6
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"9afa2e85\",\"gray\":false,\"count\":1216}}",
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"62daecc9\",\"gray\":true,\"count\":2200}}"
+    ]
+  },
+  {
+    "id": "PARAM-marquee-antialias",
+    "kind": "parameter",
+    "tool": "marquee",
+    "key": "antialias",
+    "title": "矩形框选 / 消除锯齿",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"8a6e0243\",\"gray\":false,\"count\":910}}",
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"648bb25d\",\"gray\":true,\"count\":960}}"
+    ]
+  },
+  {
+    "id": "PARAM-lasso-mode",
+    "kind": "parameter",
+    "tool": "lasso",
+    "key": "mode",
+    "title": "套索 / 模式",
+    "default": "free",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-lasso-free",
+      "TOOL-lasso-polygon"
+    ],
+    "options": [
+      {
+        "value": "free",
+        "label": "自由"
+      },
+      {
+        "value": "polygon",
+        "label": "多边形"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-lasso-feather",
+    "kind": "parameter",
+    "tool": "lasso",
+    "key": "feather",
+    "title": "套索 / 羽化",
+    "default": 0,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      6
+    ],
+    "observed": [
+      0,
+      6
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"3b649407\",\"gray\":false,\"count\":960}}",
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"2d982df6\",\"gray\":true,\"count\":2164}}"
+    ]
+  },
+  {
+    "id": "PARAM-wand-tolerance",
+    "kind": "parameter",
+    "tool": "wand",
+    "key": "tolerance",
+    "title": "魔棒 / 容差",
+    "default": 32,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      200
+    ],
+    "observed": [
+      0,
+      200
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"bee4e5c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"1516b3c9\",\"gray\":true,\"count\":1296}}",
+      "{\"width\":64,\"height\":64,\"image\":\"bee4e5c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"34e76dc5\",\"gray\":false,\"count\":4096}}"
+    ]
+  },
+  {
+    "id": "PARAM-wand-contiguous",
+    "kind": "parameter",
+    "tool": "wand",
+    "key": "contiguous",
+    "title": "魔棒 / 连续",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"6d831715\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"23c88495\",\"visible\":1024,\"first\":[0,0,255,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"e86db1a5\",\"gray\":true,\"count\":162}}",
+      "{\"width\":64,\"height\":64,\"image\":\"6d831715\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"23c88495\",\"visible\":1024,\"first\":[0,0,255,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"3f63687c\",\"gray\":true,\"count\":81}}"
+    ]
+  },
+  {
+    "id": "PARAM-wand-sampleAllLayers",
+    "kind": "parameter",
+    "tool": "wand",
+    "key": "sampleAllLayers",
+    "title": "魔棒 / 所有图层取样",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"bd453505\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":3,\"height\":4,\"hash\":\"aa82bb25\",\"visible\":12,\"first\":[0,255,0,255]},\"mask\":null,\"transform\":{\"origin\":[19,21],\"size\":[3,4],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"1516b3c9\",\"gray\":true,\"count\":1296}}",
+      "{\"width\":64,\"height\":64,\"image\":\"bd453505\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":3,\"height\":4,\"hash\":\"aa82bb25\",\"visible\":12,\"first\":[0,255,0,255]},\"mask\":null,\"transform\":{\"origin\":[19,21],\"size\":[3,4],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"81140d15\",\"gray\":true,\"count\":56}}"
+    ]
+  },
+  {
+    "id": "PARAM-wand-feather",
+    "kind": "parameter",
+    "tool": "wand",
+    "key": "feather",
+    "title": "魔棒 / 羽化",
+    "default": 0,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      6
+    ],
+    "observed": [
+      0,
+      6
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"bee4e5c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"1516b3c9\",\"gray\":true,\"count\":1296}}",
+      "{\"width\":64,\"height\":64,\"image\":\"bee4e5c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"e32fa461\",\"gray\":true,\"count\":2340}}"
+    ]
+  },
+  {
+    "id": "PARAM-wand-antialias",
+    "kind": "parameter",
+    "tool": "wand",
+    "key": "antialias",
+    "title": "魔棒 / 消除锯齿",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"bee4e5c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"5a77c1c5\",\"gray\":false,\"count\":1024}}",
+      "{\"width\":64,\"height\":64,\"image\":\"bee4e5c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3bbafdc5\",\"visible\":1024,\"first\":[200,60,20,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"1516b3c9\",\"gray\":true,\"count\":1296}}"
+    ]
+  },
+  {
+    "id": "PARAM-objectSelect-sensitivity",
+    "kind": "parameter",
+    "tool": "objectSelect",
+    "key": "sensitivity",
+    "title": "对象选择 / 灵敏度",
+    "default": 50,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      1,
+      95
+    ],
+    "observed": [
+      1,
+      95
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"630a44c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"630a44c5\",\"visible\":4096,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"54a7daa0\",\"gray\":true,\"count\":4085}}",
+      "{\"width\":64,\"height\":64,\"image\":\"630a44c5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"630a44c5\",\"visible\":4096,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"7a12c5fd\",\"gray\":true,\"count\":4092}}"
+    ]
+  },
+  {
+    "id": "PARAM-objectSelect-feather",
+    "kind": "parameter",
+    "tool": "objectSelect",
+    "key": "feather",
+    "title": "对象选择 / 羽化",
+    "default": 1,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      6
+    ],
+    "observed": [
+      0,
+      6
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"2551a185\",\"gray\":true,\"count\":1440}}",
+      "{\"width\":64,\"height\":64,\"image\":\"a4916eb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":{\"width\":64,\"height\":64,\"hash\":\"c2682cc5\",\"gray\":true,\"count\":2384}}"
+    ]
+  },
+  {
+    "id": "PARAM-crop-ratio",
+    "kind": "parameter",
+    "tool": "crop",
+    "key": "ratio",
+    "title": "裁剪 / 比例",
+    "default": "free",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-crop-free",
+      "TOOL-crop-1:1",
+      "TOOL-crop-4:3",
+      "TOOL-crop-3:4",
+      "TOOL-crop-16:9",
+      "TOOL-crop-9:16",
+      "TOOL-crop-3:2",
+      "TOOL-crop-2:3"
+    ],
+    "options": [
+      {
+        "value": "free",
+        "label": "自由"
+      },
+      {
+        "value": "1:1",
+        "label": "1:1"
+      },
+      {
+        "value": "4:3",
+        "label": "4:3"
+      },
+      {
+        "value": "3:4",
+        "label": "3:4"
+      },
+      {
+        "value": "16:9",
+        "label": "16:9"
+      },
+      {
+        "value": "9:16",
+        "label": "9:16"
+      },
+      {
+        "value": "3:2",
+        "label": "3:2"
+      },
+      {
+        "value": "2:3",
+        "label": "2:3"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-brush-size",
+    "kind": "parameter",
+    "tool": "brush",
+    "key": "size",
+    "title": "画笔 / 大小",
+    "default": 40,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      4,
+      18
+    ],
+    "observed": [
+      4,
+      18
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"4cd74053\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"cdee153\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"e6d11b48\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"53506648\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-brush-hardness",
+    "kind": "parameter",
+    "tool": "brush",
+    "key": "hardness",
+    "title": "画笔 / 硬度",
+    "default": 0.7,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      20,
+      90
+    ],
+    "observed": [
+      0.2,
+      0.9
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"5c63d719\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"18f71cd9\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"4142ae48\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"54be21c8\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-brush-opacity",
+    "kind": "parameter",
+    "tool": "brush",
+    "key": "opacity",
+    "title": "画笔 / 不透明度",
+    "default": 1,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      20,
+      80
+    ],
+    "observed": [
+      0.2,
+      0.8
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"a6440d9f\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"db51621f\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"f11e95d0\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"e0326090\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-brush-smoothing",
+    "kind": "parameter",
+    "tool": "brush",
+    "key": "smoothing",
+    "title": "画笔 / 平滑",
+    "default": 50,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      90
+    ],
+    "observed": [
+      0,
+      90
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"3f1a0f4d\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"39f70ecd\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"79eabc14\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"db241454\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-brush-mode",
+    "kind": "parameter",
+    "tool": "brush",
+    "key": "mode",
+    "title": "画笔 / 模式",
+    "default": "paint",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-brush-paint",
+      "TOOL-brush-erase"
+    ],
+    "options": [
+      {
+        "value": "paint",
+        "label": "绘制"
+      },
+      {
+        "value": "erase",
+        "label": "擦除"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-gradient-type",
+    "kind": "parameter",
+    "tool": "gradient",
+    "key": "type",
+    "title": "渐变 / 类型",
+    "default": "linear",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-gradient-linear",
+      "TOOL-gradient-radial",
+      "TOOL-gradient-angle",
+      "TOOL-gradient-reflected",
+      "TOOL-gradient-diamond"
+    ],
+    "options": [
+      {
+        "value": "linear",
+        "label": "线性"
+      },
+      {
+        "value": "radial",
+        "label": "径向"
+      },
+      {
+        "value": "angle",
+        "label": "角度"
+      },
+      {
+        "value": "reflected",
+        "label": "对称"
+      },
+      {
+        "value": "diamond",
+        "label": "菱形"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-gradient-opacity",
+    "kind": "parameter",
+    "tool": "gradient",
+    "key": "opacity",
+    "title": "渐变 / 不透明度",
+    "default": 100,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      20,
+      80
+    ],
+    "observed": [
+      20,
+      80
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"d37056\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"705c8ad6\",\"visible\":1024,\"first\":[75,71,79,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"7b72a500\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"1d5f5940\",\"visible\":1024,\"first\":[210,209,211,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-gradient-reverse",
+    "kind": "parameter",
+    "tool": "gradient",
+    "key": "reverse",
+    "title": "渐变 / 反向",
+    "default": false,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"973e53d\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"83866c3d\",\"visible\":1024,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"b8bc374e\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"bc9c444e\",\"visible\":1024,\"first\":[0,0,0,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-gradient-dither",
+    "kind": "parameter",
+    "tool": "gradient",
+    "key": "dither",
+    "title": "渐变 / 抖动",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"72b56d4b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"b9c6890b\",\"visible\":1024,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"973e53d\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"83866c3d\",\"visible\":1024,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-eraser-size",
+    "kind": "parameter",
+    "tool": "eraser",
+    "key": "size",
+    "title": "橡皮擦 / 大小",
+    "default": 40,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      4,
+      18
+    ],
+    "observed": [
+      4,
+      18
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"691e28bb\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"d14c0a6f\",\"visible\":834,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"a6683468\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"19ac9f93\",\"visible\":218,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-eraser-hardness",
+    "kind": "parameter",
+    "tool": "eraser",
+    "key": "hardness",
+    "title": "橡皮擦 / 硬度",
+    "default": 0.7,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      20,
+      90
+    ],
+    "observed": [
+      0.2,
+      0.9
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"8def1551\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"1ce51b98\",\"visible\":707,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"c422b7ea\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"806870d8\",\"visible\":439,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-eraser-opacity",
+    "kind": "parameter",
+    "tool": "eraser",
+    "key": "opacity",
+    "title": "橡皮擦 / 不透明度",
+    "default": 1,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      20,
+      80
+    ],
+    "observed": [
+      0.2,
+      0.8
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"6c47d235\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"1c0e15dd\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"6b1437ed\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"56425b6a\",\"visible\":455,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-eraser-smoothing",
+    "kind": "parameter",
+    "tool": "eraser",
+    "key": "smoothing",
+    "title": "橡皮擦 / 平滑",
+    "default": 50,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      90
+    ],
+    "observed": [
+      0,
+      90
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"140b2562\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"97fca32a\",\"visible\":395,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"f660bbf0\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"2206b74f\",\"visible\":580,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-healing-size",
+    "kind": "parameter",
+    "tool": "healing",
+    "key": "size",
+    "title": "污点修复 / 大小",
+    "default": 30,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      4,
+      18
+    ],
+    "observed": [
+      4,
+      18
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"c57c1788\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"9b11548\",\"visible\":1024,\"first\":[30,80,160,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"d68e9dc5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3d7d95c5\",\"visible\":1024,\"first\":[30,80,160,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-healing-spacing",
+    "kind": "parameter",
+    "tool": "healing",
+    "key": "spacing",
+    "title": "污点修复 / 采样范围",
+    "default": 200,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      8,
+      32
+    ],
+    "observed": [
+      8,
+      32
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"c51e10f4\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"bf81fdb4\",\"visible\":1024,\"first\":[30,80,160,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"d68e9dc5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3d7d95c5\",\"visible\":1024,\"first\":[30,80,160,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-clone-size",
+    "kind": "parameter",
+    "tool": "clone",
+    "key": "size",
+    "title": "仿制图章 / 大小",
+    "default": 40,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "基础仿制取样另由TOOL-clone-default及回放测试验证；此项仅验证参数差分",
+    "values": [
+      4,
+      18
+    ],
+    "observed": [
+      4,
+      18
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"ce2dcc5a\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"80ba355a\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"a4fddb46\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"bfbe3086\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-clone-hardness",
+    "kind": "parameter",
+    "tool": "clone",
+    "key": "hardness",
+    "title": "仿制图章 / 硬度",
+    "default": 0.5,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "基础仿制取样另由TOOL-clone-default及回放测试验证；此项仅验证参数差分",
+    "values": [
+      20,
+      90
+    ],
+    "observed": [
+      0.2,
+      0.9
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"e651f1f1\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"7e272ff1\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"c16e1471\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"91d7ba31\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-clone-opacity",
+    "kind": "parameter",
+    "tool": "clone",
+    "key": "opacity",
+    "title": "仿制图章 / 不透明度",
+    "default": 1,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "基础仿制取样另由TOOL-clone-default及回放测试验证；此项仅验证参数差分",
+    "values": [
+      20,
+      80
+    ],
+    "observed": [
+      0.2,
+      0.8
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"babe4f7b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"2907bb3b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"4f9dd67b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"40e001bb\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-clone-aligned",
+    "kind": "parameter",
+    "tool": "clone",
+    "key": "aligned",
+    "title": "仿制图章 / 对齐",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "基础仿制取样另由TOOL-clone-default及回放测试验证；此项仅验证参数差分",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"42352cff\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"667cc33f\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"eed6271\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"bc214ab1\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-clone-sampleAllLayers",
+    "kind": "parameter",
+    "tool": "clone",
+    "key": "sampleAllLayers",
+    "title": "仿制图章 / 所有图层取样",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "基础仿制取样另由TOOL-clone-default及回放测试验证；此项仅验证参数差分",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"1f17a146\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"3629eedd\",\"visible\":973,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"1f17a146\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"68bbee46\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-blur-size",
+    "kind": "parameter",
+    "tool": "blur",
+    "key": "size",
+    "title": "模糊 / 大小",
+    "default": 40,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      4,
+      18
+    ],
+    "observed": [
+      4,
+      18
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"6f7de9a3\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"bb9f4623\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"6a7d0791\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"6587f451\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-blur-hardness",
+    "kind": "parameter",
+    "tool": "blur",
+    "key": "hardness",
+    "title": "模糊 / 硬度",
+    "default": 0.5,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      20,
+      90
+    ],
+    "observed": [
+      0.2,
+      0.9
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"fa8ae025\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"ccb555e5\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"e7da7a0c\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"a98ebccc\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-blur-strength",
+    "kind": "parameter",
+    "tool": "blur",
+    "key": "strength",
+    "title": "模糊 / 强度",
+    "default": 0.5,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      10,
+      90
+    ],
+    "observed": [
+      0.1,
+      0.9
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"87d747be\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"103bdf3e\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"e3a67f9d\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"e041d41d\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-blur-target",
+    "kind": "parameter",
+    "tool": "blur",
+    "key": "target",
+    "title": "模糊 / 目标",
+    "default": "pixels",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-blur-pixels",
+      "TOOL-blur-mask"
+    ],
+    "options": [
+      {
+        "value": "pixels",
+        "label": "像素"
+      },
+      {
+        "value": "mask",
+        "label": "蒙版"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-smudge-size",
+    "kind": "parameter",
+    "tool": "smudge",
+    "key": "size",
+    "title": "涂抹 / 大小",
+    "default": 40,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      4,
+      18
+    ],
+    "observed": [
+      4,
+      18
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"407e6e82\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"d123c142\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"4c54a343\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"d28670c3\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-smudge-strength",
+    "kind": "parameter",
+    "tool": "smudge",
+    "key": "strength",
+    "title": "涂抹 / 强度",
+    "default": 50,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      10,
+      90
+    ],
+    "observed": [
+      10,
+      90
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"7f4f95fa\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"93cf217a\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"e8edc6a9\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"7b8ba8a9\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-liquify-mode",
+    "kind": "parameter",
+    "tool": "liquify",
+    "key": "mode",
+    "title": "液化 / 模式",
+    "default": "push",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-liquify-push",
+      "TOOL-liquify-twirl",
+      "TOOL-liquify-bloat"
+    ],
+    "options": [
+      {
+        "value": "push",
+        "label": "向前变形"
+      },
+      {
+        "value": "twirl",
+        "label": "旋转"
+      },
+      {
+        "value": "bloat",
+        "label": "膨胀"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-liquify-size",
+    "kind": "parameter",
+    "tool": "liquify",
+    "key": "size",
+    "title": "液化 / 大小",
+    "default": 60,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      4,
+      18
+    ],
+    "observed": [
+      4,
+      18
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"4f1eb8a2\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"8b6548e2\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"e647b7c0\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"e1e01b40\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-liquify-strength",
+    "kind": "parameter",
+    "tool": "liquify",
+    "key": "strength",
+    "title": "液化 / 强度",
+    "default": 50,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      10,
+      90
+    ],
+    "observed": [
+      10,
+      90
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"b659f97\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"f7903d97\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"dd430566\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"ab62f7a6\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-shape-kind",
+    "kind": "parameter",
+    "tool": "shape",
+    "key": "kind",
+    "title": "形状 / 形状",
+    "default": "rectangle",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-shape-rectangle",
+      "TOOL-shape-roundedRectangle",
+      "TOOL-shape-ellipse",
+      "TOOL-shape-line"
+    ],
+    "options": [
+      {
+        "value": "rectangle",
+        "label": "矩形"
+      },
+      {
+        "value": "roundedRectangle",
+        "label": "圆角矩形"
+      },
+      {
+        "value": "ellipse",
+        "label": "椭圆"
+      },
+      {
+        "value": "line",
+        "label": "直线"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-shape-fill",
+    "kind": "parameter",
+    "tool": "shape",
+    "key": "fill",
+    "title": "形状 / 填充",
+    "default": true,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"8ee97b41\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":24,\"height\":24,\"hash\":\"c27a5755\",\"visible\":92,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[20,20],\"size\":[24,24],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"4b69ef15\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":24,\"height\":24,\"hash\":\"3daa4035\",\"visible\":576,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[20,20],\"size\":[24,24],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-shape-cornerRadius",
+    "kind": "parameter",
+    "tool": "shape",
+    "key": "cornerRadius",
+    "title": "形状 / 圆角",
+    "default": 0,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      8
+    ],
+    "observed": [
+      0,
+      8
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"831385a5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":24,\"height\":24,\"hash\":\"4bd86fc5\",\"visible\":576,\"first\":[0,255,0,255]},\"mask\":null,\"transform\":{\"origin\":[20,20],\"size\":[24,24],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"d90326ac\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":24,\"height\":24,\"hash\":\"6e90d81f\",\"visible\":544,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[20,20],\"size\":[24,24],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-shape-strokeWidth",
+    "kind": "parameter",
+    "tool": "shape",
+    "key": "strokeWidth",
+    "title": "形状 / 描边宽度",
+    "default": 0,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      5
+    ],
+    "observed": [
+      0,
+      5
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"831385a5\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":24,\"height\":24,\"hash\":\"4bd86fc5\",\"visible\":576,\"first\":[0,255,0,255]},\"mask\":null,\"transform\":{\"origin\":[20,20],\"size\":[24,24],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"5cc2ec45\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":24,\"height\":24,\"hash\":\"84f48e05\",\"visible\":576,\"first\":[255,255,255,255]},\"mask\":null,\"transform\":{\"origin\":[20,20],\"size\":[24,24],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-content",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "content",
+    "title": "文字 / 内容",
+    "default": "文字",
+    "type": "select",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      "A",
+      "ABC"
+    ],
+    "observed": [
+      "A",
+      "ABC"
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"ebdc0e9c\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":22,\"height\":29,\"hash\":\"21a70f6a\",\"visible\":62,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[22,29],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"5c2ce728\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":40,\"height\":29,\"hash\":\"fdf21890\",\"visible\":171,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[40,29],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-fontName",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "fontName",
+    "title": "文字 / 字体",
+    "default": "PingFang SC",
+    "type": "select",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      "Arial",
+      "Courier New"
+    ],
+    "observed": [
+      "Arial",
+      "Courier New"
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"5abd7a62\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"4fe2e765\",\"visible\":224,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"983dca1d\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":29,\"height\":46,\"hash\":\"c7c8276a\",\"visible\":163,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[29,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-fontSize",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "fontSize",
+    "title": "文字 / 字号",
+    "default": 72,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      12,
+      20
+    ],
+    "observed": [
+      12,
+      20
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"472444a6\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":28,\"height\":39,\"hash\":\"b0b6602e\",\"visible\":191,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[28,39],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"cfc236e\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":45,\"height\":64,\"hash\":\"fe751093\",\"visible\":424,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[45,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-color",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "color",
+    "title": "文字 / 颜色",
+    "default": [
+      0,
+      0,
+      0
+    ],
+    "type": "color",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      "rgb(255, 0, 0)",
+      "rgb(0, 0, 255)"
+    ],
+    "observed": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        255
+      ]
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"ebac4e48\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"7c6a117b\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"7e004e87\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"d54b59cb\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-align",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "align",
+    "title": "文字 / 对齐",
+    "default": "left",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-type-left",
+      "TOOL-type-center",
+      "TOOL-type-right"
+    ],
+    "options": [
+      {
+        "value": "left",
+        "label": "左"
+      },
+      {
+        "value": "center",
+        "label": "中"
+      },
+      {
+        "value": "right",
+        "label": "右"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-type-tracking",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "tracking",
+    "title": "文字 / 字距",
+    "default": 0,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      6
+    ],
+    "observed": [
+      0,
+      6
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"598c537b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"d1c0c402\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"429f2eb0\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":39,\"height\":46,\"hash\":\"39fe2fc2\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[39,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-lineSpacing",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "lineSpacing",
+    "title": "文字 / 行距",
+    "default": 0,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      0,
+      26
+    ],
+    "observed": [
+      0,
+      26
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"598c537b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"d1c0c402\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"a73ffa5b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":64,\"hash\":\"d004c932\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-bold",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "bold",
+    "title": "文字 / 加粗",
+    "default": false,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"598c537b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"d1c0c402\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"43481b24\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"d66700e9\",\"visible\":331,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-type-italic",
+    "kind": "parameter",
+    "tool": "type",
+    "key": "italic",
+    "title": "文字 / 倾斜",
+    "default": false,
+    "type": "boolean",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      false,
+      true
+    ],
+    "observed": [
+      false,
+      true
+    ],
+    "fingerprints": [
+      "{\"width\":64,\"height\":64,\"image\":\"598c537b\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"d1c0c402\",\"visible\":239,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}",
+      "{\"width\":64,\"height\":64,\"image\":\"b616ac37\",\"layers\":[{\"pixels\":{\"width\":64,\"height\":64,\"hash\":\"57947dc5\",\"visible\":4096,\"first\":[20,40,70,255]},\"mask\":null,\"transform\":{\"origin\":[0,0],\"size\":[64,64],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":32,\"height\":32,\"hash\":\"df42a16b\",\"visible\":1024,\"first\":[30,25,35,255]},\"mask\":null,\"transform\":{\"origin\":[16,16],\"size\":[32,32],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"Nearest\",\"warp\":null}},{\"pixels\":{\"width\":33,\"height\":46,\"hash\":\"7ddc7db3\",\"visible\":281,\"first\":[0,0,0,0]},\"mask\":null,\"transform\":{\"origin\":[10,10],\"size\":[33,46],\"rotation\":0,\"flipX\":false,\"flipY\":false,\"sampling\":\"High quality\",\"warp\":null}}],\"selection\":null}"
+    ]
+  },
+  {
+    "id": "PARAM-eyedropper-sample",
+    "kind": "parameter",
+    "tool": "eyedropper",
+    "key": "sample",
+    "title": "吸管 / 取样",
+    "default": "composite",
+    "type": "select",
+    "status": "通过",
+    "scope": "枚举项沿用真实下拉选择和工具输出场景",
+    "related": [
+      "TOOL-eyedropper-composite",
+      "TOOL-eyedropper-layer"
+    ],
+    "options": [
+      {
+        "value": "composite",
+        "label": "所有图层"
+      },
+      {
+        "value": "layer",
+        "label": "当前图层"
+      }
+    ]
+  },
+  {
+    "id": "PARAM-eyedropper-size",
+    "kind": "parameter",
+    "tool": "eyedropper",
+    "key": "size",
+    "title": "吸管 / 取样大小",
+    "default": 1,
+    "type": "number",
+    "status": "部分通过",
+    "binding": true,
+    "effectDetected": true,
+    "reason": "界面绑定及输出差异已验证；未覆盖全部组合、持久化与原版数值一致性",
+    "values": [
+      1,
+      9
+    ],
+    "observed": [
+      1,
+      9
+    ],
+    "fingerprints": [
+      "[100,119,133]",
+      "[100,119,129]"
+    ]
+  }
+]

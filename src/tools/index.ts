@@ -5,13 +5,13 @@
  */
 import { brushTool, cloneTool, eraserTool, healingTool, liquifyTool, smudgeTool } from '@/tools/paint';
 import { blurTool } from '@/tools/paint';
-import { lassoTool, marqueeTool, objectSelectTool, wandTool } from '@/tools/selection';
+import { selectTool, lassoTool, marqueeTool, objectSelectTool, wandTool } from '@/tools/selection';
 import { cropTool, eyedropperTool, gradientTool, handTool, moveTool, shapeTool, typeTool, zoomTool } from '@/tools/transform';
 import type { ToolDefinition } from '@/tools/types';
 
 /** 工具栏分组（顺序即显示顺序） */
 export const TOOL_GROUPS: { id: string; label: string; tools: string[] }[] = [
-  { id: 'move', label: '移动 / 变换', tools: ['move'] },
+  { id: 'move', label: '移动 / 变换', tools: ['move','select'] },
   { id: 'marquee', label: '框选', tools: ['marquee'] },
   { id: 'lasso', label: '套索', tools: ['lasso'] },
   { id: 'magic', label: '魔棒 / 对象选择', tools: ['wand', 'objectSelect'] },
@@ -26,7 +26,7 @@ export const TOOL_GROUPS: { id: string; label: string; tools: string[] }[] = [
 
 /** 全部工具 */
 export const TOOLS: ToolDefinition[] = [
-  moveTool, marqueeTool, lassoTool, wandTool, objectSelectTool, cropTool,
+  moveTool, selectTool, marqueeTool, lassoTool, wandTool, objectSelectTool, cropTool,
   brushTool, gradientTool, eraserTool, healingTool, cloneTool, blurTool, smudgeTool, liquifyTool,
   shapeTool, typeTool, eyedropperTool, handTool, zoomTool,
 ];
@@ -52,6 +52,7 @@ export function cycleTool(toolId: string, direction: 1 | -1): string {
 /** 快捷键 -> 工具 id（与上游 Photoshop 风格一致） */
 export const TOOL_SHORTCUTS: Record<string, string> = {
   v: 'move',
+  a: 'select',
   m: 'marquee',
   l: 'lasso',
   w: 'wand',

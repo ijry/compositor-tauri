@@ -68,7 +68,7 @@ export function rectFromPoints(start: Point, end: Point): Rect {
 export function commitSelection(editor: EditorApi, selection: SelectionMask, mode: 'replace' | 'add' | 'subtract' | 'intersect', label = '建立选区'): void {
   const before = editor.selectionSnapshot();
   const current = editor.doc.selection;
-  editor.setSelection(combineSelection(current, selection, mode), mode);
+  editor.setSelection(combineSelection(current, selection, mode), 'replace');
   const after = editor.selectionSnapshot();
   editor.pushHistory(
     label,

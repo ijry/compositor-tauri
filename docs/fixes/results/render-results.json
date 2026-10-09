@@ -1,0 +1,55 @@
+[
+  {
+    "id": "RENDER-grid-position",
+    "title": "居中/平移画布的像素网格覆盖完整",
+    "kind": "render",
+    "pass": true,
+    "pixels": [
+      {
+        "x": 136,
+        "y": 125,
+        "before": [
+          20,
+          40,
+          70,
+          255
+        ],
+        "after": [
+          70,
+          80,
+          95,
+          255
+        ]
+      },
+      {
+        "x": 141,
+        "y": 128,
+        "before": [
+          20,
+          40,
+          70,
+          255
+        ],
+        "after": [
+          70,
+          80,
+          95,
+          255
+        ]
+      }
+    ],
+    "expected": "视口中的列8和行12都应有网格，不因画布有正的屏幕偏移而遗漏",
+    "status": "通过"
+  },
+  {
+    "id": "RENDER-grid-threshold",
+    "title": "像素网格800%显示阈值",
+    "kind": "render",
+    "pass": true,
+    "before": "fcf32a4d",
+    "after": "fcf32a4d",
+    "expected": "800%以前不显示像素网格",
+    "zoom": 7,
+    "status": "通过"
+  }
+]

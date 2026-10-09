@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-09",
+  "branch": "fix/full-feature-audit",
+  "baseCommit": "b508f9a8d1d5ee74a1b0bec6c308338c4987dc91",
+  "businessChanged": true,
+  "checks": [
+    {
+      "command": "pnpm exec vue-tsc -b --pretty false",
+      "exitCode": 0,
+      "result": "通过"
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "result": "通过"
+    },
+    {
+      "command": "pnpm exec playwright test --workers=2",
+      "exitCode": 0,
+      "result": "通过",
+      "tests": 171,
+      "passed": 171,
+      "duration": "1.1m",
+      "newTests": 24
+    },
+    {
+      "command": "node --test scripts/*.test.mjs",
+      "exitCode": 0,
+      "result": "通过",
+      "tests": 14,
+      "passed": 14
+    },
+    {
+      "command": "node scripts/pack-plugin.mjs --out dist-pack --version 0.1.0",
+      "exitCode": 0,
+      "result": "通过"
+    },
+    {
+      "command": "python scripts/verify-plugin.py dist-pack --packid otools-compositor --version 0.1.0",
+      "exitCode": 0,
+      "result": "通过"
+    }
+  ],
+  "specialized": {
+    "toolScenarios": {
+      "total": 48,
+      "passed": 48
+    },
+    "parameters": {
+      "total": 60,
+      "passed": 10,
+      "partial": 50
+    },
+    "imageKernels": {
+      "total": 47,
+      "passed": 46,
+      "notImplemented": [
+        "16位内部缓冲"
+      ]
+    },
+    "formatScenarios": {
+      "total": 45,
+      "passed": 32,
+      "notTested": 13
+    },
+    "psdEffects": {
+      "total": 6,
+      "passed": 6
+    },
+    "psdBlendModes": {
+      "total": 24,
+      "passed": 24
+    },
+    "newUiScenarios": {
+      "total": 20,
+      "passed": 20
+    },
+    "newWorkflowScenarios": {
+      "total": 6,
+      "passed": 6
+    }
+  },
+  "package": {
+    "file": "dist-pack/otools-compositor-0.1.0.oplg",
+    "bytes": 585450,
+    "sha256": "34fdc416bbeef7e54529f558cdef236390a314d8efb2c0837f25555057ac6145"
+  },
+  "progress": {
+    "fixed": 71,
+    "partial": 1,
+    "unfinished": 2
+  },
+  "boundaries": [
+    "真实OTools/系统对话框未实测",
+    "真实相机RAW/HEIC/PSB/Photoshop未实测",
+    "未实现大PSD预算裁层解码及16位处理链路",
+    "本地包未发布、未部署、未提交推送"
+  ]
+}

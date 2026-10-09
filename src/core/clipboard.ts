@@ -68,7 +68,7 @@ export function pasteClipboard(document:CompDocument,payload:ClipboardPayload): 
   } else {
     layers=payload.layers.map(layer=>duplicateLayer(layer,''));
     const mapping=new Map(payload.layers.map((layer,i)=>[layer.id,layers[i]!.id]));
-    for(const layer of layers)layer.parentId=layer.parentId?mapping.get(layer.parentId)??parent:parent;
+    for(const layer of layers){layer.parentId=layer.parentId?mapping.get(layer.parentId)??parent:parent;if(layer.maskSourceId)layer.maskSourceId=mapping.get(layer.maskSourceId)??null;}
     selected=mapping.get(payload.active)??layers.at(-1)!.id;
   }
   const index=active?document.layers.indexOf(active)+1:document.layers.length;

@@ -52,8 +52,8 @@ export function snapPoint(editor: EditorApi, point: Point, excludeIds: string[] 
         ? layerMatrix(layer.transform, layer.pixels.width, layer.pixels.height)
         : null;
       if (!matrix) continue;
-      const width = layer.transform.size[0];
-      const height = layer.transform.size[1];
+      const width = layer.pixels!.width;
+      const height = layer.pixels!.height;
       const corners = [applyMatrix(matrix, 0, 0), applyMatrix(matrix, width, 0), applyMatrix(matrix, width, height), applyMatrix(matrix, 0, height)];
       const center = applyMatrix(matrix, width / 2, height / 2);
       for (const corner of corners) {
@@ -83,4 +83,15 @@ export function snapPoint(editor: EditorApi, point: Point, excludeIds: string[] 
     point: { x: bestX ? bestX.value : point.x, y: bestY ? bestY.value : point.y },
     guide: bestX?.guide ?? bestY?.guide ?? null,
   };
+}
+
+/** 移动时以图层边缘与中心为候选，而不是鼠标抓取点。 */
+export function snapTranslation(editor:EditorApi,rect:import('@/types/document').Rect,delta:Point,ids:string[]):Point {
+  let correctionX:number|null=null,correctionY:number|null=null;
+  for(const x of [rect.x,rect.x+rect.width/2,rect.x+rect.width])for(const y of [rect.y,rect.y+rect.height/2,rect.y+rect.height]) {
+    const point={x:x+delta.x,y:y+delta.y},snapped=snapPoint(editor,point,ids).point,dx=snapped.x-point.x,dy=snapped.y-point.y;
+    if(dx!==0&&(correctionX===null||Math.abs(dx)<Math.abs(correctionX)))correctionX=dx;
+    if(dy!==0&&(correctionY===null||Math.abs(dy)<Math.abs(correctionY)))correctionY=dy;
+  }
+  return{x:delta.x+(correctionX??0),y:delta.y+(correctionY??0)};
 }

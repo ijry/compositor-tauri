@@ -23,6 +23,8 @@ let raf = 0;
 let spaceDown = false;
 let temporaryHand = false;
 /** 参考线拖拽 */
+let guideBefore:import('@/types/document').Guide[]=[];
+let guideIndex=-1;
 let guideDrag: { axis: 'horizontal' | 'vertical'; position: number; offset: number } | null = null;
 
 /** 触发重绘 */
@@ -47,7 +49,7 @@ function render(): void {
     width: size.value.width,
     height: size.value.height,
     devicePixelRatio: window.devicePixelRatio || 1,
-    showPixelGrid: true,
+    showPixelGrid: api.ui.pixelGrid,
   });
   const overlayCanvas = overlay.value;
   if (!overlayCanvas) return;
@@ -82,20 +84,20 @@ function drawGridAndGuides(ctx: CanvasRenderingContext2D): void {
   const origin = api.toScreen({ x: 0, y: 0 });
   // 网格
   if (document.grid.enabled && uiState.grid) {
-    const spacing = Math.max(4, document.grid.spacing) * zoom;
+    const spacing = Math.max(4, document.grid.spacing/(document.grid.subdivisions+1)) * zoom;
     if (spacing >= 4) {
       ctx.save();
       ctx.strokeStyle = document.grid.color;
       ctx.globalAlpha = 0.35;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      for (let x = 0; x <= document.width; x += document.grid.spacing) {
+      for (let x = 0; x <= document.width; x += document.grid.spacing/(document.grid.subdivisions+1)) {
         const sx = origin.x + x * zoom;
         if (sx < 0 || sx > size.value.width) continue;
         ctx.moveTo(Math.round(sx) + 0.5, origin.y);
         ctx.lineTo(Math.round(sx) + 0.5, origin.y + document.height * zoom);
       }
-      for (let y = 0; y <= document.height; y += document.grid.spacing) {
+      for (let y = 0; y <= document.height; y += document.grid.spacing/(document.grid.subdivisions+1)) {
         const sy = origin.y + y * zoom;
         if (sy < 0 || sy > size.value.height) continue;
         ctx.moveTo(origin.x, Math.round(sy) + 0.5);
@@ -139,7 +141,7 @@ function toToolEvent(event: PointerEvent | MouseEvent): ToolPointerEvent {
     shift: event.shiftKey,
     alt: event.altKey,
     ctrl: event.ctrlKey,
-    meta: event.metaKey,
+    meta: event.metaKey || event.ctrlKey,
     button: event.button,
     pressure: 'pressure' in event ? (event as PointerEvent).pressure || 1 : 1,
   };
@@ -159,11 +161,14 @@ function onPointerDown(event: PointerEvent): void {
   }
   if (event.button !== 0) return;
   api.beginInteraction('画布交互');
+  const doc=currentDocument.value;
+  if(doc&&!doc.guidesLocked&&uiState.guides){const p=toToolEvent(event).doc;const index=doc.guides.findIndex(g=>Math.abs((g.axis==='vertical'?p.x:p.y)-g.position)*api.viewport.zoom<=5);if(index>=0){guideBefore=doc.guides.map(g=>({...g}));guideIndex=index;guideDrag={axis:doc.guides[index]!.axis,position:doc.guides[index]!.position,offset:0};return;}}
   // 标尺上按下 -> 拖出参考线
   const rulerHit = hitRuler(event);
   if (rulerHit) {
     const document = currentDocument.value;
-    if (!document) return;
+    if (!document||document.guidesLocked) return;
+    guideBefore=document.guides.map(g=>({...g}));guideIndex=document.guides.length;
     guideDrag = { axis: rulerHit.axis, position: rulerHit.axis === 'vertical' ? api.toDoc({ x: event.clientX - element.getBoundingClientRect().left, y: 0 }).x : api.toDoc({ x: 0, y: event.clientY - element.getBoundingClientRect().top }).y, offset: 0 };
     document.guides.push({ id: `guide-${Date.now().toString(36)}`, axis: guideDrag.axis, position: guideDrag.position });
     invalidate();
@@ -190,7 +195,7 @@ function onPointerMove(event: PointerEvent): void {
       : api.toDoc({ x: 0, y: event.clientY - rect.top }).y;
     const document = currentDocument.value;
     if (document) {
-      const guide = document.guides[document.guides.length - 1];
+      const guide = document.guides[guideIndex];
       if (guide) guide.position = Math.round(position);
       invalidate();
     }
@@ -203,7 +208,7 @@ function onPointerMove(event: PointerEvent): void {
 function onPointerUp(event: PointerEvent): void {
   try {
     if (panState.active) { panState.active = false; return; }
-    if (guideDrag) { guideDrag = null; api.touch(); return; }
+    if(guideDrag){const target=currentDocument.value;if(target){const before=guideBefore.map(g=>({...g})),after=target.guides.map(g=>({...g}));api.pushHistory('修改参考线',()=>{target.guides=before.map(g=>({...g}));},()=>{target.guides=after.map(g=>({...g}));});}guideDrag=null;return;}
     dispatchPointer('up', toToolEvent(event));
   } finally { api.endInteraction(); }
 }

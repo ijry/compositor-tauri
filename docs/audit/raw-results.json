@@ -1,0 +1,917 @@
+[
+  {
+    "id": "RAW-exposure",
+    "title": "exposure",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "7025d6c9",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-highlights",
+    "title": "highlights",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "da54b1bf",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-shadows",
+    "title": "shadows",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "1789885d",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-whites",
+    "title": "whites",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "46d1c4ed",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-blacks",
+    "title": "blacks",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "f2302885",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-brightness",
+    "title": "brightness",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "5df97fcd",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-contrast",
+    "title": "contrast",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "8b50e6e7",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-saturation",
+    "title": "saturation",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "9bc1ae2f",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-temperature",
+    "title": "temperature",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "786e65c9",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-tint",
+    "title": "tint",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "15a582e2",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-vibrance",
+    "title": "vibrance",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "fb191de5",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-clarity",
+    "title": "clarity",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "1bf7c593",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-dehaze",
+    "title": "dehaze",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "3bd88c49",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-sharpening",
+    "title": "sharpening",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "7363fda",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-radius",
+    "title": "radius",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "2f889cdf",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "37bbe815",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-detail",
+    "title": "detail",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "2f889cdf",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "d2d410af",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-denoise",
+    "title": "denoise",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "fbc14f6c",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-vignette",
+    "title": "vignette",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "ab4799c9",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-grain",
+    "title": "grain",
+    "kind": "raw-parameter",
+    "status": "失败",
+    "effectDetected": false,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "此样本无差异，不能判定参数有效"
+  },
+  {
+    "id": "RAW-removeCA",
+    "title": "removeCA",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "4ba2ef51",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-distortion",
+    "title": "distortion",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "82c13af1",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-defringe",
+    "title": "defringe",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "3c691baa",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-cropLeft",
+    "title": "cropLeft",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "a92f97ef",
+      "width": 40,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-cropTop",
+    "title": "cropTop",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "52dd5242",
+      "width": 48,
+      "height": 40
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-cropRight",
+    "title": "cropRight",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "6f5eb10",
+      "width": 40,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-cropBottom",
+    "title": "cropBottom",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "bf97fa7d",
+      "width": 48,
+      "height": 40
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-hue",
+    "title": "colorMixer.hue",
+    "kind": "raw-parameter",
+    "status": "失败",
+    "effectDetected": false,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "此样本无差异，不能判定参数有效"
+  },
+  {
+    "id": "RAW-mixer-saturation",
+    "title": "colorMixer.saturation",
+    "kind": "raw-parameter",
+    "status": "失败",
+    "effectDetected": false,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "此样本无差异，不能判定参数有效"
+  },
+  {
+    "id": "RAW-mixer-luminance",
+    "title": "colorMixer.luminance",
+    "kind": "raw-parameter",
+    "status": "失败",
+    "effectDetected": false,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "此样本无差异，不能判定参数有效"
+  },
+  {
+    "id": "RAW-mixer-red",
+    "title": "colorMixer.red",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "584fd9d6",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-orange",
+    "title": "colorMixer.orange",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "9568c238",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-yellow",
+    "title": "colorMixer.yellow",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "f26d6c75",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-green",
+    "title": "colorMixer.green",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "6596632b",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-aqua",
+    "title": "colorMixer.aqua",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "961c9577",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-blue",
+    "title": "colorMixer.blue",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "58b6865f",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-purple",
+    "title": "colorMixer.purple",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "b3f3b4b6",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-magenta",
+    "title": "colorMixer.magenta",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "65e45f1b",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-grading-shadows",
+    "title": "colorGrading.shadows",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "45fef5cb",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-grading-mids",
+    "title": "colorGrading.mids",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "a0c96ff2",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-grading-highlights",
+    "title": "colorGrading.highlights",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "681a9d39",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-curves-2",
+    "title": "曲线 2 控制点",
+    "kind": "raw-parameter",
+    "status": "失败",
+    "effectDetected": false,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "此样本无差异，不能判定参数有效"
+  },
+  {
+    "id": "RAW-curves-3",
+    "title": "曲线 3 控制点",
+    "kind": "raw-parameter",
+    "status": "部分通过",
+    "effectDetected": true,
+    "before": {
+      "hash": "8b61110d",
+      "width": 48,
+      "height": 48
+    },
+    "after": {
+      "hash": "85871ca0",
+      "width": 48,
+      "height": 48
+    },
+    "scope": "合成RGB基底验证参数接线，不代替真实RAW色彩质量与Mac实机验证",
+    "reason": "有可观察输出差异；UI覆盖另列"
+  },
+  {
+    "id": "RAW-mixer-red-semantics",
+    "title": "红色混合器只命中红色族",
+    "kind": "raw-parameter",
+    "status": "失败",
+    "before": [
+      128,
+      0,
+      0,
+      255,
+      0,
+      128,
+      128,
+      255
+    ],
+    "after": [
+      128,
+      0,
+      0,
+      255,
+      0,
+      204,
+      204,
+      255
+    ],
+    "redChanged": false,
+    "cyanChanged": true
+  },
+  {
+    "id": "RAW-UI-光效",
+    "title": "光效",
+    "kind": "raw-ui",
+    "status": "部分通过",
+    "controls": 7,
+    "text": "光效exposure highlights shadows whites blacks brightness contrast",
+    "reason": "控件存在；具体数值接线见参数项"
+  },
+  {
+    "id": "RAW-UI-颜色",
+    "title": "颜色",
+    "kind": "raw-ui",
+    "status": "部分通过",
+    "controls": 6,
+    "text": "颜色temperature tint vibrance saturation clarity dehaze",
+    "reason": "控件存在；具体数值接线见参数项"
+  },
+  {
+    "id": "RAW-UI-曲线",
+    "title": "曲线",
+    "kind": "raw-ui",
+    "status": "未实现",
+    "controls": 0,
+    "text": "曲线该分组参数已实现（见 io/raw.ts 的显影流程）。",
+    "reason": "界面只有占位提示，无法编辑该组参数"
+  },
+  {
+    "id": "RAW-UI-颜色混合",
+    "title": "颜色混合",
+    "kind": "raw-ui",
+    "status": "未实现",
+    "controls": 0,
+    "text": "颜色混合该分组参数已实现（见 io/raw.ts 的显影流程）。",
+    "reason": "界面只有占位提示，无法编辑该组参数"
+  },
+  {
+    "id": "RAW-UI-颜色分级",
+    "title": "颜色分级",
+    "kind": "raw-ui",
+    "status": "未实现",
+    "controls": 0,
+    "text": "颜色分级该分组参数已实现（见 io/raw.ts 的显影流程）。",
+    "reason": "界面只有占位提示，无法编辑该组参数"
+  },
+  {
+    "id": "RAW-UI-细节",
+    "title": "细节",
+    "kind": "raw-ui",
+    "status": "部分通过",
+    "controls": 4,
+    "text": "细节sharpening detail denoise radius",
+    "reason": "控件存在；具体数值接线见参数项"
+  },
+  {
+    "id": "RAW-UI-光学",
+    "title": "光学",
+    "kind": "raw-ui",
+    "status": "部分通过",
+    "controls": 5,
+    "text": "光学removeCA distortion defringe vignette grain",
+    "reason": "控件存在；具体数值接线见参数项"
+  },
+  {
+    "id": "RAW-UI-几何",
+    "title": "几何",
+    "kind": "raw-ui",
+    "status": "未实现",
+    "controls": 0,
+    "text": "几何该分组参数已实现（见 io/raw.ts 的显影流程）。",
+    "reason": "界面只有占位提示，无法编辑该组参数"
+  },
+  {
+    "id": "RAW-cancel-import",
+    "title": "RAW 取消显影不修改原文档",
+    "kind": "raw-workflow",
+    "status": "失败",
+    "initial": {
+      "count": 3,
+      "dirty": false,
+      "history": -1
+    },
+    "afterCancel": {
+      "count": 3,
+      "dirty": false,
+      "history": -1
+    },
+    "expectedLayers": 2
+  }
+]

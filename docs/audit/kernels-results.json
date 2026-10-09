@@ -1,0 +1,1788 @@
+[
+  {
+    "id": "ADJ-Hue/Saturation",
+    "title": "调整内核 / Hue/Saturation",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "227490db",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Levels",
+    "title": "调整内核 / Levels",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "608a2302",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Curves",
+    "title": "调整内核 / Curves",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "4b4ae2bf",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Exposure",
+    "title": "调整内核 / Exposure",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "33369ac3",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Gradient Map",
+    "title": "调整内核 / Gradient Map",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "b2a101c5",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Grain",
+    "title": "调整内核 / Grain",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "96f5d18b",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Black & White",
+    "title": "调整内核 / Black & White",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "91c114e8",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Color Balance",
+    "title": "调整内核 / Color Balance",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "64219c7b",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Invert",
+    "title": "调整内核 / Invert",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "b7017b63",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Gaussian Blur",
+    "title": "调整内核 / Gaussian Blur",
+    "kind": "kernel",
+    "pass": false,
+    "before": "df42a16b",
+    "after": "df42a16b",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Motion Blur",
+    "title": "调整内核 / Motion Blur",
+    "kind": "kernel",
+    "pass": false,
+    "before": "df42a16b",
+    "after": "df42a16b",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-Add Noise",
+    "title": "调整内核 / Add Noise",
+    "kind": "kernel",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "6b27d0c9",
+    "opacityZeroIdentity": true,
+    "blackMaskIdentity": true,
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-exposure-reference",
+    "title": "曝光按线性光增加一档",
+    "kind": "kernel",
+    "pass": false,
+    "actual": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "expected": [
+      176,
+      176,
+      176,
+      255
+    ],
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-gradient-reverse",
+    "title": "反向渐变映射交换端点而非反色",
+    "kind": "kernel",
+    "pass": false,
+    "actual": [
+      0,
+      255,
+      255,
+      255
+    ],
+    "expected": [
+      0,
+      0,
+      255,
+      255
+    ],
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "ADJ-curves-interpolation",
+    "title": "曲线与上游形状保持 Hermite 插值一致",
+    "kind": "kernel",
+    "pass": false,
+    "actual": 100,
+    "expected": 114,
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Normal",
+    "title": "混合模式 / Normal",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          210,
+          50,
+          80,
+          255
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          189,
+          59,
+          108,
+          208
+        ],
+        "expected": [
+          189,
+          58,
+          107,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Darken",
+    "title": "混合模式 / Darken",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          120,
+          50,
+          80,
+          255
+        ],
+        "expected": [
+          120,
+          50,
+          80,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          155,
+          59,
+          108,
+          208
+        ],
+        "expected": [
+          154,
+          58,
+          107,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Multiply",
+    "title": "混合模式 / Multiply",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          99,
+          18,
+          63,
+          255
+        ],
+        "expected": [
+          99,
+          18,
+          63,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          146,
+          47,
+          101,
+          208
+        ],
+        "expected": [
+          147,
+          47,
+          101,
+          207
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Color Burn",
+    "title": "混合模式 / Color Burn",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          91,
+          0,
+          80,
+          255
+        ],
+        "expected": [
+          91,
+          0,
+          80,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          143,
+          40,
+          107,
+          208
+        ],
+        "expected": [
+          142,
+          39,
+          107,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Linear Burn",
+    "title": "混合模式 / Linear Burn",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          75,
+          0,
+          25,
+          255
+        ],
+        "expected": [
+          75,
+          0,
+          25,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          137,
+          40,
+          86,
+          208
+        ],
+        "expected": [
+          137,
+          40,
+          86,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Lighten",
+    "title": "混合模式 / Lighten",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          210,
+          90,
+          200,
+          255
+        ],
+        "expected": [
+          210,
+          90,
+          200,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          189,
+          75,
+          154,
+          208
+        ],
+        "expected": [
+          189,
+          74,
+          153,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Screen",
+    "title": "混合模式 / Screen",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          231,
+          122,
+          217,
+          255
+        ],
+        "expected": [
+          231,
+          122,
+          217,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          197,
+          87,
+          161,
+          208
+        ],
+        "expected": [
+          197,
+          87,
+          159,
+          208
+        ],
+        "maxDelta": 2
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Color Dodge",
+    "title": "混合模式 / Color Dodge",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          255,
+          112,
+          255,
+          255
+        ],
+        "expected": [
+          255,
+          112,
+          255,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          207,
+          83,
+          175,
+          208
+        ],
+        "expected": [
+          206,
+          83,
+          175,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Linear Dodge (Add)",
+    "title": "混合模式 / Linear Dodge (Add)",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          255,
+          140,
+          255,
+          255
+        ],
+        "expected": [
+          255,
+          140,
+          255,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          207,
+          94,
+          175,
+          208
+        ],
+        "expected": [
+          207,
+          94,
+          175,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Overlay",
+    "title": "混合模式 / Overlay",
+    "kind": "kernel",
+    "pass": false,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          132,
+          104,
+          154,
+          255
+        ],
+        "expected": [
+          197,
+          36,
+          179,
+          255
+        ],
+        "maxDelta": 68
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          159,
+          80,
+          136,
+          208
+        ],
+        "expected": [
+          184,
+          53,
+          145,
+          208
+        ],
+        "maxDelta": 27
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Soft Light",
+    "title": "混合模式 / Soft Light",
+    "kind": "kernel",
+    "pass": false,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          156,
+          53,
+          190,
+          255
+        ],
+        "expected": [
+          156,
+          55,
+          184,
+          255
+        ],
+        "maxDelta": 6
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          168,
+          60,
+          150,
+          208
+        ],
+        "expected": [
+          168,
+          60,
+          147,
+          208
+        ],
+        "maxDelta": 3
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Hard Light",
+    "title": "混合模式 / Hard Light",
+    "kind": "kernel",
+    "pass": false,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          132,
+          104,
+          154,
+          255
+        ],
+        "expected": [
+          207,
+          36,
+          125,
+          255
+        ],
+        "maxDelta": 75
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          159,
+          80,
+          136,
+          208
+        ],
+        "expected": [
+          188,
+          53,
+          124,
+          208
+        ],
+        "maxDelta": 29
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Vivid Light",
+    "title": "混合模式 / Vivid Light",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          255,
+          0,
+          167,
+          255
+        ],
+        "expected": [
+          255,
+          0,
+          167,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          207,
+          40,
+          141,
+          208
+        ],
+        "expected": [
+          207,
+          40,
+          141,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Linear Light",
+    "title": "混合模式 / Linear Light",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          255,
+          0,
+          105,
+          255
+        ],
+        "expected": [
+          255,
+          0,
+          105,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          207,
+          40,
+          117,
+          208
+        ],
+        "expected": [
+          207,
+          40,
+          117,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Pin Light",
+    "title": "混合模式 / Pin Light",
+    "kind": "kernel",
+    "pass": false,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          255,
+          0,
+          106,
+          255
+        ],
+        "expected": [
+          165,
+          90,
+          160,
+          255
+        ],
+        "maxDelta": 90
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          207,
+          40,
+          118,
+          208
+        ],
+        "expected": [
+          172,
+          75,
+          138,
+          208
+        ],
+        "maxDelta": 35
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Hard Mix",
+    "title": "混合模式 / Hard Mix",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          255,
+          0,
+          255,
+          255
+        ],
+        "expected": [
+          255,
+          0,
+          255,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          207,
+          40,
+          175,
+          208
+        ],
+        "expected": [
+          207,
+          40,
+          175,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Difference",
+    "title": "混合模式 / Difference",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          90,
+          40,
+          120,
+          255
+        ],
+        "expected": [
+          90,
+          40,
+          120,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          143,
+          55,
+          123,
+          208
+        ],
+        "expected": [
+          142,
+          54,
+          123,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Exclusion",
+    "title": "混合模式 / Exclusion",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          132,
+          104,
+          154,
+          255
+        ],
+        "expected": [
+          132,
+          104,
+          154,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          159,
+          80,
+          136,
+          208
+        ],
+        "expected": [
+          159,
+          78,
+          135,
+          208
+        ],
+        "maxDelta": 2
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Subtract",
+    "title": "混合模式 / Subtract",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          0,
+          40,
+          120,
+          255
+        ],
+        "expected": [
+          0,
+          40,
+          120,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          108,
+          55,
+          123,
+          208
+        ],
+        "expected": [
+          108,
+          55,
+          123,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Divide",
+    "title": "混合模式 / Divide",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "独立公式（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          146,
+          255,
+          255,
+          255
+        ],
+        "expected": [
+          146,
+          255,
+          255,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          164,
+          138,
+          175,
+          208
+        ],
+        "expected": [
+          164,
+          138,
+          175,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 0
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Hue",
+    "title": "混合模式 / Hue",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          186,
+          76,
+          96,
+          255
+        ],
+        "expected": [
+          186,
+          76,
+          96,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          180,
+          69,
+          114,
+          208
+        ],
+        "expected": [
+          179,
+          69,
+          114,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Saturation",
+    "title": "混合模式 / Saturation",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          124,
+          80,
+          240,
+          255
+        ],
+        "expected": [
+          124,
+          80,
+          240,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          156,
+          71,
+          170,
+          208
+        ],
+        "expected": [
+          156,
+          71,
+          169,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Color",
+    "title": "混合模式 / Color",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          220,
+          60,
+          90,
+          255
+        ],
+        "expected": [
+          220,
+          60,
+          90,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          193,
+          63,
+          111,
+          208
+        ],
+        "expected": [
+          192,
+          63,
+          110,
+          208
+        ],
+        "maxDelta": 1
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "BLEND-Luminosity",
+    "title": "混合模式 / Luminosity",
+    "kind": "kernel",
+    "pass": true,
+    "reference": "浏览器 Canvas 标准混合（容差2）",
+    "checks": [
+      {
+        "ba": 255,
+        "sa": 255,
+        "actual": [
+          110,
+          80,
+          190,
+          255
+        ],
+        "expected": [
+          110,
+          80,
+          190,
+          255
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 128,
+        "sa": 160,
+        "actual": [
+          151,
+          71,
+          150,
+          208
+        ],
+        "expected": [
+          151,
+          71,
+          150,
+          208
+        ],
+        "maxDelta": 0
+      },
+      {
+        "ba": 0,
+        "sa": 128,
+        "actual": [
+          210,
+          50,
+          80,
+          128
+        ],
+        "expected": [
+          209,
+          50,
+          80,
+          128
+        ],
+        "maxDelta": 1
+      }
+    ],
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "FX-stroke",
+    "title": "图层效果内核 / stroke",
+    "kind": "kernel",
+    "pass": true,
+    "before": "47d974e5",
+    "after": "bf7b3b45",
+    "disabled": "47d974e5",
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "FX-shadow",
+    "title": "图层效果内核 / shadow",
+    "kind": "kernel",
+    "pass": true,
+    "before": "47d974e5",
+    "after": "f01cc5f5",
+    "disabled": "47d974e5",
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "FX-colorOverlay",
+    "title": "图层效果内核 / colorOverlay",
+    "kind": "kernel",
+    "pass": true,
+    "before": "47d974e5",
+    "after": "afbecfa5",
+    "disabled": "47d974e5",
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "FX-innerShadow",
+    "title": "图层效果内核 / innerShadow",
+    "kind": "kernel",
+    "pass": true,
+    "before": "47d974e5",
+    "after": "c10174f9",
+    "disabled": "47d974e5",
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "FX-outerGlow",
+    "title": "图层效果内核 / outerGlow",
+    "kind": "kernel",
+    "pass": true,
+    "before": "47d974e5",
+    "after": "ac6d7c65",
+    "disabled": "47d974e5",
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "FX-innerGlow",
+    "title": "图层效果内核 / innerGlow",
+    "kind": "kernel",
+    "pass": true,
+    "before": "47d974e5",
+    "after": "c5810b1d",
+    "disabled": "47d974e5",
+    "status": "通过",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  },
+  {
+    "id": "FX-shadow-angle",
+    "title": "上游投影角度通过工程codec保持光源方向",
+    "kind": "kernel",
+    "pass": true,
+    "left": 255,
+    "right": 0,
+    "internalAngle": 180,
+    "savedAngle": 0,
+    "expected": "原版angle=0光从右来，codec转换为内部180，影在左，保存回0",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证",
+    "status": "通过"
+  },
+  {
+    "id": "COLOR-buffer16",
+    "title": "16位内部缓冲声明",
+    "kind": "kernel",
+    "pass": false,
+    "exports": [
+      "fastLuma",
+      "fromHex",
+      "hslToRgb",
+      "hsvToRgb",
+      "labToRgb",
+      "linearToSrgb",
+      "luminance",
+      "makeRandom",
+      "rgbToHsl",
+      "rgbToHsv",
+      "rgbToLab",
+      "srgbToLinear",
+      "toHex"
+    ],
+    "bufferType": "Uint8ClampedArray",
+    "detail": "实际缓冲固定为 Uint8ClampedArray，不支持声明的16位内部处理；Lab转换存在且由 COLOR-roundtrips 单独验证，不能混为缺失",
+    "status": "失败",
+    "scope": "真实算法调用；明确样本与断言，不代替原版实机/所有图像质量验证"
+  }
+]

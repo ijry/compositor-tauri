@@ -69,6 +69,7 @@ for (const dpr of [1, 2]) {
     try {
       await page.goto('/');
       await page.locator('.start-page .card.primary').click();
+      await page.getByRole('button',{name:'创建',exact:true}).click();
       await expect(page.locator('.cmp-stage canvas.main')).toBeVisible();
       const pixels = async () => page.locator('.cmp-stage canvas.main').evaluate((el) => {
         const canvas = el as HTMLCanvasElement;

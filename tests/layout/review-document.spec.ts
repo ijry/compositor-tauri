@@ -23,7 +23,7 @@ test('画布尺寸撤销重做完整恢复，蒙版反相即时预览', async({p
  await expect.poll(()=>page.locator('canvas.main').evaluate((el:any)=>Array.from(el.getContext('2d').getImageData(el.width/2,el.height/2,1,1).data).slice(0,3).join(','))).not.toBe('255,0,0');
 });
 test('文字点击可见、参数修改生效、可创建第二层且可撤销',async({page})=>{
- await page.goto('http://127.0.0.1:5194');await page.locator('.card.primary').click();
+ await page.goto('http://127.0.0.1:5194');await page.locator('.card.primary').click();await page.getByRole('button',{name:'创建',exact:true}).click();
  await page.locator('.cmp-toolbar button[title^="文字"]').click();
  const content=page.locator('.cmp-tool-header .el-input__inner').first();await content.fill('Hello');
  const box=(await page.locator('.cmp-stage').boundingBox())!;await page.mouse.click(box.x+200,box.y+120);
@@ -37,7 +37,7 @@ test('文字点击可见、参数修改生效、可创建第二层且可撤销',
  expect((await text()).count).toBe(2);
 });
 test('画笔参数显示实际值并正确换算百分比',async({page})=>{
- await page.goto('http://127.0.0.1:5194');await page.locator('.card.primary').click();await page.locator('.cmp-toolbar button[title^="画笔"]').click();
+ await page.goto('http://127.0.0.1:5194');await page.locator('.card.primary').click();await page.getByRole('button',{name:'创建',exact:true}).click();await page.locator('.cmp-toolbar button[title^="画笔"]').click();
  const numbers=page.locator('.cmp-tool-header input[type=number]');await expect(numbers.nth(0)).toHaveValue('40');await expect(numbers.nth(2)).toHaveValue('100');
  await numbers.nth(2).fill('50');await numbers.nth(2).press('Tab');
  const opacity=await page.evaluate(async()=>{ // @ts-ignore
@@ -45,7 +45,7 @@ test('画笔参数显示实际值并正确换算百分比',async({page})=>{
 });
 
 test('画布文字框可直接输入，多次点击已有文字不重复新建',async({page})=>{
- await page.goto('http://127.0.0.1:5194');await page.locator('.card.primary').click();await page.locator('.cmp-toolbar button[title^="文字"]').click();
+ await page.goto('http://127.0.0.1:5194');await page.locator('.card.primary').click();await page.getByRole('button',{name:'创建',exact:true}).click();await page.locator('.cmp-toolbar button[title^="文字"]').click();
  const box=(await page.locator('.cmp-stage').boundingBox())!;await page.mouse.click(box.x+150,box.y+120);
  const input=page.getByRole('textbox',{name:'编辑画布文字'});await expect(input).toBeVisible();await input.fill('画布直接输入');await input.press('Control+Enter');
  const data=await page.evaluate(async()=>{ // @ts-ignore

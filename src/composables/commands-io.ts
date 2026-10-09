@@ -84,10 +84,25 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
     },
   });
 
+  const clone=<T>(value:T):T=>{if(value instanceof Uint8ClampedArray)return new Uint8ClampedArray(value) as T;if(value instanceof Uint8Array)return new Uint8Array(value) as T;if(Array.isArray(value))return value.map(clone) as T;if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,clone(v)])) as T;return value;};
+  type ImportState={layers:CompDocument['layers'];activeLayerId:string|null;width:number;height:number};
+  const captureImport=(d:CompDocument):ImportState=>clone({layers:d.layers,activeLayerId:d.activeLayerId,width:d.width,height:d.height});
+  const restoreImport=(d:CompDocument,state:ImportState)=>{Object.assign(d,clone(state));deps.invalidate();};
+  const imports=new Map<string,{target:CompDocument;before:ImportState;dirty:boolean;committed:boolean}>();
+  function recordImport(target:CompDocument,before:ImportState,label:string){const after=captureImport(target);api.pushHistory(label,()=>restoreImport(target,before),()=>restoreImport(target,after));}
+  function stageRaw(raw:import('@/types/document').RawImage):void {
+    let target:CompDocument;try{target=api.doc;}catch{target=createDocument(raw.width,raw.height,'相机RAW');deps.openDocument(target);}
+    const before=captureImport(target),dirty=target.dirty,layer=createPixelLayer(`RAW · ${raw.cameraModel}`,developRawImage(raw,raw.settings));
+    insertLayer(target,layer);(layer as unknown as {rawData:unknown}).rawData=raw;
+    const transaction={target,before,dirty,committed:false};imports.set(layer.id,transaction);
+    deps.openDialog('rawDevelop',{layerId:layer.id,onCancel:()=>{if(!transaction.committed){restoreImport(target,before);target.dirty=dirty;}imports.delete(layer.id);}});deps.invalidate();
+  }
+
   const run = async (name: string, payload?: unknown): Promise<void> => {
     switch (name) {
       /* ---------------- 新建 ---------------- */
       case 'newCanvas': {
+        if(!payload){deps.openDialog('newCanvas');break;}
         const options = (payload as { width?: number; height?: number; name?: string; resolution?: number } | undefined) ?? {};
         const document = createDocument(
           Math.max(1, Math.round(options.width ?? 1920)),
@@ -118,7 +133,10 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
       case 'openImage': {
         const files = await pickFiles(IMAGE_OPEN_FILTERS, '导入图片');
         if (files.length === 0) break;
-        await importFiles(files, doc);
+        let target:CompDocument;try{target=api.doc;}catch{target=createDocument(1,1,'导入图片');deps.openDocument(target);}
+        const before=captureImport(target);
+        await importFiles(files,target);
+        if(target.layers.length!==before.layers.length)recordImport(target,before,'导入图片');
         break;
       }
 
@@ -128,9 +146,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         const file = files[0];
         if (!file) break;
         const result = importPsd(file.data, file.name.replace(/\.[^.]+$/, ''));
-        deps.openDocument(result.document);
-        deps.fitCanvas();
-        deps.openDialog('psdReport', { report: result.report });
+        deps.openDialog('psdReport', { report: result.report, apply:()=>{deps.openDocument(result.document);deps.fitCanvas();} });
         break;
       }
 
@@ -141,15 +157,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         if (!file) break;
         try {
           const raw = decodeRaw(file.data);
-          const preview = developRawImage(raw, raw.settings);
-          // RAW 作为一个「可再次显影」的特殊图层进入文档
-          const layer = createPixelLayer(`RAW ${raw.cameraModel}`, preview);
-          layer.text = null;
-          layer.name = `RAW · ${raw.cameraModel}`;
-          insertLayer(doc, layer);
-          (layer as unknown as { rawData: unknown }).rawData = raw;
-          deps.openDialog('rawDevelop', { layerId: layer.id });
-          deps.invalidate();
+          stageRaw(raw);
         } catch (error) {
           await showMessage(`无法解码该 RAW 文件：${(error as Error).message}`, 'warning');
         }
@@ -308,23 +316,13 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         break;
       }
       case 'applyRawDevelop': {
-        const options = payload as { layerId: string; raw: import('@/types/document').RawImage; settings: import('@/types/document').CameraRawSettings };
-        const layer = doc.layers.find((item) => item.id === options.layerId);
-        if (!layer || layer.kind !== 'pixel') break;
-        const before = api.snapshotLayer(layer.id);
-        layer.pixels = developRawImage(options.raw, options.settings);
-        layer.transform.size = [layer.pixels.width, layer.pixels.height];
-        layer.contentKey += 1;
-        api.markLayerDirty(layer.id);
-        const after = api.snapshotLayer(layer.id);
-        api.pushHistory(
-          '相机 RAW 显影',
-          () => { if (before) api.restoreLayer(layer.id, before); },
-          () => { if (after) api.restoreLayer(layer.id, after); },
-          (before?.pixels?.data.length ?? 0) * 2,
-        );
-        deps.invalidate();
-        break;
+        const options=payload as {layerId:string;raw:import('@/types/document').RawImage;settings:import('@/types/document').CameraRawSettings};
+        const transaction=imports.get(options.layerId),target=transaction?.target??api.doc,layer=target.layers.find(l=>l.id===options.layerId);
+        if(!layer||layer.kind!=='pixel')break;
+        const before=api.snapshotLayer(layer.id);layer.pixels=developRawImage(options.raw,options.settings);layer.transform.size=[layer.pixels.width,layer.pixels.height];layer.contentKey++;api.markLayerDirty(layer.id);
+        if(transaction){transaction.committed=true;recordImport(target,transaction.before,'导入相机RAW');}
+        else{const after=api.snapshotLayer(layer.id);api.pushHistory('相机RAW显影',()=>{if(before)api.restoreLayer(layer.id,before);},()=>{if(after)api.restoreLayer(layer.id,after);});}
+        deps.invalidate();break;
       }
       default:
         break;
@@ -357,9 +355,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
       if (isRawExtension(name)) {
         try {
           const raw = decodeRaw(file.data);
-          const layer = createPixelLayer(`RAW ${raw.cameraModel}`, developRawImage(raw, raw.settings));
-          insertLayer(document, layer);
-          deps.openDialog('rawDevelop', { layerId: layer.id });
+          stageRaw(raw);
         } catch (error) {
           await showMessage(`无法解码 ${name}：${(error as Error).message}`, 'warning');
         }

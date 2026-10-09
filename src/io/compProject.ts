@@ -11,7 +11,7 @@ import {
   createDocument, createGroupLayer, createPixelLayer, defaultAdjustment, uuid,
 } from '@/core/document';
 import { createBuffer, createMask } from '@/core/pixels';
-import { decodeEffects, encodeEffects, decodeText, encodeText, decodeMaskPlacement, encodeMaskPlacement } from './projectCodecs';
+import { decodeAdjustment, encodeAdjustment, decodeShape, encodeShape, decodeEffects, encodeEffects, decodeText, encodeText, decodeMaskPlacement, encodeMaskPlacement } from './projectCodecs';
 import { decodeImageBytes, encodeImage } from '@/io/imageIO';
 import { canRenameHostEntry, renameHostEntry, removeTemporaryEntry, fileExtension, joinPath, listDirectory, readFile, writeFile } from '@/platform/host';
 import type {
@@ -63,7 +63,8 @@ interface ManifestLayer {
   adjustment?: Record<string, unknown> & { kind: AdjustmentKind };
   effects?: unknown;
   text?: unknown;
-  shape?: ShapeMeta;
+  shape?: unknown;
+  gradient?: {start:import('@/types/document').Point;end:import('@/types/document').Point;settings:import('@/types/document').GradientMeta['settings'];baseFile:string;selectionFile?:string};
 }
 
 /* ------------------------------ 写 ------------------------------ */
@@ -122,9 +123,10 @@ async function writeProjectFiles(document: CompDocument, directory: string, onPr
       if (!ok) return null;
       entry.imageFile = fileName;
       if (layer.text) entry.text = encodeText(layer.text);
-      if (layer.shape) entry.shape = layer.shape;
+      if (layer.shape) entry.shape = encodeShape(layer.shape);
+      if(layer.gradient){const baseFile=layer.id.toUpperCase()+'.gradient.png';if(!await writeFile(joinPath(imagesDir,baseFile),await bufferToPngBytes(layer.gradient.base)))return null;entry.gradient={start:layer.gradient.start,end:layer.gradient.end,settings:layer.gradient.settings,baseFile};if(layer.gradient.selection){const selectionFile=layer.id.toUpperCase()+'.gradient-selection.png';if(!await writeFile(joinPath(imagesDir,selectionFile),await bufferToPngBytes(maskToPngBytes(layer.gradient.selection))))return null;entry.gradient.selectionFile=selectionFile;}}
     } else if (layer.kind === 'adjustment' && layer.adjustment) {
-      entry.adjustment = layer.adjustment as unknown as ManifestLayer['adjustment'];
+      entry.adjustment = encodeAdjustment(layer.adjustment) as ManifestLayer['adjustment'];
     }
     if (layer.mask) {
       const maskName = `${layer.id.toUpperCase()}.mask.png`;
@@ -141,7 +143,8 @@ async function writeProjectFiles(document: CompDocument, directory: string, onPr
     }
     if (layer.clipping) {
       const previous = document.layers.slice(0,index-1).reverse().find(candidate => candidate.parentId === layer.parentId && !candidate.clipping && candidate.kind === 'pixel');
-      if (previous) entry.maskSourceID = previous.id;
+      if(layer.maskSourceId)entry.maskSourceID=layer.maskSourceId;
+      else if (previous) entry.maskSourceID = previous.id;
     }
     if (layer.effects) entry.effects = encodeEffects(layer.effects);
     layers.push(entry);
@@ -166,6 +169,7 @@ async function writeProjectFiles(document: CompDocument, directory: string, onPr
 /** 序列化保存并使用同级临时包+备份提交；失败不覆盖原图片，不删除备份。 */
 let saveQueue: Promise<unknown> = Promise.resolve();
 export function saveCompProject(document: CompDocument, directory: string, onProgress?: (done: number, total: number) => void): Promise<string | null> {
+  for(const layer of document.layers){validateLayerId(layer.id);validateTransform(layer.transform);}
   const snapshot = cloneProjectValue(document);
   const save = async (): Promise<string | null> => {
     if (!canRenameHostEntry()) throw new Error('当前宿主缺少安全重命名接口，已拒绝覆盖工程');
@@ -235,15 +239,30 @@ export async function loadCompProject(directory: string): Promise<CompDocument> 
   return document;
 }
 
+/** ID不仅用于引用，也会作为文件名。读写两端均在产生任何写入前校验。 */
+function validateLayerId(id: unknown): asserts id is string {
+  if(typeof id!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(id))throw new Error('工程图层 ID 无效，不能包含路径字符');
+}
+function validateTransform(t: Partial<Omit<Layer['transform'],'sampling'>>): void {
+  const pair=(v:unknown,positive:boolean):boolean=>Array.isArray(v)&&v.length===2&&v.every(n=>typeof n==='number'&&Number.isFinite(n)&&Math.abs(n)<=1_000_000&&(!positive||n>0));
+  if(t.origin&&!pair(t.origin,false))throw new Error('图层位置无效');
+  if(t.size&&(!pair(t.size,true)||t.size[0]*t.size[1]>100_000_000))throw new Error('图层变换尺寸超出安全范围');
+  if(t.rotation!==undefined&&!Number.isFinite(t.rotation))throw new Error('图层旋转无效');
+  if(t.warp && (t.warp.length!==4||t.warp.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>1024||Math.abs(p.y)>1024)))throw new Error('图层扭曲坐标无效');
+}
+
 function validateManifest(manifest: ProjectManifest): void {
   if (!Number.isInteger(manifest.width) || !Number.isInteger(manifest.height) || manifest.width<1 || manifest.height<1 || manifest.width*manifest.height>100_000_000 || !Array.isArray(manifest.layers)) throw new Error('工程尺寸或图层列表无效');
   const ids=new Map<string,ManifestLayer>();
   for (const entry of manifest.layers) {
+    validateLayerId(entry.id);
+    if(entry.transform)validateTransform(entry.transform);
     if (!entry.id || ids.has(entry.id)) throw new Error('工程图层 ID 重复或缺失');
     ids.set(entry.id,entry);
-    for (const name of [entry.imageFile,entry.maskFile]) if (name && (!/^[a-zA-Z0-9_.-]+\.png$/i.test(name) || name.includes('..'))) throw new Error('工程资源路径无效');
+    for (const name of [entry.imageFile,entry.maskFile,entry.gradient?.baseFile,entry.gradient?.selectionFile]) if (name && (!/^[a-zA-Z0-9_.-]+\.png$/i.test(name) || name.includes('..'))) throw new Error('工程资源路径无效');
   }
   for (const entry of manifest.layers) {
+    if(entry.maskSourceID && (!ids.has(entry.maskSourceID)||entry.maskSourceID===entry.id))throw new Error('剪贴源引用无效');
     const seen=new Set([entry.id]);let parent=entry.parentID;
     while(parent){if(seen.has(parent)||!ids.get(parent)?.isGroup)throw new Error('工程图层层级无效');seen.add(parent);parent=ids.get(parent)!.parentID;}
   }
@@ -260,7 +279,7 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
   if (entry.isGroup) {
     layer = createGroupLayer(entry.name, base.parentId);
   } else if (entry.adjustment) {
-    const adjustment = { ...defaultAdjustment(entry.adjustment.kind), ...entry.adjustment };
+    const adjustment = decodeAdjustment(entry.adjustment);
     layer = { ...createGroupLayer(entry.name, base.parentId), kind:'adjustment', adjustment } as Layer;
   } else {
     if (!entry.imageFile) throw new Error('图层缺少图片资源：' + entry.name);
@@ -277,6 +296,7 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
   Object.assign(layer, base);
   layer.id = entry.id;
   layer.clipping = entry.clipping === true || !!entry.maskSourceID;
+  layer.maskSourceId = entry.maskSourceID ?? null;
   layer.transform = {
     origin: entry.transform?.origin ?? [0, 0],
     size: entry.transform?.size ?? [layer.pixels?.width ?? manifest.width, layer.pixels?.height ?? manifest.height],
@@ -287,7 +307,8 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
     warp: entry.transform?.warp ?? null,
   };
   layer.text = decodeText(entry.text);
-  layer.shape = entry.shape ?? null;
+  layer.shape = decodeShape(entry.shape);
+  if(entry.gradient){const bytes=await readFile(joinPath(joinPath(directory,'images'),entry.gradient.baseFile));if(!bytes)throw new Error('渐变底图缺失');layer.gradient={...entry.gradient,base:await decodeImageBytes(bytes),selection:null};if(entry.gradient.selectionFile){const encoded=await readFile(joinPath(joinPath(directory,'images'),entry.gradient.selectionFile));if(!encoded)throw new Error('渐变选区缺失');const image=await decodeImageBytes(encoded),mask=createMask(image.width,image.height,0);for(let i=0;i<mask.data.length;i++)mask.data[i]=image.data[i*4]!;layer.gradient.selection={...mask,outline:null};}}
   layer.effects = decodeEffects(entry.effects);
   if (entry.maskFile) {
     const maskBuffer = await readFile(joinPath(joinPath(directory, 'images'), entry.maskFile));

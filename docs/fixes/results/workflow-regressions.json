@@ -1,0 +1,54 @@
+[
+  {
+    "id": "FIX-content-aware",
+    "title": "FIX-content-aware",
+    "kind": "fix-workflow",
+    "pass": true,
+    "before": "df42a16b",
+    "after": "e099171d",
+    "undo": "df42a16b",
+    "status": "通过"
+  },
+  {
+    "id": "FIX-snap-menu",
+    "title": "FIX-snap-menu",
+    "kind": "fix-workflow",
+    "pass": true,
+    "status": "通过"
+  },
+  {
+    "id": "KEY-layer.group",
+    "title": "KEY-layer.group",
+    "kind": "fix-workflow",
+    "pass": true,
+    "status": "通过"
+  },
+  {
+    "id": "FIX-shift-keys",
+    "title": "FIX-shift-keys",
+    "kind": "fix-workflow",
+    "pass": true,
+    "snap": true,
+    "a": 0.4,
+    "b": 0.5,
+    "status": "通过"
+  },
+  {
+    "id": "UI-command-palette",
+    "title": "UI-command-palette",
+    "kind": "fix-workflow",
+    "pass": true,
+    "status": "通过"
+  },
+  {
+    "id": "FIX-new-dialog",
+    "title": "FIX-new-dialog",
+    "kind": "fix-workflow",
+    "pass": true,
+    "actual": [
+      80,
+      48
+    ],
+    "status": "通过"
+  }
+]

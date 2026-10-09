@@ -162,7 +162,7 @@ export function defaultAdjustment(kind: AdjustmentKind): AdjustmentRecord {
   };
 }
 
-const ADJUSTMENT_LABELS: Record<AdjustmentKind, string> = {
+export const ADJUSTMENT_LABELS: Record<AdjustmentKind, string> = {
   'Hue/Saturation': '色相/饱和度',
   Levels: '色阶',
   Curves: '曲线',
@@ -325,6 +325,7 @@ export function duplicateLayer(layer: Layer, nameSuffix = ' 副本'): Layer {
   if (copy.kind === 'pixel' && layer.kind === 'pixel') {
     copy.text = layer.text ? JSON.parse(JSON.stringify(layer.text)) : null;
     copy.shape = layer.shape ? JSON.parse(JSON.stringify(layer.shape)) : null;
+    copy.gradient=layer.gradient?{...layer.gradient,base:cloneBuffer(layer.gradient.base),settings:JSON.parse(JSON.stringify(layer.gradient.settings)),selection:layer.gradient.selection?{...layer.gradient.selection,data:new Uint8Array(layer.gradient.selection.data)}:null}:null;
   }
   copy.effects = layer.effects ? JSON.parse(JSON.stringify(layer.effects)) : null;
   return copy;

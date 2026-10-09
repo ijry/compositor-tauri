@@ -60,6 +60,8 @@ const ui = reactive({
   guides: true,
   transformControls: true,
   selection: true,
+  canvasOnly: false,
+  pixelGrid: true,
 });
 
 /** 画布尺寸（由画布组件注册） */
@@ -260,8 +262,17 @@ export function dispatchKey(event: KeyboardEvent): boolean {
 
 /** Tab 循环当前分组内的工具 */
 export function cycleCurrentTool(direction: 1 | -1 = 1): void {
-  setTool(cycleTool(currentToolId.value, direction));
+  const id=currentToolId.value,mode=id==='marquee'?'shape':id==='lasso'?'mode':id==='shape'?'kind':null;
+  const values=id==='marquee'?['rect','ellipse']:id==='lasso'?['free','polygon']:['rectangle','roundedRectangle','ellipse','line'];
+  if(mode){const at=values.indexOf(api.option<string>(mode,values[0]!));api.setToolOption(mode,values[(at+direction+values.length)%values.length]);return;}
+  if(['blur','smudge','liquify'].includes(id)){const ids=['blur','smudge','liquify'],i=ids.indexOf(id);setTool(ids[(i+direction+ids.length)%ids.length]!);return;}
+  setTool(cycleTool(currentToolId.value,direction));
 }
+export function activateShortcutTool(id:string):void {
+  if(currentToolId.value===id || id==='blur'&&['blur','smudge','liquify'].includes(currentToolId.value) || id==='wand'&&currentToolId.value==='objectSelect')cycleCurrentTool();
+  else setTool(id);
+}
+
 
 /** 注册画布渲染器与尺寸 */
 export function registerStage(canvas: HTMLCanvasElement | null, size: { width: number; height: number }, stageRenderer?: CanvasRenderer): void {
@@ -286,7 +297,9 @@ export function openDialog(name: string, payload?: unknown): void {
 
 /** 关闭对话框 */
 export function closeDialog(): void {
+  const cancel=(dialog.value?.payload as {onCancel?:()=>void}|undefined)?.onCancel;
   dialog.value = null;
+  cancel?.();
 }
 
 /** 打开的对话框（界面用） */
@@ -416,6 +429,7 @@ export const api: EditorApi = {
       opacity: layer.opacity,
       blendMode: layer.blendMode,
       text: layer.text ? JSON.parse(JSON.stringify(layer.text)) : null,
+      gradient: layer.gradient ? {...layer.gradient,base:cloneBuffer(layer.gradient.base),settings:JSON.parse(JSON.stringify(layer.gradient.settings)),selection:layer.gradient.selection?{...layer.gradient.selection,data:new Uint8Array(layer.gradient.selection.data)}:null}:null,
       shape: layer.shape ? JSON.parse(JSON.stringify(layer.shape)) : null,
       effects: layer.effects ? JSON.parse(JSON.stringify(layer.effects)) : null,
       adjustment: layer.adjustment ? JSON.parse(JSON.stringify(layer.adjustment)) : null,
@@ -429,10 +443,12 @@ export const api: EditorApi = {
     }
     layer.mask = snapshot.mask ? { pixels:cloneMask(snapshot.mask),enabled:true,linked:true,placement:null,target:'image',inverted:false,...snapshot.maskState } : null;
     if (snapshot.clipping !== undefined) layer.clipping = snapshot.clipping;
+    layer.maskSourceId=snapshot.maskSourceId;
     layer.transform = JSON.parse(JSON.stringify(snapshot.transform));
     layer.opacity = snapshot.opacity;
     layer.blendMode = snapshot.blendMode;
     layer.text = snapshot.text ? JSON.parse(JSON.stringify(snapshot.text)) : null;
+    layer.gradient = snapshot.gradient ? {...snapshot.gradient,base:cloneBuffer(snapshot.gradient.base),settings:JSON.parse(JSON.stringify(snapshot.gradient.settings)),selection:snapshot.gradient.selection?{...snapshot.gradient.selection,data:new Uint8Array(snapshot.gradient.selection.data)}:null}:null;
     layer.shape = snapshot.shape ? JSON.parse(JSON.stringify(snapshot.shape)) : null;
     layer.effects = snapshot.effects ? JSON.parse(JSON.stringify(snapshot.effects)) : null;
     layer.adjustment = snapshot.adjustment ? JSON.parse(JSON.stringify(snapshot.adjustment)) : null;
@@ -581,6 +597,7 @@ export function handleKeyDown(event: KeyboardEvent): void {
   const target = event.target as HTMLElement | null;
   // 输入框内不拦截
   if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+  if(dialog.value && !['Escape'].includes(event.key))return;
   eventShift = event.shiftKey;
   const ctrl = event.ctrlKey || event.metaKey;
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
@@ -606,22 +623,15 @@ export function handleKeyDown(event: KeyboardEvent): void {
 }
 /** 不透明度快速输入缓冲 */
 let opacityBuffer = '';
-
-/** 应用不透明度快速输入 */
-function applyOpacityBuffer(): void {
-  const layer = api.activeLayer();
-  if (!layer) return;
-  const value = opacityBuffer.length === 1 ? Number(opacityBuffer) : Number(opacityBuffer) / 100;
-  opacityBuffer = '';
-  const before = layer.opacity;
-  layer.opacity = Math.max(0, Math.min(1, value));
-  api.pushHistory(
-    '调整不透明度',
-    () => { layer.opacity = before; api.invalidate(); },
-    () => { layer.opacity = value; api.invalidate(); },
-    16,
-    'opacity',
-  );
+let opacityTime=0;
+function applyOpacityBuffer():void {
+  const layer=api.activeLayer(),document=currentDocument.value;if(!layer||!document)return;
+  const now=performance.now();if(now-opacityTime>700)opacityBuffer=opacityBuffer.slice(-1);opacityTime=now;
+  opacityBuffer=opacityBuffer.slice(-2);
+  const value=opacityBuffer.length===1?(opacityBuffer==='0'?1:Number(opacityBuffer)/10):Number(opacityBuffer)/100;
+  const before=layer.opacity,id=layer.id;
+  const apply=(v:number)=>{const target=document.layers.find(l=>l.id===id);if(target)target.opacity=v;api.invalidate();};
+  apply(value);api.pushHistory('调整不透明度',()=>apply(before),()=>apply(value),16,'opacity');
 }
 
 /** 初始化：注册默认文档 */

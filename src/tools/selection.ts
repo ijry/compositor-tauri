@@ -8,7 +8,9 @@ import { selectionFromEllipse, selectionFromPath, selectionFromRect } from '@/co
 import {
   colorRangeSelection, contractSelection, expandSelection, magicWand, selectBoundary, selectSubject,
 } from '@/core/ops/selectionOps';
-import { createSelection } from '@/core/selection';
+import { beginSelectionMove, updateSelectionMove, endSelectionMove } from './selectionMove';
+import { compositeDocument } from '@/core/engine/compositor';
+import { createSelection, featherSelection } from '@/core/selection';
 import { beginInteraction, commitSelection, drawAnts, drawHandles, endInteraction, rectFromPoints, snapshotBytes } from '@/tools/helpers';
 import type { EditorApi } from '@/types/editor';
 import type { ToolDefinition, ToolOverlayContext, ToolPointerEvent } from '@/tools/types';
@@ -47,15 +49,18 @@ export const marqueeTool: ToolDefinition = {
     { key: 'antialias', label: '消除锯齿', type: 'boolean' },
   ],
   onDown(editor, event) {
+    if(!event.shift&&!event.alt&&beginSelectionMove(editor,event.doc,false,true)){dragState.active=false;return;}
     dragState.start = event.doc;
     dragState.points = [event.doc];
     dragState.active = true;
   },
   onMove(editor, event) {
+    if(updateSelectionMove(editor,event.doc))return;
     if (!dragState.active) return;
     dragState.points.push(event.doc);
   },
   onUp(editor, event) {
+    if(endSelectionMove(editor))return;
     if (!dragState.active) return;
     dragState.active = false;
     const rect = rectFromPoints(dragState.start, event.doc);
@@ -66,10 +71,10 @@ export const marqueeTool: ToolDefinition = {
     const feather = editor.option<number>('feather', 0);
     const shape = editor.option<string>('shape', 'rect');
     let selection = shape === 'ellipse'
-      ? selectionFromEllipse(editor.doc.width, editor.doc.height, rect)
+      ? selectionFromEllipse(editor.doc.width, editor.doc.height, rect, editor.option<boolean>('antialias',true))
       : selectionFromRect(editor.doc.width, editor.doc.height, rect);
     if (feather > 0) {
-      const data = new Uint8Array(selection.data.length);
+      const data = new Uint8Array(selection.data);
       // 简单羽化：对覆盖率做两次盒式模糊
       blurInPlace(data, editor.doc.width, editor.doc.height, Math.max(1, Math.round(feather)));
       selection = { ...selection, data, outline: null };
@@ -137,33 +142,22 @@ export const lassoTool: ToolDefinition = {
     { key: 'mode', label: '模式', type: 'select', options: [{ value: 'free', label: '自由' }, { value: 'polygon', label: '多边形' }] },
     { key: 'feather', label: '羽化', type: 'number', min: 0, max: 250, step: 0.5, unit: 'px' },
   ],
-  onDown(editor, event) {
-    dragState.start = event.doc;
-    dragState.points = [event.doc];
-    dragState.active = true;
-  },
-  onMove(editor, event) {
-    if (!dragState.active) return;
-    // 多边形模式只在点击时加点
-    if (editor.option<string>('mode', 'free') === 'free') dragState.points.push(event.doc);
-  },
-  onUp(editor, event) {
-    if (!dragState.active) return;
-    const mode = editor.option<string>('mode', 'free');
-    const points = mode === 'free' ? dragState.points : [event.doc];
-    dragState.active = false;
-    if (points.length < 3) return;
-    const selection = selectionFromPath(editor.doc.width, editor.doc.height, points);
-    commitSelection(editor, selection, booleanMode(event));
-  },
-  onKeyDown(editor, event) {
-    // 双击闭合多边形
-    if (event.key === 'Enter' && dragState.active && dragState.points.length > 2) {
-      dragState.active = false;
-      const selection = selectionFromPath(editor.doc.width, editor.doc.height, dragState.points);
-      commitSelection(editor, selection, 'replace');
-      return true;
+  deactivate() { dragState.active=false;dragState.points=[]; },
+  onDown(editor,event) {
+    if(editor.option<string>('mode','free')==='polygon' && dragState.active) {
+      if(dragState.points.length>2 && Math.hypot(event.doc.x-dragState.start.x,event.doc.y-dragState.start.y)<6/editor.viewport.zoom){finishLasso(editor,booleanMode(event));return;}
+      dragState.points.push(event.doc);return;
     }
+    dragState.start=event.doc;dragState.points=[event.doc];dragState.active=true;
+  },
+  onMove(editor,event) { if(dragState.active&&editor.option<string>('mode','free')==='free')dragState.points.push(event.doc); },
+  onUp(editor,event) { if(dragState.active&&editor.option<string>('mode','free')==='free')finishLasso(editor,booleanMode(event)); },
+  onDblClick(editor,event) { if(dragState.active&&dragState.points.length>=3)finishLasso(editor,booleanMode(event));else{dragState.active=false;dragState.points=[];editor.invalidate();} },
+  onKeyDown(editor,event) {
+    if(!dragState.active)return false;
+    if(event.key==='Escape'){dragState.active=false;dragState.points=[];editor.invalidate();return true;}
+    if(event.key==='Backspace'||event.key==='Delete'){dragState.points.pop();editor.invalidate();return true;}
+    if(event.key==='Enter'){finishLasso(editor,booleanMode({shift:event.shiftKey,alt:event.altKey}));return true;}
     return false;
   },
   drawOverlay(context) {
@@ -179,6 +173,15 @@ export const lassoTool: ToolDefinition = {
     context.ctx.restore();
   },
 };
+
+/** 自由套索和多边形闭合共用提交路径，羽化在布尔合并前执行。 */
+function finishLasso(editor:EditorApi,mode:ReturnType<typeof booleanMode>):void {
+  if(dragState.points.length<3)return;
+  dragState.active=false;
+  const selection=selectionFromPath(editor.doc.width,editor.doc.height,dragState.points);
+  commitSelection(editor,featherSelection(selection,editor.option<number>('feather',0)),mode);
+  dragState.points=[];editor.invalidate();
+}
 
 /** 魔棒工具 */
 export const wandTool: ToolDefinition = {
@@ -197,14 +200,15 @@ export const wandTool: ToolDefinition = {
     { key: 'antialias', label: '消除锯齿', type: 'boolean' },
   ],
   onDown(editor, event) {
-    const composite = editor.composite();
+    const layer=editor.activeLayer();
+    const composite = editor.option<boolean>('sampleAllLayers',true)||!layer?editor.composite():compositeDocument({...editor.doc,layers:[{...layer,parentId:null,clipping:false}],selection:null},editor.doc.width,editor.doc.height,{scale:1}).buffer;
     const selection = magicWand(composite, event.doc.x, event.doc.y, {
       tolerance: editor.option<number>('tolerance', 32),
       contiguous: editor.option<boolean>('contiguous', true),
       sampleAllLayers: true,
       feather: editor.option<number>('feather', 0),
     });
-    commitSelection(editor, selection, booleanMode(event), '魔棒选区');
+    commitSelection(editor, editor.option<boolean>('antialias',true)?featherSelection(selection,0.5):selection, booleanMode(event), '魔棒选区');
   },
   drawOverlay(context) {
     drawSelectionAnts(context);
@@ -244,7 +248,7 @@ export const objectSelectTool: ToolDefinition = {
         merged.data[(rect.y + y) * editor.doc.width + rect.x + x] = local.data[y * local.width + x]!;
       }
     }
-    commitSelection(editor, merged, booleanMode(event), '对象选择');
+    commitSelection(editor, featherSelection(merged,editor.option<number>('feather',1)), booleanMode(event), '对象选择');
     editor.status('已建立对象选区');
   },
   drawOverlay(context) {
@@ -312,7 +316,7 @@ export function transformSelectionOutline(editor: EditorApi, offset: Point): voi
   const selection = editor.doc.selection;
   if (!selection) return;
   const before = editor.selectionSnapshot();
-  const data = new Uint8Array(selection.data.length);
+  const data = new Uint8Array(selection.data);
   for (let y = 0; y < selection.height; y += 1) {
     for (let x = 0; x < selection.width; x += 1) {
       const sx = Math.round(x - offset.x);
@@ -333,3 +337,6 @@ export function transformSelectionOutline(editor: EditorApi, offset: Point): voi
 
 export { beginInteraction, endInteraction, snapshotBytes, drawHandles };
 export type { ToolPointerEvent };
+
+/** 独立选择工具用于框选和移动选区轮廓。 */
+export const selectTool:ToolDefinition={...marqueeTool,id:'select',name:'选择',shortcut:'A',icon:'↖'};

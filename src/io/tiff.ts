@@ -36,8 +36,9 @@ export async function decodeTiff(data: Uint8Array): Promise<PixelBuffer | null> 
   const samples = readScalar(view, tag(277), little) ?? 1;
   const compression = readScalar(view, tag(259), little) ?? 1;
   const photometric = readScalar(view, tag(262), little) ?? 1;
-  const stripOffsets = readArray(view, tag(273), little);
-  const stripCounts = readArray(view, tag(279), little);
+  const tiles = !!tag(324);
+  const stripOffsets = readArray(view, tag(tiles ? 324 : 273), little);
+  const stripCounts = readArray(view, tag(tiles ? 325 : 279), little);
   const rowsPerStrip = readScalar(view, tag(278), little) ?? height;
   const planarConfig = readScalar(view, tag(284), little) ?? 1;
   const predictor = readScalar(view, tag(317), little) ?? 1;
@@ -50,27 +51,31 @@ export async function decodeTiff(data: Uint8Array): Promise<PixelBuffer | null> 
   const bytesPerSample = Math.max(1, Math.ceil(bits / 8));
   const rowBytes = Math.ceil((width * samples * bits) / 8);
 
-  // 读取所有条带并解压
+  if(width*height>100_000_000 || ![8,16].includes(bits) || planarConfig!==1)throw new Error('TIFF尺寸、位深或分平面布局暂不支持');
+  if(![1,5,8,32946,32773].includes(compression))throw new Error(`不支持的TIFF压缩方式：${compression}`);
   const raw = new Uint8Array(rowBytes * height);
-  let offset = 0;
-  for (let strip = 0; strip < stripOffsets.length; strip += 1) {
-    const start = stripOffsets[strip]!;
-    const count = stripCounts[strip] ?? 0;
-    const rows = Math.min(rowsPerStrip, height - strip * rowsPerStrip);
-    const expected = rowBytes * rows;
-    const chunk = data.subarray(start, start + count);
-    let decoded: Uint8Array;
-    if (compression === 1) decoded = chunk;
-    else if (compression === 32773) decoded = decodePackBits(chunk, expected);
-    else if (compression === 5) decoded = decodeLzw(chunk, expected);
-    else if (compression === 8 || compression === 32946) decoded = await inflate(chunk, expected);
-    else continue;
-    raw.set(decoded.subarray(0, Math.min(decoded.length, expected)), offset);
-    offset += expected;
+  const tileWidth=tiles?(readScalar(view,tag(322),little)??0):width;
+  const tileHeight=tiles?(readScalar(view,tag(323),little)??0):rowsPerStrip;
+  if(tileWidth<1||tileHeight<1||tileWidth*tileHeight*samples*bytesPerSample>512_000_000)throw new Error('TIFF分块尺寸无效');
+  const columns=Math.ceil(width/tileWidth),unitRowBytes=tileWidth*samples*bytesPerSample;
+  const units=tiles?columns*Math.ceil(height/tileHeight):Math.ceil(height/rowsPerStrip);
+  if(stripOffsets.length<units||stripCounts.length<units)throw new Error('TIFF条带/分块数据缺失');
+  for(let unit=0;unit<units;unit++) {
+    const x=tiles?(unit%columns)*tileWidth:0,y=tiles?Math.floor(unit/columns)*tileHeight:unit*rowsPerStrip;
+    const rows=tiles?tileHeight:Math.min(rowsPerStrip,height-y),expected=unitRowBytes*rows;
+    const start=stripOffsets[unit]!,count=stripCounts[unit]!;
+    if(start<0||count<1||start+count>data.length)throw new Error('TIFF数据范围无效');
+    const chunk=data.subarray(start,start+count);
+    let decoded=compression===1?new Uint8Array(chunk):compression===5?decodeLzw(chunk,expected):compression===32773?decodePackBits(chunk,expected):await inflate(chunk,expected);
+    if(decoded.length<expected)throw new Error('TIFF像素数据不完整');
+    // 预测器在每块的每行重新开始，不能跨块继续累加。
+    if(predictor===2)applyHorizontalPredictor(decoded,tileWidth,samples,bytesPerSample,unitRowBytes,rows);
+    else if(predictor!==1)throw new Error('TIFF预测器暂不支持');
+    for(let row=0;row<rows&&y+row<height;row++) {
+      const length=Math.min(tileWidth,width-x)*samples*bytesPerSample;
+      raw.set(decoded.subarray(row*unitRowBytes,row*unitRowBytes+length),(y+row)*rowBytes+x*samples*bytesPerSample);
+    }
   }
-  // 水平预测器还原
-  if (predictor === 2) applyHorizontalPredictor(raw, width, samples, bytesPerSample, rowBytes, height);
-  void planarConfig;
 
   const out = createBuffer(width, height);
   const maxValue = (1 << Math.min(16, bits)) - 1;

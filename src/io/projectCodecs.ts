@@ -2,7 +2,8 @@
  * 上游 .comp v11 与插件内部模型之间的边界转换。
  * 保存使用上游字段；读取同时接受旧插件的 color/align/矩形蒙版格式。
  */
-import type { LayerEffects, LayerMask, TextMeta } from '@/types/document';
+import { defaultAdjustment } from '@/core/document';
+import type { LayerEffects, LayerMask, TextMeta, ShapeMeta, AdjustmentRecord, AdjustmentKind } from '@/types/document';
 
 type RecordValue = Record<string, unknown>;
 function record(value: unknown): RecordValue {
@@ -100,4 +101,51 @@ export function decodeMaskPlacement(value: unknown): LayerMask['placement'] {
 export function encodeMaskPlacement(p: NonNullable<LayerMask['placement']>): RecordValue {
   return { origin: [p.x,p.y], size: [p.width,p.height], rotation: p.rotation ?? 0, flipX: p.flipX ?? false,
     flipY: p.flipY ?? false, sampling: p.sampling ?? 'Nearest' };
+}
+
+/** 曲线/渐变映射在上游和插件内的表示不同，转换只能集中发生在IO边界。 */
+export function decodeAdjustment(value: unknown): AdjustmentRecord {
+  const source=record(value),base=defaultAdjustment(source.kind as AdjustmentKind);
+  const result={...base,...source} as AdjustmentRecord;
+  for(const key of ['levels','curves','exposureSettings','gradientMapSettings','grainSettings','blackWhiteSettings','colorBalanceSettings'] as const) {
+    (result as unknown as RecordValue)[key]={...base[key],...(source[key]?record(source[key]):{})};
+  }
+  if(source.curves) {
+    const curves=record(source.curves);
+    if(Array.isArray(curves.channels))result.curves.channels=base.curves.channels.map((fallback,i)=>{
+      const channel=curves.channels as unknown[],raw=channel[i];
+      const points=Array.isArray(raw)?raw:raw?record(raw).points:null;
+      if(!Array.isArray(points))return fallback;
+      return {points:points.map(point=>{
+        const p=Array.isArray(point)?point:[record(point).x,record(point).y];
+        return [finite(p[0],0),finite(p[1],0)] as [number,number];
+      })};
+    });
+  }
+  if(source.gradientMapSettings) {
+    const settings=record(source.gradientMapSettings),g=result.gradientMapSettings;
+    const decode=(v:unknown,fallback:[number,number,number])=>v==null?fallback:Array.isArray(v)?color({color:v}):color(record(v));
+    g.shadows=decode(settings.shadows,g.shadows);g.highlights=decode(settings.highlights,g.highlights);
+    g.mids=decode(settings.mids,g.shadows.map((v,i)=>(v+g.highlights[i]!)/2) as [number,number,number]);
+    if(Array.isArray(settings.customStops))g.customStops=settings.customStops.map(v=>{const stop=record(v);return{position:finite(stop.position,0),color:decode(stop.color??stop,g.shadows)};});
+  }
+  return result;
+}
+export function encodeAdjustment(adjustment: AdjustmentRecord): RecordValue {
+  const out={...adjustment} as unknown as RecordValue;
+  out.curves={...adjustment.curves,channels:adjustment.curves.channels.map(c=>c.points.map(([x,y])=>({x,y})))};
+  const g=adjustment.gradientMapSettings;
+  out.gradientMapSettings={...g,shadows:rgb(g.shadows),mids:rgb(g.mids),highlights:rgb(g.highlights),...(g.customStops?{customStops:g.customStops.map(s=>({position:s.position,...rgb(s.color)}))}:{})};
+  return out;
+}
+
+/** 上游圆角矩形仍为Rectangle，额外描边字段保留为兼容扩展。 */
+export function decodeShape(value: unknown): ShapeMeta | null {
+  if(value==null)return null;
+  const s=record(value),kind=String(s.kind??'rectangle').toLowerCase();
+  const point=(v:unknown,fallback:[number,number]):[number,number]=>v==null?fallback:Array.isArray(v)?[finite(v[0],0),finite(v[1],0)]:[finite(record(v).x,0),finite(record(v).y,0)];
+  return {kind:kind==='line'?'line':kind==='ellipse'?'ellipse':kind==='roundedrectangle'?'roundedRectangle':'rectangle',color:color(s),cornerRadius:finite(s.cornerRadius,0),fillEnabled:s.fillEnabled!==false,strokeWidth:finite(s.strokeWidth??s.lineWidth,0),strokeColor:Array.isArray(s.strokeColor)?color({color:s.strokeColor}):color(s),start:point(s.start,[0,0]),end:point(s.end,[1,1])};
+}
+export function encodeShape(s: ShapeMeta): RecordValue {
+  return {...s,kind:s.kind==='ellipse'?'Ellipse':s.kind==='line'?'Line':'Rectangle',...rgb(s.color),color:undefined,lineWidth:s.kind==='line'?s.strokeWidth:undefined};
 }
