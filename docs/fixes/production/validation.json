@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-09",
+  "baselineCommit": "6964059a7a0449368cb4aff3931d7fc77911f9fa",
+  "branch": "fix/psd-adjustments-raw-crop",
+  "committed": false,
+  "scope": [
+    "PROD-001：PSD调整效果导出丢失",
+    "PROD-002：RAW滤镜裁剪几何错误"
+  ],
+  "baseline": {
+    "passed": 5,
+    "failed": 52,
+    "environmentFailuresExcluded": true
+  },
+  "checks": [
+    {
+      "command": "pnpm exec vue-tsc -b --pretty false",
+      "status": "通过"
+    },
+    {
+      "command": "pnpm build",
+      "status": "通过",
+      "modules": 1775
+    },
+    {
+      "command": "pnpm exec playwright test --workers=2 --reporter=json",
+      "status": "通过",
+      "passed": 306,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "added": 57,
+      "durationMs": 151671.855
+    },
+    {
+      "command": "node --test scripts/*.test.mjs",
+      "status": "通过",
+      "passed": 14
+    },
+    {
+      "command": "node scripts/pack-plugin.mjs --out dist-pack --version 0.1.0",
+      "status": "通过"
+    },
+    {
+      "command": "python scripts/verify-plugin.py dist-pack --packid otools-compositor --version 0.1.0",
+      "status": "通过"
+    }
+  ],
+  "package": {
+    "file": "dist-pack/otools-compositor-0.1.0.oplg",
+    "bytes": 610917,
+    "sha256": "6eb85cf378c13884a74c31c09b8e2b235e19884f74b0f5a30eda590b06ca1608"
+  },
+  "sourceFiles": [
+    {
+      "file": "src/io/psd.ts",
+      "sha256": "8e09015b418e3a52f3c2b3c2ed935004ec0a3dd8c552c06507c48064775eee43"
+    },
+    {
+      "file": "src/io/psdExportPlan.ts",
+      "sha256": "41d85314695539cb90ea8719f9ee30baf476754f225d42d26962ee037dce32fb"
+    },
+    {
+      "file": "src/composables/commands-io.ts",
+      "sha256": "acbb418b154899878328c9289a02585ac830e83b11170ea758e09e6474786854"
+    },
+    {
+      "file": "src/io/raw.ts",
+      "sha256": "4edc49c9d907ad774f4d8ad2b2b2c960cee14e00e436069c03ed77bfa926efcd"
+    },
+    {
+      "file": "src/core/cropGeometry.ts",
+      "sha256": "290edc65358e5429848248623feb8e7494c11e74393b1356ea16a4d6e13a3113"
+    },
+    {
+      "file": "src/composables/filterSession.ts",
+      "sha256": "27089b2176ac7f3ad701b9c5cfc18435df06ed2223e37644d4b9270bfc89d7ab"
+    },
+    {
+      "file": "src/components/dialogs/FilterDialog.vue",
+      "sha256": "1cdf1c9e8fcc988dfb69392fc94716b111662460b4e994f7fbb14bf237277fec"
+    },
+    {
+      "file": "src/components/dialogs/DialogHost.vue",
+      "sha256": "f4d26dba25b00ef9694c6e03e50d85d204a32d0ab2bdbffe1c8f4ce99bb2b251"
+    }
+  ],
+  "limitations": [
+    "PSD含调整层仅支持用户明确确认后的可见合成输出，不支持原生可编辑PSD调整层导出",
+    "真实OTools原生确认/文件对话框、Photoshop和厂商RAW样本未实测",
+    "本次关闭两项复现错误，不等于全功能生产验收通过",
+    "未提交、未推送、未部署、未发布"
+  ]
+}

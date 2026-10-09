@@ -1,3 +1,4 @@
+import { croppedLayerTransform, croppedLinkedMask, validateSourceCrop } from '@/core/cropGeometry';
 import { clampPixels } from '@/core/pixelFormat';
 /** 破坏性滤镜会话：预览只使用克隆缓冲，确认后一次性提交与记录历史。 */
 import { cloneBuffer } from '@/core/pixels';
@@ -6,9 +7,9 @@ import { applyAdjustment, applyAddNoise } from '@/core/filters/adjust';
 import { applyVignette, applyBloom, applyTonalContrast, applyLensCorrection, applySharpen, applyDenoise, applyDither, removeBackground } from '@/core/filters/creative';
 import { contentAwareFill } from '@/core/filters/contentAware';
 import { resolveEditTarget, projectEditSelection } from '@/core/engine/editTarget';
-import { defaultRawSettings, developRawImage } from '@/io/raw';
+import { defaultRawSettings, developRawImage, rawCropRect } from '@/io/raw';
 import type { EditorApi } from '@/types/editor';
-import type { AdjustmentKind, AdjustmentRecord, PixelBuffer, CameraRawSettings } from '@/types/document';
+import type { AdjustmentKind, AdjustmentRecord, PixelBuffer, CameraRawSettings, Rect } from '@/types/document';
 export const ADJUSTMENT_KINDS:AdjustmentKind[]=['Hue/Saturation','Levels','Curves','Exposure','Gradient Map','Grain','Black & White','Color Balance','Invert','Gaussian Blur','Motion Blur','Add Noise'];
 export const FILTER_LABELS:Record<string,string>={filterAddNoise:'添加杂色',filterVignette:'渐晕',filterBloom:'辉光',filterTonalContrast:'色调反差',filterLensCorrection:'镜头校正',filterRemoveBackground:'移除背景',filterSharpen:'USM锐化',filterDenoise:'降噪',filterDither:'抖动',contentAwareFill:'内容识别填充',cameraRaw:'相机RAW滤镜'};
 export const FILTER_FIELDS:Record<string,[string,string,number,number,number?][]>= {
@@ -17,16 +18,51 @@ export const FILTER_FIELDS:Record<string,[string,string,number,number,number?][]
  filterTonalContrast:[['shadows','阴影',-100,100],['highlights','高光',-100,100]],filterLensCorrection:[['distortion','畸变',-100,100],['chromaticAberration','色差',0,100],['vignette','渐晕',-100,100]],
  filterRemoveBackground:[['sensitivity','灵敏度',0,100]],filterSharpen:[['amount','数量',0,500],['radius','半径',.1,100,.1],['threshold','阈值',0,255]],filterDenoise:[['luminance','亮度降噪',0,100],['color','彩色降噪',0,100],['radius','半径',1,20]],filterDither:[['levels','色阶数量',2,256],['seed','种子',0,100000]],
 };
-export interface FilterSession {kind:string;title:string;source:PixelBuffer;coverage:Uint8Array|null;adjustment:AdjustmentRecord|null;raw:CameraRawSettings;values:Record<string,any>;apply:(output:PixelBuffer)=>void}
-export function createFilterSession(api:EditorApi,kind:string):FilterSession|null {
- const target=resolveEditTarget(api.activeLayer());if(!target||target.onMask)return null;
- const layer=target.layer,before=api.snapshotLayer(layer.id);if(!before)return null;
- const source=cloneBuffer(target.buffer),doc=api.doc;
- return{kind,title:FILTER_LABELS[kind]??ADJUSTMENT_LABELS[kind as AdjustmentKind]??kind,source,coverage:projectEditSelection(doc,target),adjustment:ADJUSTMENT_KINDS.includes(kind as AdjustmentKind)?defaultAdjustment(kind as AdjustmentKind):kind==='filterAddNoise'?defaultAdjustment('Add Noise'):null,raw:defaultRawSettings(),values:{amount:kind==='filterVignette'?-40:80,midpoint:50,roundness:0,feather:60,radius:kind==='filterBloom'?12:1.2,intensity:40,threshold:kind==='filterBloom'?65:0,shadows:40,highlights:-30,color:40,protectMidtones:true,distortion:20,chromaticAberration:30,vignette:0,correction:true,sensitivity:50,luminance:30,levels:6,seed:11},apply:output=>{
-   if(!doc.layers.includes(layer))return;layer.pixels=cloneBuffer(output);layer.shape=null;layer.gradient=null;api.markLayerDirty(layer.id);const after=api.snapshotLayer(layer.id);api.pushHistory('应用滤镜：'+(FILTER_LABELS[kind]??ADJUSTMENT_LABELS[kind as AdjustmentKind]??kind),()=>api.restoreLayer(layer.id,before),()=>{if(after)api.restoreLayer(layer.id,after);},source.data.byteLength*2);
- }};
+/** 预览不只是像素：裁剪后的结果必须携带它在原图中的位置。 */
+export interface FilterPreviewResult { buffer:PixelBuffer; sourceRect:Rect }
+export interface FilterSession {
+  kind:string; title:string; source:PixelBuffer; coverage:Uint8Array|null;
+  adjustment:AdjustmentRecord|null; raw:CameraRawSettings; values:Record<string,any>;
+  apply:(preview:FilterPreviewResult)=>boolean;
 }
-export function filterPreview(session:FilterSession):PixelBuffer {
+export function createFilterSession(api:EditorApi,kind:string):FilterSession|null {
+  const target=resolveEditTarget(api.activeLayer());if(!target||target.onMask)return null;
+  const layer=target.layer,before=api.snapshotLayer(layer.id);if(!before?.pixels)return null;
+  const source=cloneBuffer(target.buffer),doc=api.doc,contentKey=layer.contentKey,pixels=layer.pixels;
+  const transformKey=JSON.stringify(layer.transform);
+  const maskKey=()=>JSON.stringify(layer.mask?{...layer.mask,pixels:undefined}:null);
+  const originalMaskKey=maskKey();
+  let applied=false;
+  return {
+    kind,title:FILTER_LABELS[kind]??ADJUSTMENT_LABELS[kind as AdjustmentKind]??kind,source,
+    coverage:projectEditSelection(doc,target),
+    adjustment:ADJUSTMENT_KINDS.includes(kind as AdjustmentKind)?defaultAdjustment(kind as AdjustmentKind):kind==='filterAddNoise'?defaultAdjustment('Add Noise'):null,
+    raw:defaultRawSettings(),
+    values:{amount:kind==='filterVignette'?-40:80,midpoint:50,roundness:0,feather:60,radius:kind==='filterBloom'?12:1.2,intensity:40,threshold:kind==='filterBloom'?65:0,shadows:40,highlights:-30,color:40,protectMidtones:true,distortion:20,chromaticAberration:30,vignette:0,correction:true,sensitivity:50,luminance:30,levels:6,seed:11},
+    apply:preview=>{
+      let current=false;try{current=api.doc===doc;}catch{ /* 文档已经关闭。 */ }
+      if(applied||!current||!doc.layers.includes(layer)||layer.locked||layer.contentKey!==contentKey||layer.pixels!==pixels
+        ||JSON.stringify(layer.transform)!==transformKey||maskKey()!==originalMaskKey){
+        api.status('滤镜会话已失效：文档已切换或图层发生变化，请重新打开滤镜');return false;
+      }
+      const {buffer,sourceRect}=preview;
+      validateSourceCrop(source.width,source.height,sourceRect);
+      if(buffer.width!==sourceRect.width||buffer.height!==sourceRect.height)throw new Error('滤镜输出尺寸与裁剪区域不一致');
+      // 先计算好所有替代状态再一次提交；任一计算失败不修改文档。
+      const transformed=croppedLayerTransform(before.transform,source.width,source.height,sourceRect);
+      const mask=croppedLinkedMask(layer.mask,source.width,source.height,sourceRect),next=cloneBuffer(buffer);
+      layer.pixels=next;layer.transform=transformed;layer.mask=mask;layer.shape=null;layer.gradient=null;
+      api.markLayerDirty(layer.id);
+      const after=api.snapshotLayer(layer.id);
+      const bytes=source.data.byteLength+next.data.byteLength+(before.mask?.data.byteLength??0)+(after?.mask?.data.byteLength??0);
+      api.pushHistory('应用滤镜：'+(FILTER_LABELS[kind]??ADJUSTMENT_LABELS[kind as AdjustmentKind]??kind),
+        ()=>api.restoreLayer(layer.id,before),()=>{if(after)api.restoreLayer(layer.id,after);},bytes);
+      applied=true;return true;
+    },
+  };
+}
+export function filterPreview(session:FilterSession):FilterPreviewResult {
+ const sourceRect=session.kind==='cameraRaw'?rawCropRect(session.source.width,session.source.height,session.raw):{x:0,y:0,width:session.source.width,height:session.source.height};
  let result=cloneBuffer(session.source);const v=session.values;
  if(session.adjustment)result=applyAdjustment(result,session.adjustment);
  else switch(session.kind){
@@ -41,6 +77,14 @@ export function filterPreview(session:FilterSession):PixelBuffer {
   case 'filterDither':applyDither(result,v.levels,v.seed);break;
   case 'contentAwareFill':if(session.coverage)contentAwareFill(result,session.coverage);break;
  }
- const coverage=session.coverage;if(coverage&&result.width===session.source.width&&result.height===session.source.height)for(let i=0;i<coverage.length;i++){const k=coverage[i]!/255;for(let c=0;c<4;c++)result.data[i*4+c]=session.source.data[i*4+c]!*(1-k)+result.data[i*4+c]!*k;}
- return clampPixels(result);
+ if(result.width!==sourceRect.width||result.height!==sourceRect.height)throw new Error('滤镜预览尺寸与裁剪区域不一致');
+ const coverage=session.coverage;
+ if(coverage)for(let y=0;y<result.height;y++)for(let x=0;x<result.width;x++){
+   // 裁剪后索引不能从0重新套用旧选区，必须映射回原图像素。
+   const sourcePixel=(y+sourceRect.y)*session.source.width+x+sourceRect.x,si=sourcePixel*4,di=(y*result.width+x)*4,k=coverage[sourcePixel]!/255;
+   const ab=session.source.data[si+3]!/255,af=result.data[di+3]!/255,alpha=ab*(1-k)+af*k;
+   for(let c=0;c<3;c++)result.data[di+c]=alpha>0?(session.source.data[si+c]!*ab*(1-k)+result.data[di+c]!*af*k)/alpha:0;
+   result.data[di+3]=alpha*255;
+ }
+ return {buffer:clampPixels(result),sourceRect};
 }

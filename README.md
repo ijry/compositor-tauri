@@ -1,5 +1,7 @@
 # 合成器专业版（otools-compositor）
 
+> **生产可用性说明**：原74项闭环和249项测试只是历史检查范围，后续又复现了PSD调整层丢效果与RAW裁剪拉伸。两项已补修并新增57项回归，但含调整层PSD目前只支持明确确认后的可见合成输出，不能保留原生可编辑调整层。详见 [生产阻断修复](docs/fixes/production/README.md)；真实OTools/Photoshop/厂商RAW仍未实测。
+
 跨平台专业图像编辑器，参考 [robbietilton/Compositor](https://github.com/robbietilton/Compositor) 复刻实现，
 以 **Vue 3 + TypeScript 组件化** 的 otools 插件形态交付，Windows / macOS / Linux 通用。
 

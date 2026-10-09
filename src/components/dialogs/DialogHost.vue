@@ -3,6 +3,7 @@
 import { computed, ref, watch } from 'vue';
 import { api, closeDialog, commands, currentDialog, currentDocument, openDialog } from '@/composables/useEditor';
 import { defaultRawSettings, RAW_PANEL_GROUPS } from '@/io/raw';
+import { userErrorMessage } from '@/core/userMessage';
 import { formatPsdReport } from '@/io/psd';
 import RawControls from '@/components/controls/RawControls.vue';
 import ImagePreview from '@/components/controls/ImagePreview.vue';
@@ -35,6 +36,12 @@ const exportForm = ref({ format: 'png', quality: 0.92, scale: 1 });
 const rangeForm = ref({ hue: 0, hueRange: 60, saturation: 50, saturationRange: 60, feather: 10 });
 /* RAW 显影 */
 const rawState = ref<{ layerId: string; raw: RawImage; settings: CameraRawSettings } | null>(null);
+/** 长表单的非法输入只显示校验提示，不让显影异常破坏整个对话框。 */
+const rawPreview=computed(()=>{
+  if(!rawState.value)return {buffer:null,error:''};
+  try{return {buffer:developRawImage(rawState.value.raw,rawState.value.settings),error:''};}
+  catch(error){return {buffer:null,error:userErrorMessage(error)};}
+});
 
 /** 打开对话框时准备表单 */
 watch(name, (value) => {
@@ -152,7 +159,8 @@ function submitExport(): void {
     <!-- RAW 显影 -->
     <div v-else-if="name === 'rawDevelop' && rawState" class="raw">
       <p class="hint">{{ rawState.raw.cameraModel }} · {{ rawState.raw.width }} × {{ rawState.raw.height }}</p>
-      <ImagePreview :buffer="developRawImage(rawState.raw,rawState.settings)"/>
+      <p v-if="rawPreview.error" role="alert" class="raw-error">{{rawPreview.error}}</p>
+      <ImagePreview v-if="rawPreview.buffer" :buffer="rawPreview.buffer"/>
       <RawControls v-model="rawState.settings"/>
     </div>
 
@@ -186,6 +194,7 @@ function submitExport(): void {
       <el-button v-if="name === 'colorRange'" type="primary" size="small" @click="commands.run('selectColorRange', rangeForm); closeDialog()">确定</el-button>
       <el-button
         v-if="name === 'rawDevelop' && rawState"
+        :disabled="!rawPreview.buffer"
         type="primary"
         size="small"
         @click="commands.run('applyRawDevelop', { layerId: rawState.layerId, raw: rawState.raw, settings: rawState.settings }); closeDialog()"
@@ -196,6 +205,7 @@ function submitExport(): void {
 
 <style scoped>
 /* 正文独立滚动，确认/取消按钮不能被长表单推到窗口外。 */
+.raw-error{color:var(--el-color-danger);white-space:pre-wrap;}
 .raw{max-height:60vh;overflow-y:auto;padding-right:8px;}
 .report,
 .hint {

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "PROD-001",
+    "status": "已修复（兼容导出）",
+    "title": "PSD调整层不再静默丢效果",
+    "tests": "tests/layout/psd-adjustment-export.spec.ts",
+    "count": 32,
+    "limitation": "合并当前可见结果，不保留可编辑调整层、隐藏层等结构；必须明确确认。"
+  },
+  {
+    "id": "PROD-002",
+    "status": "已修复",
+    "title": "RAW裁剪同步图层几何、蒙版及选区覆盖",
+    "tests": "tests/layout/raw-filter-crop.spec.ts",
+    "count": 25,
+    "limitation": "已测试源区域和各类变换/回放，未替代真实相机与宿主验收。"
+  }
+]

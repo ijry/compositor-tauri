@@ -14,10 +14,10 @@ import { isRawExtension, loadCompProject as importCompProject, saveCompProject a
 import { decodeRaw, defaultRawSettings, developRawImage } from '@/io/raw';
 import { buildSample } from '@/io/samples';
 import { setTheme, themeLabel } from '@/composables/useTheme';
-import { exportPsd, importPsd } from '@/io/psd';
+import { exportPsd, importPsd, planPsdExport } from '@/io/psd';
 import {
   confirmMessage, downloadInBrowser, fileName, joinPath, loadState, pickDirectory, pickFiles, pickSavePath,
-  saveBytes, saveState, showMessage,
+  saveBytes, saveState, showMessage, isOtoolsHost, isTauriHost,
 } from '@/platform/host';
 import type { EditorApi } from '@/types/editor';
 import type { CompDocument } from '@/types/document';
@@ -246,15 +246,24 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
         break;
       }
       case 'exportPsd': {
-        const data = exportPsd(doc);
-        const defaultName = `${doc.name}.psd`;
-        const path = await pickSavePath(defaultName, [{ name: 'Photoshop', extensions: ['psd'] }], '导出 PSD');
-        if (path) {
-          const ok = await saveBytes(path, new Uint8Array(data), 'image/vnd.adobe.photoshop');
-          api.status(ok ? `已导出 ${path}` : '导出失败');
-        } else {
-          downloadInBrowser(defaultName, new Uint8Array(data), 'image/vnd.adobe.photoshop');
-          api.status(`已导出 ${defaultName}`);
+        // 提示与编码共享同一快照；等待用户确认期间切换标签/继续编辑不会导错工程。
+        const snapshot=clone(api.doc),plan=planPsdExport(snapshot);
+        if(plan.warning&&!await confirmMessage(plan.warning,'PSD 导出兼容性确认')) {
+          api.status('已取消 PSD 导出，原工程未修改');break;
+        }
+        const data=exportPsd(snapshot,{rasterizeAdjustments:plan.mode==='visible-composite'});
+        const defaultName=`${snapshot.name}.psd`;
+        const path=await pickSavePath(defaultName,[{name:'Photoshop',extensions:['psd']}],'导出 PSD');
+        const suffix=plan.mode==='visible-composite'?'（调整效果已合并栅格化；可编辑工程请保留.comp）':'';
+        if(path){
+          const ok=await saveBytes(path,new Uint8Array(data),'image/vnd.adobe.photoshop');
+          api.status(ok?`已导出 ${path}${suffix}`:'导出失败');
+        }else if(isOtoolsHost()||isTauriHost()){
+          // 原生保存对话框取消不是浏览器降级请求，不能再私自下载一份文件。
+          api.status('已取消 PSD 导出，未写入文件');
+        }else{
+          downloadInBrowser(defaultName,new Uint8Array(data),'image/vnd.adobe.photoshop');
+          api.status(`已导出 ${defaultName}${suffix}`);
         }
         break;
       }

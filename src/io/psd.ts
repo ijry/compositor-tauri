@@ -1,3 +1,6 @@
+import { planPsdExport, type PsdExportOptions } from './psdExportPlan';
+export { planPsdExport } from './psdExportPlan';
+export type { PsdExportOptions, PsdExportPlan } from './psdExportPlan';
 import { documentDepth, pixelDepth, toImageData, fromUint16Pixels, displayBytes } from '@/core/pixelFormat';
 import { raw16Layer, raw16Channel, write16BitPsd } from './psd16';
 /**
@@ -334,14 +337,25 @@ function isVerticalText(details: NonNullable<PsdLayer['text']>): boolean {
 
 /* ------------------------------ 导出 ------------------------------ */
 
-/** 导出为 PSD 二进制（调整层与组会被栅格化为像素层） */
-export function exportPsd(document: CompDocument): ArrayBuffer {
-  const depth=documentDepth(document);
+/** 普通工程保留图层；有调整层时必须显式同意输出当前可见合成。 */
+export function exportPsd(document: CompDocument, options:PsdExportOptions={}): ArrayBuffer {
+  const plan=planPsdExport(document),depth=plan.bitDepth;
+  if(plan.mode==='visible-composite') {
+    if(!options.rasterizeAdjustments)throw new Error('工程含调整层，必须显式确认合并当前可见结果后再导出PSD；请先保存.comp以保留可编辑结构');
+    // 一次合成整个图层栈，保留顺序、组、蒙版、透明度及所有调整的相互作用。
+    // 这里仅构造导出数据，不修改、删除或压平正在编辑的文档。
+    const composite=compositeDocument(document,document.width,document.height,{scale:1,limitAdjustmentsBySelection:false}).buffer;
+    const layer:PsdLayer={name:'合成结果（调整效果已栅格化）',left:0,top:0,right:document.width,bottom:document.height,opacity:1,blendMode:'normal',hidden:false,
+      ...(depth===16?{rawData:raw16Layer(composite)}:{imageData:toImageData(composite)})};
+    const psd:Psd={width:document.width,height:document.height,children:[layer],...(depth===8?{imageData:toImageData(composite)}:{})};
+    return depth===16?write16BitPsd(psd,composite):writePsd(psd,{generateThumbnail:false,noBackground:true});
+  }
   const build=(layer:Layer):PsdLayer=>{
     const result:PsdLayer={name:layer.name,opacity:layer.opacity,hidden:!layer.isVisible,blendMode:toPsdBlendMode(layer.blendMode),clipping:layer.clipping} as PsdLayer;
     if(layer.kind==='group')result.children=document.layers.filter(l=>l.parentId===layer.id).map(build);
     else {
-      const transformed=layer.kind==='adjustment'||!layer.pixels||layer.transform.rotation!==0||layer.transform.flipX||layer.transform.flipY||!!layer.transform.warp||layer.transform.size[0]!==layer.pixels.width||layer.transform.size[1]!==layer.pixels.height;
+      if(layer.kind==='adjustment'||!layer.pixels)throw new Error('PSD图层导出计划无效：调整层必须通过可见合成策略输出');
+      const transformed=layer.transform.rotation!==0||layer.transform.flipX||layer.transform.flipY||!!layer.transform.warp||layer.transform.size[0]!==layer.pixels.width||layer.transform.size[1]!==layer.pixels.height;
       // PSD普通像素层没有单独的仿射属性，导出文档空间的栅格保持当前外观。
       const buffer=transformed?compositeDocument({...document,selection:null,layers:[{...layer,parentId:null,opacity:1,blendMode:'Normal',mask:null,effects:null,clipping:false}]},document.width,document.height,{scale:1}).buffer:layer.pixels!;
       const left=transformed?0:Math.round(layer.transform.origin[0]),top=transformed?0:Math.round(layer.transform.origin[1]);

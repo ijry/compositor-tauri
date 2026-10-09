@@ -1,3 +1,4 @@
+import { sourceCropRect } from '@/core/cropGeometry';
 import { copyPixels, pixelDepth, clampPixels } from '@/core/pixelFormat';
 /**
  * 相机 RAW 导入与显影
@@ -455,6 +456,11 @@ function decodeLzwRaw(input: Uint8Array, expected: number): Uint8Array {
 
 /* ------------------------------ 显影 ------------------------------ */
 
+/** 将显影边距转换为唯一的源像素裁剪矩形，预览和应用共用。 */
+export function rawCropRect(width:number,height:number,settings:Pick<CameraRawSettings,'cropLeft'|'cropTop'|'cropRight'|'cropBottom'>):import('@/types/document').Rect {
+  return sourceCropRect(width,height,{left:settings.cropLeft,top:settings.cropTop,right:settings.cropRight,bottom:settings.cropBottom});
+}
+
 /** 相机 RAW 面板分组 */
 export interface RawPanelGroup {
   id: 'light' | 'color' | 'curve' | 'mixer' | 'grading' | 'detail' | 'optics' | 'geometry';
@@ -487,6 +493,7 @@ export const COLOR_WHEELS = [
 
 /** 套用显影参数，把线性图像转成 8 位 sRGB */
 export function developRawImage(raw: RawImage, settings: CameraRawSettings): PixelBuffer {
+  rawCropRect(raw.width,raw.height,settings);
   const working = cloneBuffer(raw.data);
   const { width, height, data } = working;
 
@@ -667,21 +674,10 @@ export function developRawImage(raw: RawImage, settings: CameraRawSettings): Pix
   if (settings.defringe > 0) applyRawDefringe(working, settings.defringe);
   if (settings.vignette !== 0) applyRawVignette(working, settings.vignette);
 
-  /* 收尾：裁剪与钳制 */
-  const left = Math.round(settings.cropLeft);
-  const top = Math.round(settings.cropTop);
-  const right = Math.round(settings.cropRight);
-  const bottom = Math.round(settings.cropBottom);
-  let result = working;
-  if (left > 0 || top > 0 || right > 0 || bottom > 0) {
-    result = cropBuffer(
-      working,
-      Math.max(0, left),
-      Math.max(0, top),
-      Math.max(1, width - left - right),
-      Math.max(1, height - top - bottom),
-    );
-  }
+  /* 收尾：裁剪与钳制。与滤镜应用使用同一有效源区域，禁止用末列复制掩盖无效裁剪。 */
+  const region=rawCropRect(width,height,settings);
+  const result=region.x===0&&region.y===0&&region.width===width&&region.height===height
+    ? working : cropBuffer(working,region.x,region.y,region.width,region.height);
   for (let i = 0; i < result.data.length; i += 4) {
     result.data[i] = Math.max(0, Math.min(255, result.data[i]!));
     result.data[i + 1] = Math.max(0, Math.min(255, result.data[i + 1]!));
