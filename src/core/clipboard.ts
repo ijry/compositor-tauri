@@ -1,5 +1,6 @@
+import { pixelDepth } from './pixelFormat';
 /** 内部剪贴板快照：像素与图层两种载荷互斥，每次粘贴均重新分配缓冲。 */
-import { createPixelLayer, descendantsOf, duplicateLayer } from '@/core/document';
+import { adoptDocumentDepth, createPixelLayer, descendantsOf, duplicateLayer } from '@/core/document';
 import { cloneBuffer, createBuffer, maskToBuffer } from '@/core/pixels';
 import { compositeDocument } from '@/core/engine/compositor';
 import { placementTransform } from '@/core/engine/maskGeometry';
@@ -21,11 +22,11 @@ function selectedRegion(document: CompDocument): Rect | null {
 }
 function pixelsInSelection(document:CompDocument,source:PixelBuffer): ClipboardPayload | null {
   const region=selectedRegion(document);if(!region)return null;
-  const pixels=createBuffer(region.width,region.height),s=document.selection;
+  const pixels=createBuffer(region.width,region.height,undefined,pixelDepth(source)),s=document.selection;
   for(let y=0;y<region.height;y++)for(let x=0;x<region.width;x++) {
     const dx=x+region.x,dy=y+region.y,si=(dy*source.width+dx)*4,di=(y*region.width+x)*4;
     pixels.data.set(source.data.subarray(si,si+4),di);
-    if(s)pixels.data[di+3]=Math.round(pixels.data[di+3]*s.data[dy*s.width+dx]/255);
+    if(s){const alpha=pixels.data[di+3]*s.data[dy*s.width+dx]/255;pixels.data[di+3]=pixels.data instanceof Float32Array?alpha:Math.round(alpha);}
   }
   return {kind:'pixels',pixels,origin:[region.x,region.y]};
 }
@@ -71,6 +72,7 @@ export function pasteClipboard(document:CompDocument,payload:ClipboardPayload): 
     for(const layer of layers){layer.parentId=layer.parentId?mapping.get(layer.parentId)??parent:parent;if(layer.maskSourceId)layer.maskSourceId=mapping.get(layer.maskSourceId)??null;}
     selected=mapping.get(payload.active)??layers.at(-1)!.id;
   }
+  adoptDocumentDepth(document,layers);
   const index=active?document.layers.indexOf(active)+1:document.layers.length;
   document.layers.splice(index,0,...layers);document.activeLayerId=selected;document.updatedAt=Date.now();
 }

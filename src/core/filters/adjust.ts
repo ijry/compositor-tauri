@@ -1,3 +1,5 @@
+import { pixelDepth, clampChannel, clampPixels } from '@/core/pixelFormat';
+import type { PixelArray } from '@/types/document';
 /**
  * 调整算法内核
  * ---------------------------------------------------------------
@@ -22,42 +24,43 @@ import type {
 } from '@/types/document';
 
 /** 覆盖率：0-255 的数组，与缓冲等大；缺省表示全部生效 */
-export type Coverage = Uint8Array | null;
+export type Coverage = Uint8Array | Float32Array | null;
 
 /* ------------------------------ 查找表工具 ------------------------------ */
 
 /** 由色阶区间生成 0-255 查找表 */
-export function buildLevelsLut(range: LevelRange): Uint8ClampedArray {
-  const lut = new Uint8ClampedArray(256);
+export function buildLevelsLut(range: LevelRange,precise=false): PixelArray {
+  const lut = precise?new Float32Array(65536):new Uint8ClampedArray(256);
   const black = Math.min(range.black, range.white - 1);
   const white = Math.max(range.white, black + 1);
   const gamma = Math.max(0.01, range.gamma);
   const span = Math.max(1e-6, white - black);
   const outSpan = range.outputWhite - range.outputBlack;
-  for (let i = 0; i < 256; i += 1) {
-    let value = (i - black) / span;
+  for (let i = 0; i < lut.length; i += 1) {
+    let value = (i/(precise?257:1) - black) / span;
     value = value < 0 ? 0 : value > 1 ? 1 : value;
     value = Math.pow(value, 1 / gamma);
-    lut[i] = range.outputBlack + value * outSpan;
+    lut[i] = clampChannel(range.outputBlack + value * outSpan);
   }
   return lut;
 }
 
 /** 由曲线生成 0-255 查找表（点按 x 递增，分段线性） */
-export function buildCurveLut(points: [number, number][]): Uint8ClampedArray {
-  const lut = new Uint8ClampedArray(256);
+export function buildCurveLut(points: [number, number][],precise=false): PixelArray {
+  const lut = precise?new Float32Array(65536):new Uint8ClampedArray(256);
   const sorted = [...new Map(points.filter(p=>Number.isFinite(p[0])&&Number.isFinite(p[1])).map(p=>[p[0],p])).values()].sort((a,b)=>a[0]-b[0]);
-  if (!sorted.length) { for(let i=0;i<256;i++)lut[i]=i; return lut; }
+  if (!sorted.length) { for(let i=0;i<lut.length;i++)lut[i]=i/(precise?257:1); return lut; }
   if(sorted.length===1)return lut.fill(sorted[0]![1]);
   const slopes=sorted.slice(1).map((p,i)=>(p[1]-sorted[i]![1])/(p[0]-sorted[i]![0]));
   const tangents=sorted.map((_,i)=>i===0?slopes[0]!:i===sorted.length-1?slopes.at(-1)!:slopes[i-1]!*slopes[i]!<=0?0:2/(1/slopes[i-1]!+1/slopes[i]!));
   let at=0;
-  for(let x=0;x<256;x++) {
-    if(x<=sorted[0]![0]){lut[x]=sorted[0]![1];continue;}
-    if(x>=sorted.at(-1)![0]){lut[x]=sorted.at(-1)![1];continue;}
+  for(let index=0;index<lut.length;index++) {
+    const x=index/(precise?257:1);
+    if(x<=sorted[0]![0]){lut[index]=sorted[0]![1];continue;}
+    if(x>=sorted.at(-1)![0]){lut[index]=sorted.at(-1)![1];continue;}
     while(at<sorted.length-2&&sorted[at+1]![0]<x)at++;
     const [x0,y0]=sorted[at]!,[x1,y1]=sorted[at+1]!,span=x1-x0,t=(x-x0)/span,t2=t*t,t3=t2*t;
-    lut[x]=(2*t3-3*t2+1)*y0+(t3-2*t2+t)*span*tangents[at]!+(-2*t3+3*t2)*y1+(t3-t2)*span*tangents[at+1]!;
+    lut[index]=clampChannel((2*t3-3*t2+1)*y0+(t3-2*t2+t)*span*tangents[at]!+(-2*t3+3*t2)*y1+(t3-t2)*span*tangents[at+1]!);
   }
   return lut;
 }
@@ -96,14 +99,16 @@ export function gradientMapColor(settings: GradientMapSettings, value: number): 
 /** 应用色阶（4 组区间：RGB 合成 + 红绿蓝） */
 export function applyLevels(buffer: PixelBuffer, settings: LevelsSettings, coverage: Coverage = null): void {
   const [composite, red, green, blue] = settings.ranges;
-  const luts = [buildLevelsLut(composite), buildLevelsLut(red), buildLevelsLut(green), buildLevelsLut(blue)];
+  const precise=pixelDepth(buffer)===16;
+  const read=(lut:PixelArray,value:number)=>lut[Math.round(clampChannel(value)*(precise?257:1))]!;
+  const luts = [buildLevelsLut(composite,precise), buildLevelsLut(red,precise), buildLevelsLut(green,precise), buildLevelsLut(blue,precise)];
   const { data } = buffer;
   for (let i = 0; i < data.length; i += 4) {
     let r = data[i];
     let g = data[i + 1];
     let b = data[i + 2];
-    r = luts[0][r]; g = luts[0][g]; b = luts[0][b];
-    r = luts[1][r]; g = luts[2][g]; b = luts[3][b];
+    r = read(luts[0]!,r); g = read(luts[0]!,g); b = read(luts[0]!,b);
+    r = read(luts[1]!,r); g = read(luts[2]!,g); b = read(luts[3]!,b);
     writeWithCoverage(data, i, r, g, b, coverage);
   }
 }
@@ -111,13 +116,15 @@ export function applyLevels(buffer: PixelBuffer, settings: LevelsSettings, cover
 /** 应用曲线 */
 export function applyCurves(buffer: PixelBuffer, settings: CurvesSettings, coverage: Coverage = null): void {
   const [composite, red, green, blue] = settings.channels;
-  const luts = [buildCurveLut(composite.points), buildCurveLut(red.points), buildCurveLut(green.points), buildCurveLut(blue.points)];
+  const precise=pixelDepth(buffer)===16;
+  const read=(lut:PixelArray,value:number)=>lut[Math.round(clampChannel(value)*(precise?257:1))]!;
+  const luts = [buildCurveLut(composite.points,precise), buildCurveLut(red.points,precise), buildCurveLut(green.points,precise), buildCurveLut(blue.points,precise)];
   const { data } = buffer;
   for (let i = 0; i < data.length; i += 4) {
-    let r = luts[0][data[i]];
-    let g = luts[0][data[i + 1]];
-    let b = luts[0][data[i + 2]];
-    r = luts[1][r]; g = luts[2][g]; b = luts[3][b];
+    let r = read(luts[0]!,data[i]!);
+    let g = read(luts[0]!,data[i + 1]!);
+    let b = read(luts[0]!,data[i + 2]!);
+    r = read(luts[1]!,r); g = read(luts[2]!,g); b = read(luts[3]!,b);
     writeWithCoverage(data, i, r, g, b, coverage);
   }
 }
@@ -178,7 +185,7 @@ export function applyGradientMap(buffer: PixelBuffer, settings: GradientMapSetti
   for (let i = 0; i < 256; i += 1) lut[i] = gradientMapColor(settings, i);
   for (let i = 0; i < data.length; i += 4) {
     const gray = fastLuma(data[i], data[i + 1], data[i + 2]) * 255;
-    const color = lut[Math.round(gray)];
+    const color = pixelDepth(buffer)===16?gradientMapColor(settings,gray):lut[Math.round(gray)]!;
     writeWithCoverage(data, i, color[0], color[1], color[2], coverage);
   }
 }
@@ -412,7 +419,8 @@ function mixBuffers(base: PixelBuffer, layer: PixelBuffer, coverage: Coverage): 
 }
 
 /** 按覆盖率写回像素（覆盖率 255 表示完全替换） */
-function writeWithCoverage(data: Uint8ClampedArray, index: number, r: number, g: number, b: number, coverage: Coverage): void {
+function writeWithCoverage(data: PixelArray, index: number, r: number, g: number, b: number, coverage: Coverage): void {
+  r=clampChannel(r);g=clampChannel(g);b=clampChannel(b);
   if (coverage) {
     const k = coverage[index / 4] / 255;
     if (k <= 0) return;
@@ -434,9 +442,9 @@ export function autoLevelsRange(buffer: PixelBuffer, channel: 'RGB' | 'Red' | 'G
   const { data } = buffer;
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 8) continue;
-    if (channel === 'Red' || channel === 'RGB') histogram[data[i]] += 1;
-    if (channel === 'Green' || channel === 'RGB') histogram[data[i + 1]] += 1;
-    if (channel === 'Blue' || channel === 'RGB') histogram[data[i + 2]] += 1;
+    if (channel === 'Red' || channel === 'RGB') histogram[Math.round(clampChannel(data[i]!))] += 1;
+    if (channel === 'Green' || channel === 'RGB') histogram[Math.round(clampChannel(data[i+1]!))] += 1;
+    if (channel === 'Blue' || channel === 'RGB') histogram[Math.round(clampChannel(data[i+2]!))] += 1;
   }
   let total = 0;
   for (let i = 0; i < 256; i += 1) total += histogram[i];

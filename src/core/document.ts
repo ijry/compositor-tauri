@@ -1,9 +1,12 @@
+import { recommendedBudget } from '@/core/engine/history';
 /**
  * 文档与图层的构造、增删改查
  * ---------------------------------------------------------------
  * 所有会改变文档的操作都集中在这里，工具与界面只调用这些函数，
  * 保证「一次操作 = 一次历史记录 = 一次重绘」。
  */
+import { pixelDepth, documentDepth, convertBufferDepth } from './pixelFormat';
+import type { BitDepth } from '@/types/document';
 import { compositeInto } from '@/core/engine/compositor';
 import { applyPixelMask, placementTransform } from '@/core/engine/maskGeometry';
 
@@ -54,7 +57,7 @@ export function defaultSnap(): SnapSettings {
 }
 
 /** 创建空白文档 */
-export function createDocument(width = 1920, height = 1080, name = '未命名'): CompDocument {
+export function createDocument(width = 1920, height = 1080, name = '未命名', bitDepth:BitDepth=8): CompDocument {
   const now = Date.now();
   return {
     id: uuid(),
@@ -62,6 +65,7 @@ export function createDocument(width = 1920, height = 1080, name = '未命名'):
     width,
     height,
     resolution: 72,
+    bitDepth,
     layers: [],
     activeLayerId: null,
     selection: null,
@@ -105,7 +109,7 @@ export function createPixelLayer(name: string, pixels: PixelBuffer, options: Par
 
 /** 空白像素图层 */
 export function createBlankLayer(document: CompDocument, name = '图层'): Layer {
-  return createPixelLayer(name, createBuffer(document.width, document.height));
+  return createPixelLayer(name, createBuffer(document.width, document.height,undefined,documentDepth(document)));
 }
 
 /** 恒等色阶区间 */
@@ -289,7 +293,24 @@ export function effectiveOpacity(document: CompDocument, layer: Layer): number {
 /* ------------------------------ 增删改 ------------------------------ */
 
 /** 插入图层到指定位置（缺省为当前活动图层之上） */
+/** 插入或打开时统一提升混合位深；先分配全部替代缓冲，再提交，失败不会留下半转换的文档。 */
+export function adoptDocumentDepth(document:CompDocument,incoming:Layer[]=[]):void {
+  const layers=[...new Set([...document.layers,...incoming])];
+  if(documentDepth({bitDepth:document.bitDepth,layers})!==16)return;
+  const retained=layers.reduce((n,l)=>n+(l.pixels?.data.byteLength??0)+(l.mask?.pixels.data.byteLength??0),0);
+  const extra=layers.reduce((n,l)=>n+(l.pixels&&!(l.pixels.data instanceof Float32Array)?l.pixels.data.length*4:0)+(l.mask&&!(l.mask.pixels.data instanceof Float32Array)?l.mask.pixels.data.length*4:0),0);
+  if(extra&&retained+extra>recommendedBudget())throw new Error('提升到16位工作精度超出内存预算，请减少图层或图像尺寸');
+  const changes=layers.map(layer=>({
+    layer,
+    pixels:layer.pixels?convertBufferDepth(layer.pixels,16):null,
+    mask:layer.mask&&!(layer.mask.pixels.data instanceof Float32Array)?{...layer.mask.pixels,data:Float32Array.from(layer.mask.pixels.data),bitDepth:16 as const}:layer.mask?.pixels,
+  }));
+  for(const change of changes){if(change.layer.kind==='pixel'&&change.pixels)change.layer.pixels=change.pixels;if(change.layer.mask&&change.mask)change.layer.mask.pixels=change.mask;}
+  document.bitDepth=16;
+}
+
 export function insertLayer(document: CompDocument, layer: Layer, index?: number): Layer {
+  adoptDocumentDepth(document,[layer]);
   const insertAt = index ?? defaultInsertIndex(document);
   document.layers.splice(Math.max(0, Math.min(document.layers.length, insertAt)), 0, layer);
   document.activeLayerId = layer.id;
@@ -426,7 +447,7 @@ export function mergeLayers(document: CompDocument, ids: string[]): Layer | null
     .sort((a, b) => layerIndex(document, a.id) - layerIndex(document, b.id));
   if (!selected.length || (selected.length===1 && selected[0]!.kind!=='group')) return null;
   const top = selected[selected.length - 1]!;
-  const composite = createBuffer(document.width, document.height);
+  const composite = createBuffer(document.width, document.height,undefined,documentDepth(document));
   const subset = new Set<string>();
   for (const layer of selected) {
     if (layer.kind === 'group') descendantsOf(document, layer.id).forEach((child) => subset.add(child.id));
@@ -471,7 +492,7 @@ export function mergeGroup(document: CompDocument, groupId: string): Layer | nul
 
 /** 合并所有可见图层为一个像素层 */
 export function flattenVisible(document: CompDocument): Layer | null {
-  const composite = createBuffer(document.width, document.height);
+  const composite = createBuffer(document.width, document.height,undefined,documentDepth(document));
   compositeInto(composite, document, 1);
   const flattened = createPixelLayer('合并图层', composite, { parentId: null });
   document.layers = [flattened];
@@ -483,11 +504,11 @@ export function flattenVisible(document: CompDocument): Layer | null {
 /* ------------------------------ 蒙版 ------------------------------ */
 
 /** 为图层添加全白蒙版 */
-export function addLayerMask(layer: Layer, canvasWidth = 1, canvasHeight = 1): MaskBuffer {
+export function addLayerMask(layer: Layer, canvasWidth = 1, canvasHeight = 1,bitDepth:BitDepth=layer.pixels?pixelDepth(layer.pixels):8): MaskBuffer {
   const width = layer.kind === 'pixel' && layer.pixels ? layer.pixels.width : canvasWidth;
   const height = layer.kind === 'pixel' && layer.pixels ? layer.pixels.height : canvasHeight;
   if (layer.kind !== 'pixel') layer.transform = defaultTransform(width,height);
-  const pixels = createMask(width, height, 255);
+  const pixels = createMask(width, height, 255,bitDepth);
   layer.mask = { pixels, enabled: true, linked: true, placement: null, target: 'mask', inverted: false };
   return pixels;
 }
@@ -508,12 +529,12 @@ export function invertLayerMask(layer: Layer): void {
 }
 
 /** 从选区生成蒙版 */
-export function maskFromSelection(layer: Layer, selection: Uint8Array, width: number, height: number): void {
+export function maskFromSelection(layer: Layer, selection: Uint8Array, width: number, height: number,bitDepth:BitDepth=layer.pixels?pixelDepth(layer.pixels):8): void {
   const targetWidth=layer.kind==='pixel'&&layer.pixels?layer.pixels.width:width;
   const targetHeight=layer.kind==='pixel'&&layer.pixels?layer.pixels.height:height;
   // 无图像像素的组/调整层以文档网格承载新蒙版，不沿用缺省 1×1 的占位变换。
   if(layer.kind!=='pixel')layer.transform=defaultTransform(width,height);
-  const mask=createMask(targetWidth,targetHeight,0),matrix=layerMatrix(layer.transform,targetWidth,targetHeight);
+  const mask=createMask(targetWidth,targetHeight,0,bitDepth),matrix=layerMatrix(layer.transform,targetWidth,targetHeight);
   const source={width,height,data:selection};
   for(let y=0;y<targetHeight;y++)for(let x=0;x<targetWidth;x++)mask.data[y*targetWidth+x]=Math.round(selectionCoverageAt(source,matrix,x,y)*255);
   layer.mask={pixels:mask,enabled:true,linked:true,placement:null,target:'mask',inverted:false};
@@ -655,7 +676,7 @@ export function contentBounds(document: CompDocument): Rect | null {
 
 /** 修边：按颜色裁掉四周一致的边，返回要裁掉的矩形 */
 export function trimDocument(document: CompDocument, tolerance: number, background: [number, number, number]): Rect | null {
-  const composite = createBuffer(document.width, document.height);
+  const composite = createBuffer(document.width, document.height,undefined,documentDepth(document));
   compositeInto(composite, document, 1);
   const matches = (index: number): boolean => Math.abs(composite.data[index] - background[0]) <= tolerance
     && Math.abs(composite.data[index + 1] - background[1]) <= tolerance
@@ -734,7 +755,7 @@ export function flipCanvas(document: CompDocument, horizontal: boolean, vertical
 }
 
 function cropLayerPixels(buffer: PixelBuffer, rect: Rect): PixelBuffer {
-  const out = createBuffer(rect.width, rect.height);
+  const out = createBuffer(rect.width, rect.height,undefined,pixelDepth(buffer));
   for (let y = 0; y < rect.height; y += 1) {
     const sy = rect.y + y;
     if (sy < 0 || sy >= buffer.height) continue;
@@ -753,7 +774,7 @@ function cropLayerPixels(buffer: PixelBuffer, rect: Rect): PixelBuffer {
 }
 
 function cropMask(mask: MaskBuffer, rect: Rect): MaskBuffer {
-  const out = createMask(rect.width, rect.height, 0);
+  const out = createMask(rect.width, rect.height, 0,mask.data instanceof Float32Array?16:8);
   for (let y = 0; y < rect.height; y += 1) {
     const sy = rect.y + y;
     if (sy < 0 || sy >= mask.height) continue;
@@ -767,7 +788,7 @@ function cropMask(mask: MaskBuffer, rect: Rect): MaskBuffer {
 }
 
 function flipMask(mask: MaskBuffer, horizontal: boolean, vertical: boolean): MaskBuffer {
-  const out = createMask(mask.width, mask.height);
+  const out = createMask(mask.width, mask.height,255,mask.data instanceof Float32Array?16:8);
   for (let y = 0; y < mask.height; y += 1) {
     const sy = vertical ? mask.height - 1 - y : y;
     for (let x = 0; x < mask.width; x += 1) {
@@ -782,7 +803,7 @@ function rotateMask(mask: MaskBuffer, degrees: number): MaskBuffer {
   const rotation = ((degrees % 360) + 360) % 360;
   if (rotation === 0) return cloneMask(mask);
   const swap = rotation === 90 || rotation === 270;
-  const out = createMask(swap ? mask.height : mask.width, swap ? mask.width : mask.height);
+  const out = createMask(swap ? mask.height : mask.width, swap ? mask.width : mask.height,255,mask.data instanceof Float32Array?16:8);
   for (let y = 0; y < mask.height; y += 1) {
     for (let x = 0; x < mask.width; x += 1) {
       let tx = x;

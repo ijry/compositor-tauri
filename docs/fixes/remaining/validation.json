@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-09",
+  "branch": "fix/full-feature-audit",
+  "previousCommit": "06be15d35e519e66ef25665490a981232394a6ed",
+  "sourceTreeSha256": "c4443b881ad64f5a27061ba862711477c40037cec1bff62a0dce2b17bfdeda33",
+  "checks": [
+    {
+      "command": "pnpm exec vue-tsc -b --pretty false",
+      "status": "通过"
+    },
+    {
+      "command": "pnpm build",
+      "status": "通过",
+      "transformedModules": 1773
+    },
+    {
+      "command": "pnpm exec playwright test --workers=2 --reporter=json",
+      "status": "通过",
+      "passed": 249,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "addedSincePrevious": 78,
+      "durationMs": 173842.089
+    },
+    {
+      "command": "node --test scripts/*.test.mjs",
+      "status": "通过",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "command": "node scripts/pack-plugin.mjs --out dist-pack --version 0.1.0",
+      "status": "通过"
+    },
+    {
+      "command": "python scripts/verify-plugin.py dist-pack --packid otools-compositor --version 0.1.0",
+      "status": "通过"
+    }
+  ],
+  "package": {
+    "file": "dist-pack/otools-compositor-0.1.0.oplg",
+    "bytes": 608577,
+    "sha256": "f72502e6ba2028a43874ab32c4d5c44e9db34c976f97566a523c8ab87f13cd6c"
+  },
+  "closedIssues": [
+    "ISSUE-062",
+    "ISSUE-063",
+    "ISSUE-065"
+  ],
+  "progress": {
+    "fixed": 74,
+    "partial": 0,
+    "unfinished": 0
+  },
+  "visualChecks": [
+    "screenshots/new-canvas-16.png",
+    "screenshots/workspace-16.png"
+  ],
+  "boundaries": [
+    "独立Chromium与内存宿主，不代表真实OTools验证",
+    "独立构造的格式样本与ag-psd独立读取验证，不代表真实Photoshop/厂商RAW/HEIC样本都通过",
+    "PSD预算是算法内存规划，不是进程RSS测量",
+    "32位HDR和CMYK等未支持的模式会明确拒绝",
+    "仅本地打包，不发布、不推送、不部署"
+  ]
+}

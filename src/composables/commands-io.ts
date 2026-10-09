@@ -1,3 +1,6 @@
+import { userErrorMessage } from '@/core/userMessage';
+import { pixelDepth, documentDepth, convertBufferDepth } from '@/core/pixelFormat';
+import { createBuffer } from '@/core/pixels';
 /**
  * 文件与视图命令
  * ---------------------------------------------------------------
@@ -84,16 +87,16 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
     },
   });
 
-  const clone=<T>(value:T):T=>{if(value instanceof Uint8ClampedArray)return new Uint8ClampedArray(value) as T;if(value instanceof Uint8Array)return new Uint8Array(value) as T;if(Array.isArray(value))return value.map(clone) as T;if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,clone(v)])) as T;return value;};
-  type ImportState={layers:CompDocument['layers'];activeLayerId:string|null;width:number;height:number};
-  const captureImport=(d:CompDocument):ImportState=>clone({layers:d.layers,activeLayerId:d.activeLayerId,width:d.width,height:d.height});
+  const clone=<T>(value:T):T=>{if(value instanceof Float32Array)return new Float32Array(value) as T;if(value instanceof Uint8ClampedArray)return new Uint8ClampedArray(value) as T;if(value instanceof Uint8Array)return new Uint8Array(value) as T;if(Array.isArray(value))return value.map(clone) as T;if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,clone(v)])) as T;return value;};
+  type ImportState={layers:CompDocument['layers'];activeLayerId:string|null;width:number;height:number;bitDepth?:8|16};
+  const captureImport=(d:CompDocument):ImportState=>clone({layers:d.layers,activeLayerId:d.activeLayerId,width:d.width,height:d.height,bitDepth:d.bitDepth});
   const restoreImport=(d:CompDocument,state:ImportState)=>{Object.assign(d,clone(state));deps.invalidate();};
   const imports=new Map<string,{target:CompDocument;before:ImportState;dirty:boolean;committed:boolean}>();
   function recordImport(target:CompDocument,before:ImportState,label:string){const after=captureImport(target);api.pushHistory(label,()=>restoreImport(target,before),()=>restoreImport(target,after));}
   function stageRaw(raw:import('@/types/document').RawImage):void {
-    let target:CompDocument;try{target=api.doc;}catch{target=createDocument(raw.width,raw.height,'相机RAW');deps.openDocument(target);}
+    let target:CompDocument;try{target=api.doc;}catch{target=createDocument(raw.width,raw.height,'相机RAW',pixelDepth(raw.data));deps.openDocument(target);}
     const before=captureImport(target),dirty=target.dirty,layer=createPixelLayer(`RAW · ${raw.cameraModel}`,developRawImage(raw,raw.settings));
-    insertLayer(target,layer);(layer as unknown as {rawData:unknown}).rawData=raw;
+    insertLayer(target,layer);if(pixelDepth(layer.pixels!)===16)target.bitDepth=16;(layer as unknown as {rawData:unknown}).rawData=raw;
     const transaction={target,before,dirty,committed:false};imports.set(layer.id,transaction);
     deps.openDialog('rawDevelop',{layerId:layer.id,onCancel:()=>{if(!transaction.committed){restoreImport(target,before);target.dirty=dirty;}imports.delete(layer.id);}});deps.invalidate();
   }
@@ -103,25 +106,16 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
       /* ---------------- 新建 ---------------- */
       case 'newCanvas': {
         if(!payload){deps.openDialog('newCanvas');break;}
-        const options = (payload as { width?: number; height?: number; name?: string; resolution?: number } | undefined) ?? {};
+        const options = (payload as { width?: number; height?: number; name?: string; resolution?: number; bitDepth?:8|16 } | undefined) ?? {};
         const document = createDocument(
           Math.max(1, Math.round(options.width ?? 1920)),
           Math.max(1, Math.round(options.height ?? 1080)),
           options.name ?? '未命名',
+          options.bitDepth===16?16:8,
         );
         document.resolution = options.resolution ?? 72;
         // 背景层：白色不透明，方便直接作画
-        const background = createPixelLayer('背景', {
-          width: document.width,
-          height: document.height,
-          data: (() => {
-            const data = new Uint8ClampedArray(document.width * document.height * 4);
-            for (let i = 0; i < data.length; i += 4) {
-              data[i] = 255; data[i + 1] = 255; data[i + 2] = 255; data[i + 3] = 255;
-            }
-            return data;
-          })(),
-        });
+        const background = createPixelLayer('背景', createBuffer(document.width,document.height,[255,255,255,255],document.bitDepth));
         document.layers.push(background);
         document.activeLayerId = background.id;
         deps.openDocument(document);
@@ -159,7 +153,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
           const raw = decodeRaw(file.data);
           stageRaw(raw);
         } catch (error) {
-          await showMessage(`无法解码该 RAW 文件：${(error as Error).message}`, 'warning');
+          await showMessage(`无法解码该 RAW 文件：${userErrorMessage(error)}`, 'warning');
         }
         break;
       }
@@ -186,7 +180,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
           const result=await exportCompProject(target,target.packagePath);
           if(result){await watchers.get(target.id)?.acknowledge();if(deps.documentRevision(target)===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
           else api.status('保存失败：旧工程未替换，请检查宿主目录权限');
-        } catch(error){api.status(`保存失败：${(error as Error).message}`);}
+        } catch(error){api.status(`保存失败：${userErrorMessage(error)}`);}
         finally{target.saving=false;deps.invalidate();}
         break;
       }
@@ -198,7 +192,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
           const result=await exportCompProject(target,directory);
           if(result){if(target.packagePath!==result)stopWatchingDocument(target.id);else await watchers.get(target.id)?.acknowledge();target.packagePath=result;target.name=fileName(result);if(deps.documentRevision(target)===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
           else api.status('另存失败，原工程路径保持不变');
-        }catch(error){api.status(`保存失败：${(error as Error).message}`);}
+        }catch(error){api.status(`保存失败：${userErrorMessage(error)}`);}
         finally{target.saving=false;deps.invalidate();}
         break;
       }
@@ -338,7 +332,7 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
       deps.fitCanvas();
       api.status(`已打开工程 ${document.name}`);
     } catch (error) {
-      await showMessage(`打开工程失败：${(error as Error).message}`, 'warning');
+      await showMessage(`打开工程失败：${userErrorMessage(error)}`, 'warning');
     }
   };
 
@@ -357,22 +351,24 @@ export function createIoCommands(api: EditorApi, deps: IoDependencies) {
           const raw = decodeRaw(file.data);
           stageRaw(raw);
         } catch (error) {
-          await showMessage(`无法解码 ${name}：${(error as Error).message}`, 'warning');
+          await showMessage(`无法解码 ${name}：${userErrorMessage(error)}`, 'warning');
         }
         continue;
       }
       try {
         const pixels = await decodeImageBytes(file.data);
         const layer = createPixelLayer(name.replace(/\.[^.]+$/, ''), pixels);
+
         if (document.layers.length === 0 && document.width > 0) {
           // 第一张图片作为画布底图：调整画布尺寸
           document.width = pixels.width;
           document.height = pixels.height;
+
         }
         layer.transform.origin = [Math.round((document.width - pixels.width) / 2), Math.round((document.height - pixels.height) / 2)];
         insertLayer(document, layer);
       } catch (error) {
-        await showMessage(`无法导入 ${name}：${(error as Error).message}`, 'warning');
+        await showMessage(`无法导入 ${name}：${userErrorMessage(error)}`, 'warning');
       }
     }
     deps.invalidate();

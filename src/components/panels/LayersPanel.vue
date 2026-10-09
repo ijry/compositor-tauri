@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toImageData } from '@/core/pixelFormat';
+
 /**
  * 图层面板
  * ---------------------------------------------------------------
@@ -38,7 +40,7 @@ function thumbnail(layer: Layer): string {
   const canvas = document.createElement('canvas');
   canvas.width = buffer.width;
   canvas.height = buffer.height;
-  canvas.getContext('2d')!.putImageData(new ImageData(buffer.data, buffer.width, buffer.height), 0, 0);
+  canvas.getContext('2d')!.putImageData(toImageData(buffer), 0, 0);
   const url = canvas.toDataURL('image/png');
   cache.set(key, url);
   if (cache.size > 300) cache.clear();

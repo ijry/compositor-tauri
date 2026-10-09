@@ -1,3 +1,4 @@
+import type { PixelArray } from '@/types/document';
 /**
  * 像素采样
  * ---------------------------------------------------------------
@@ -7,12 +8,12 @@
 
 /** 双线性采样并写入目标数组的 di 位置 */
 export function samplingAt(
-  source: Uint8ClampedArray,
+  source: PixelArray,
   sourceWidth: number,
   sourceHeight: number,
   x: number,
   y: number,
-  target: Uint8ClampedArray,
+  target: PixelArray,
   di: number,
 ): void {
   const x0 = Math.floor(x);
@@ -36,7 +37,7 @@ export function samplingAt(
 
 /** 单通道双线性采样（蒙版/选区用） */
 export function sampleScalar(
-  source: Uint8Array<ArrayBuffer> | Uint8ClampedArray<ArrayBuffer>,
+  source: Uint8Array<ArrayBuffer> | PixelArray,
   width: number,
   height: number,
   x: number,
@@ -57,7 +58,7 @@ export function sampleScalar(
 
 /** 最近邻采样（不做插值） */
 export function sampleNearest(
-  source: Uint8Array<ArrayBuffer> | Uint8ClampedArray<ArrayBuffer>,
+  source: Uint8Array<ArrayBuffer> | PixelArray,
   width: number,
   height: number,
   x: number,

@@ -1,3 +1,5 @@
+import { pixelDepth } from '@/core/pixelFormat';
+import { createBuffer } from '@/core/pixels';
 /**
  * 选区类工具
  * ---------------------------------------------------------------
@@ -258,7 +260,7 @@ export const objectSelectTool: ToolDefinition = {
 
 /** 裁剪局部区域 */
 function crop(buffer: import('@/types/document').PixelBuffer, rect: Rect): import('@/types/document').PixelBuffer {
-  const out = { width: rect.width, height: rect.height, data: new Uint8ClampedArray(rect.width * rect.height * 4) };
+  const out = createBuffer(rect.width,rect.height,undefined,pixelDepth(buffer));
   for (let y = 0; y < rect.height; y += 1) {
     for (let x = 0; x < rect.width; x += 1) {
       const si = ((rect.y + y) * buffer.width + rect.x + x) * 4;

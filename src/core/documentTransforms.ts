@@ -33,7 +33,7 @@ export function scaledMask(mask: LayerMask, sx: number, sy: number): LayerMask {
     const m = multiplyMatrix(scaling(sx,sy),layerMatrix(placementTransform(p),source.width,source.height));
     const bounds = transformedBounds(m,source.width,source.height);
     const x = Math.floor(bounds.x), y = Math.floor(bounds.y);
-    const pixels = createMask(Math.max(1,Math.ceil(bounds.x+bounds.width)-x),Math.max(1,Math.ceil(bounds.y+bounds.height)-y),0);
+    const pixels = createMask(Math.max(1,Math.ceil(bounds.x+bounds.width)-x),Math.max(1,Math.ceil(bounds.y+bounds.height)-y),0,mask.pixels.data instanceof Float32Array?16:8);
     const inverse = invertMatrix(m);
     for (let py=0;py<pixels.height;py++) for(let px=0;px<pixels.width;px++) {
       const point = applyMatrix(inverse,x+px+0.5,y+py+0.5);

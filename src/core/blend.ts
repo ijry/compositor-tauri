@@ -5,7 +5,7 @@
  * 分离式（Multiply / Screen / Overlay 等）直接作用于 unpremultiplied 颜色分量；
  * 非分离式（Hue / Saturation / Color / Luminosity）遵循 W3C compositing-1 公式。
  */
-import type { BlendMode } from '@/types/document';
+import type { BlendMode, PixelArray } from '@/types/document';
 
 /** 8 位分量的乘除查表（Photoshop 用 0-255 的整数近似，能避免浮点色差） */
 const MULTIPLY_TABLE = new Uint8ClampedArray(256 * 256);
@@ -60,17 +60,18 @@ function setSat(rgb: [number, number, number], s: number): [number, number, numb
  * @param cs 源色（上层图层，unpremultiplied 0-255）
  * @param mode 混合模式
  */
-export function blendPixel(cb: [number, number, number], cs: [number, number, number], mode: BlendMode): [number, number, number] {
+export function blendPixel(cb: [number, number, number], cs: [number, number, number], mode: BlendMode, precise=false): [number, number, number] {
+  const mul=(a:number,b:number)=>precise?a*b/255:multiply(a,b);
   const b0 = cb[0]; const b1 = cb[1]; const b2 = cb[2];
   const s0 = cs[0]; const s1 = cs[1]; const s2 = cs[2];
   let r0 = b0; let g0 = b1; let b00 = b2;
   switch (mode) {
     case 'Darken': r0 = Math.min(b0, s0); g0 = Math.min(b1, s1); b00 = Math.min(b2, s2); break;
-    case 'Multiply': r0 = multiply(b0, s0); g0 = multiply(b1, s1); b00 = multiply(b2, s2); break;
+    case 'Multiply': r0 = mul(b0, s0); g0 = mul(b1, s1); b00 = mul(b2, s2); break;
     case 'Color Burn': r0 = burn(b0, s0); g0 = burn(b1, s1); b00 = burn(b2, s2); break;
     case 'Linear Burn': r0 = b0 + s0 - 255; g0 = b1 + s1 - 255; b00 = b2 + s2 - 255; break;
     case 'Lighten': r0 = Math.max(b0, s0); g0 = Math.max(b1, s1); b00 = Math.max(b2, s2); break;
-    case 'Screen': r0 = 255 - multiply(255 - b0, 255 - s0); g0 = 255 - multiply(255 - b1, 255 - s1); b00 = 255 - multiply(255 - b2, 255 - s2); break;
+    case 'Screen': r0 = 255 - mul(255 - b0, 255 - s0); g0 = 255 - mul(255 - b1, 255 - s1); b00 = 255 - mul(255 - b2, 255 - s2); break;
     case 'Color Dodge': r0 = dodge(b0, s0); g0 = dodge(b1, s1); b00 = dodge(b2, s2); break;
     case 'Linear Dodge (Add)': r0 = b0 + s0; g0 = b1 + s1; b00 = b2 + s2; break;
     case 'Overlay': {
@@ -104,7 +105,7 @@ export function blendPixel(cb: [number, number, number], cs: [number, number, nu
     }
     case 'Hard Mix': r0 = (b0 + s0 >= 255 ? 255 : 0); g0 = (b1 + s1 >= 255 ? 255 : 0); b00 = (b2 + s2 >= 255 ? 255 : 0); break;
     case 'Difference': r0 = Math.abs(b0 - s0); g0 = Math.abs(b1 - s1); b00 = Math.abs(b2 - s2); break;
-    case 'Exclusion': r0 = b0 + s0 - 2 * multiply(b0, s0); g0 = b1 + s1 - 2 * multiply(b1, s1); b00 = b2 + s2 - 2 * multiply(b2, s2); break;
+    case 'Exclusion': r0 = b0 + s0 - 2 * mul(b0, s0); g0 = b1 + s1 - 2 * mul(b1, s1); b00 = b2 + s2 - 2 * mul(b2, s2); break;
     case 'Subtract': r0 = b0 - s0; g0 = b1 - s1; b00 = b2 - s2; break;
     case 'Divide': r0 = divide(b0, s0); g0 = divide(b1, s1); b00 = divide(b2, s2); break;
     case 'Hue': {
@@ -143,9 +144,9 @@ export function isNonSeparable(mode: BlendMode): boolean {
  * 这里 as 已经乘上蒙版/不透明度/剪贴蒙版覆盖率。
  */
 export function compositeRegion(
-  dst: Uint8ClampedArray,
+  dst: PixelArray,
   dstWidth: number,
-  src: Uint8ClampedArray,
+  src: PixelArray,
   count: number,
   blend: (cb: [number, number, number], cs: [number, number, number]) => [number, number, number],
 ): void {
@@ -154,13 +155,13 @@ export function compositeRegion(
 }
 
 /** 生成某个混合模式的混合函数 */
-export function blendFunction(mode: BlendMode): (cb: [number, number, number], cs: [number, number, number]) => [number, number, number] {
+export function blendFunction(mode: BlendMode,precise=false): (cb: [number, number, number], cs: [number, number, number]) => [number, number, number] {
   if (mode === 'Normal') return (_cb, cs) => cs;
-  return (cb, cs) => blendPixel(cb, cs, mode);
+  return (cb, cs) => blendPixel(cb, cs, mode, precise);
 }
 /** 8 位非预乘 RGBA 的 W3C 源覆盖合成；颜色混合仅作用于双方重叠部分。 */
 export function compositePixel(
-  dst: Uint8ClampedArray, di: number, src: ArrayLike<number>, si: number, opacity = 1,
+  dst: PixelArray, di: number, src: ArrayLike<number>, si: number, opacity = 1,
   blend?: (cb:[number,number,number],cs:[number,number,number])=>[number,number,number],
 ): void {
   const as=src[si+3]/255*Math.max(0,Math.min(1,opacity));

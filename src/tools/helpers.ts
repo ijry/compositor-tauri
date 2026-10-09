@@ -53,8 +53,8 @@ export function endInteraction(editor: EditorApi, label: string, snapshot: Inter
 export function snapshotBytes(snapshot: InteractionSnapshot): number {
   let bytes = snapshot.selection ? snapshot.selection.data.length : 0;
   for (const value of snapshot.layers.values()) {
-    if (value.pixels) bytes += value.pixels.data.length;
-    if (value.mask) bytes += value.mask.data.length;
+    if (value.pixels) bytes += value.pixels.data.byteLength;
+    if (value.mask) bytes += value.mask.data.byteLength;
   }
   return bytes;
 }

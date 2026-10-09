@@ -16,11 +16,13 @@
     "@tauri-apps/plugin-dialog": "^2.4.0",
     "ag-psd": "^31.0.2",
     "element-plus": "^2.8.5",
+    "pako": "2.1.0",
     "vue": "^3.5.13"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@types/node": "^22.10.2",
+    "@types/pako": "2.0.4",
     "@unocss/vite": "^66.6.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",

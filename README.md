@@ -3,6 +3,12 @@
 跨平台专业图像编辑器，参考 [robbietilton/Compositor](https://github.com/robbietilton/Compositor) 复刻实现，
 以 **Vue 3 + TypeScript 组件化** 的 otools 插件形态交付，Windows / macOS / Linux 通用。
 
+## 当前验证与位深支持
+
+2026-10-09：已修复审计清单中的74项问题，249项浏览器回归和14项发布脚本测试通过。支持8/16位像素与蒙版工作链路、16位PNG/PSD/工程保存及按预算裁剪解码大PSD/PSB。详见 [修复进度](docs/fixes/修复进度.md) 和 [第二批验证范围](docs/fixes/remaining/README.md)。
+
+以上为指定场景的本地验证，不代表真实OTools、Photoshop、厂商RAW及所有格式变体已通过；32位HDR/CMYK等不支持的输入会明确拒绝。显示、JPEG/WebP按格式约定转8位，不改写高精度源数据。
+
 ## 开发与构建
 
 ```bash
@@ -35,7 +41,7 @@ src/
     filters/     12 种调整算法 + 模糊 / 创意滤镜 / 内容感知填充
     ops/         选区运算（魔棒、色彩范围、选择主体等）
   io/            图片、TIFF、PSD/PSB、相机 RAW、.comp 工程包读写、示例工程
-  tools/         19 个工具（工具框架 + 选区 / 绘画 / 变换三类实现）
+  tools/         20 个工具（工具框架 + 选区 / 绘画 / 变换三类实现）
   composables/   编辑器状态中枢、命令层、文件命令层
   components/    画布舞台、工具栏、工具选项头、图层面板、属性面板、历史/颜色/信息面板、对话框
 docs/复刻计划.md 复刻计划进度表
@@ -82,7 +88,7 @@ docs/复刻计划.md 复刻计划进度表
 1. 渲染为 Canvas 2D 像素合成（上游为 Metal / GPU），大图预览按 1/2、1/4、1/8 降采样。
 3. 相机 RAW 仅支持 TIFF 容器格式（DNG / CR2 / NEF / ARW / ORF / PEF / SRW / RW2）；
    CR3（ISO-BMFF）与 RAF（Fujifilm 私有格式）会给出明确提示而非静默失败。
-4. PSD 导入保留图层、组、蒙版、混合模式与简单横排文字元数据；效果只近似保留投影与内投影。
+4. PSD 导入保留图层、组、蒙版、混合模式与简单横排文字元数据；六种基础效果已接入导入/导出；复杂效果、矢量和智能对象需按转换报告及真实样本再验收。
 
 ## 许可
 

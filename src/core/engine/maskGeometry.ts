@@ -16,7 +16,7 @@ export function createMaskSampler(layer: Layer, pixels: MaskBuffer | undefined =
   const inverse = invertMatrix(maskToDocument(layer, pixels));
   return (x, y) => {
     const local = applyMatrix(inverse, x, y), px = Math.floor(local.x), py = Math.floor(local.y);
-    if (px < 0 || py < 0 || px >= pixels.width || py >= pixels.height) return 0;
+    if (px < 0 || py < 0 || px >= pixels.width || py >= pixels.height) {const value=(layer.mask?.outside??0)/255;return layer.mask?.inverted?1-value:value;}
     const value = pixels.data[py * pixels.width + px] / 255;
     return layer.mask?.inverted ? 1 - value : value;
   };
@@ -29,6 +29,7 @@ export function applyPixelMask(layer: Layer, pixels: import('@/types/document').
   for (let y=0;y<pixels.height;y++) for(let x=0;x<pixels.width;x++) {
     const point = applyMatrix(imageToDocument,x+0.5,y+0.5);
     const i = (y*pixels.width+x)*4+3;
-    pixels.data[i] = Math.round(pixels.data[i]*sample(point.x,point.y));
+    const value=pixels.data[i]*sample(point.x,point.y);
+    pixels.data[i] = pixels.data instanceof Float32Array?value:Math.round(value);
   }
 }

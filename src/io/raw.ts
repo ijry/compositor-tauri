@@ -1,3 +1,4 @@
+import { copyPixels, pixelDepth, clampPixels } from '@/core/pixelFormat';
 /**
  * 相机 RAW 导入与显影
  * ---------------------------------------------------------------
@@ -258,7 +259,7 @@ function demosaic(
   little: boolean,
   maxValue: number,
 ): PixelBuffer {
-  const out = createBuffer(width, height);
+  const out = createBuffer(width, height,undefined,bytesPerSample===2?16:8);
   const read = (x: number, y: number, channel: number): number => {
     const px = Math.max(0, Math.min(width - 1, x));
     const py = Math.max(0, Math.min(height - 1, y));
@@ -330,7 +331,7 @@ function applyWhiteBalanceAndMatrix(
   baselineExposure: number,
   maxValue: number,
 ): PixelBuffer {
-  const out = createBuffer(buffer.width, buffer.height);
+  const out = createBuffer(buffer.width, buffer.height,undefined,pixelDepth(buffer));
   const blackR = black[0] ?? 0;
   const blackG = black[1] ?? blackR;
   const blackB = black[2] ?? blackR;
@@ -363,7 +364,7 @@ function applyWhiteBalanceAndMatrix(
 }
 
 function cropBuffer(buffer: PixelBuffer, x: number, y: number, width: number, height: number): PixelBuffer {
-  const out = createBuffer(width, height);
+  const out = createBuffer(width,height,undefined,pixelDepth(buffer));
   for (let row = 0; row < height; row += 1) {
     for (let column = 0; column < width; column += 1) {
       const sx = Math.min(buffer.width - 1, x + column);
@@ -579,11 +580,13 @@ export function developRawImage(raw: RawImage, settings: CameraRawSettings): Pix
 
   /* 曲线 */
   if (settings.curvePoints.length >= 2) {
-    const lut = buildCurveLut(settings.curvePoints);
+    const precise=pixelDepth(working)===16;
+    clampPixels(working);
+    const lut = buildCurveLut(settings.curvePoints,precise);
     for (let i = 0; i < data.length; i += 4) {
-      data[i] = lut[data[i]!]!;
-      data[i + 1] = lut[data[i + 1]!]!;
-      data[i + 2] = lut[data[i + 2]!]!;
+      data[i] = lut[Math.round(data[i]!*(precise?257:1))]!;
+      data[i + 1] = lut[Math.round(data[i+1]!*(precise?257:1))]!;
+      data[i + 2] = lut[Math.round(data[i+2]!*(precise?257:1))]!;
     }
   }
 
@@ -711,7 +714,8 @@ function buildCurve(points: [number, number][]): Uint8ClampedArray {
 
 /** 简易盒式模糊（用于清晰度、降噪、锐化） */
 function blurBufferLocal(buffer: PixelBuffer, radius: number): PixelBuffer {
-  const out = createBuffer(buffer.width, buffer.height);
+  radius=Math.max(1,Math.round(radius));
+  const out = createBuffer(buffer.width, buffer.height,undefined,pixelDepth(buffer));
   const window = radius * 2 + 1;
   const temp = new Float32Array(buffer.data.length);
   for (let y = 0; y < buffer.height; y += 1) {
@@ -742,7 +746,7 @@ function blurBufferLocal(buffer: PixelBuffer, radius: number): PixelBuffer {
 }
 
 function applyRawDistortion(buffer: PixelBuffer, amount: number): void {
-  const source = new Uint8ClampedArray(buffer.data);
+  const source = copyPixels(buffer.data);
   const { width, height } = buffer;
   const cx = width / 2;
   const cy = height / 2;
@@ -765,7 +769,7 @@ function applyRawDistortion(buffer: PixelBuffer, amount: number): void {
 }
 
 function applyRawChromaticAberration(buffer: PixelBuffer, amount: number): void {
-  const source = new Uint8ClampedArray(buffer.data);
+  const source = copyPixels(buffer.data);
   const { width, height } = buffer;
   const shift = Math.round((amount / 100) * 3);
   for (let y = 0; y < height; y += 1) {

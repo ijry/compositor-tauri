@@ -1,3 +1,4 @@
+import { documentDepth } from '@/core/pixelFormat';
 /**
  * 命令层
  * ---------------------------------------------------------------
@@ -61,11 +62,13 @@ export function createCommands(api: EditorApi) {
   });
   /** 结构历史保留独立快照，防止画布/像素历史交错后污染先前记录。 */
   interface Structure {
+    bitDepth?:8|16;
     layers: Layer[];
     parents: Record<string, string | null>;
     activeLayerId: string | null;
   }
   const captureStructure = (): Structure => ({
+    bitDepth:doc.bitDepth,
     layers: cloneCanvasValue(doc.layers),
     parents: Object.fromEntries(doc.layers.map(layer => [layer.id, layer.parentId ?? null])),
     activeLayerId: doc.activeLayerId,
@@ -79,6 +82,7 @@ export function createCommands(api: EditorApi) {
     // 捕获所属文档，异步切换标签或后续操作不会改变历史的目标。
     const target = api.doc;
     const apply = (snapshot: Structure): void => {
+      target.bitDepth=snapshot.bitDepth;
       target.layers = cloneCanvasValue(snapshot.layers);
       for (const layer of target.layers) layer.parentId = snapshot.parents[layer.id] ?? null;
       target.activeLayerId = snapshot.activeLayerId;
@@ -109,7 +113,7 @@ export function createCommands(api: EditorApi) {
     api.markLayerDirty(layer.id);
     const after=api.snapshotLayer(layer.id);
     api.pushHistory(label,()=>{api.restoreLayer(layer.id,before);},()=>{if(after)api.restoreLayer(layer.id,after);},
-      ((before.pixels?.data.length??0)+(before.mask?.data.length??0))*2);
+      ((before.pixels?.data.byteLength??0)+(before.mask?.data.byteLength??0))*2);
   };
   const setStatusSafe = (message: string): void => {
     api.status(message);
@@ -346,7 +350,7 @@ export function createCommands(api: EditorApi) {
         const layer = api.activeLayer();
         if (!layer) break;
         const before = api.snapshotLayer(layer.id);
-        addLayerMask(layer, doc.width, doc.height);
+        addLayerMask(layer, doc.width, doc.height,documentDepth(doc));
         if (layer.mask) layer.mask.target = 'mask';
         const after = api.snapshotLayer(layer.id);
         api.pushHistory(
@@ -360,12 +364,12 @@ export function createCommands(api: EditorApi) {
       case 'maskFromSelection': {
         const layer=api.activeLayer();if(!layer || layer.locked || !doc.selection)break;
         const before=api.snapshotLayer(layer.id),selection=api.selectionSnapshot();
-        maskFromSelection(layer,doc.selection.data,doc.width,doc.height);
+        maskFromSelection(layer,doc.selection.data,doc.width,doc.height,documentDepth(doc));
         api.setSelection(null);api.markLayerDirty(layer.id);
         const after=api.snapshotLayer(layer.id);
         api.pushHistory('从选区生成蒙版',()=>{if(before)api.restoreLayer(layer.id,before);api.restoreSelection(selection);},
           ()=>{if(after)api.restoreLayer(layer.id,after);api.restoreSelection(null);},
-          (before?.pixels?.data.length??0)+(before?.mask?.data.length??0)+(after?.pixels?.data.length??0)+(after?.mask?.data.length??0)+(selection?.data.length??0));
+          (before?.pixels?.data.byteLength??0)+(before?.mask?.data.byteLength??0)+(after?.pixels?.data.byteLength??0)+(after?.mask?.data.byteLength??0)+(selection?.data.length??0));
         break;
       }      case 'applyMask': {
         const layer = api.activeLayer();
@@ -417,7 +421,7 @@ export function createCommands(api: EditorApi) {
         api.markLayerDirty(target.layer.id);
         const after=api.snapshotLayer(target.layer.id),id=target.layer.id;
         api.pushHistory(target.onMask?'反相蒙版':'反相像素',()=>{api.restoreLayer(id,before);},()=>{if(after)api.restoreLayer(id,after);},
-          ((before.pixels?.data.length??0)+(before.mask?.data.length??0))*2);
+          ((before.pixels?.data.byteLength??0)+(before.mask?.data.byteLength??0))*2);
         break;
       }      /* ---------------- 调整层 ---------------- */
       case 'addAdjustment': {
@@ -533,7 +537,7 @@ export function createCommands(api: EditorApi) {
         const after=api.snapshotLayer(layer.id);
         api.pushHistory(name==='clearSelection'?'清除':'填充',
           ()=>{if(before)api.restoreLayer(layer.id,before);},()=>{if(after)api.restoreLayer(layer.id,after);},
-          ((before?.pixels?.data.length??0)+(before?.mask?.data.length??0))*2);
+          ((before?.pixels?.data.byteLength??0)+(before?.mask?.data.byteLength??0))*2);
         break;
       }
       case 'contentAwareFill': {
@@ -560,7 +564,7 @@ export function createCommands(api: EditorApi) {
           '内容识别填充',
           () => { if (snapshot) api.restoreLayer(layer.id, snapshot); },
           () => { if (after) api.restoreLayer(layer.id, after); },
-          (snapshot?.pixels?.data.length ?? 0) * 2,
+          (snapshot?.pixels?.data.byteLength ?? 0) * 2,
         );
         break;
       }
@@ -698,14 +702,15 @@ export function createCommands(api: EditorApi) {
 
   /** 深复制文档数据，保留图层 ID、像素、蒙版、选区、尺寸和参考线。 */
   function cloneCanvasValue<T>(value: T): T {
-    if (value instanceof Uint8ClampedArray) return new Uint8ClampedArray(value) as T;
+    if (value instanceof Float32Array) return new Float32Array(value) as T;
+  if (value instanceof Uint8ClampedArray) return new Uint8ClampedArray(value) as T;
     if (value instanceof Uint8Array) return new Uint8Array(value) as T;
     if (Array.isArray(value)) return value.map(cloneCanvasValue) as T;
     if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key,v])=>[key,cloneCanvasValue(v)])) as T;
     return value;
   }
   function captureCanvas() {
-    return cloneCanvasValue({width:doc.width,height:doc.height,layers:doc.layers,selection:doc.selection,guides:doc.guides,activeLayerId:doc.activeLayerId});
+    return cloneCanvasValue({bitDepth:doc.bitDepth,width:doc.width,height:doc.height,layers:doc.layers,selection:doc.selection,guides:doc.guides,activeLayerId:doc.activeLayerId});
   }
   function recordCanvasHistory(label: string, before: ReturnType<typeof captureCanvas>): void {
     const after = captureCanvas();

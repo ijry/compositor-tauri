@@ -39,7 +39,7 @@ export function endSelectionMove(editor:EditorApi,cancel=false):boolean {
  const after=state.before?editor.snapshotLayer(state.id):null,next=editor.selectionSnapshot();
  const apply=(snapshot:LayerSnapshot|null,selection:SelectionMask|null)=>{if(snapshot)editor.restoreLayer(state.id,snapshot);editor.restoreSelection(selection);editor.invalidate();};
  if(cancel){apply(state.before,state.selection);return true;}
- editor.pushHistory(state.outline?'移动选区轮廓':state.duplicate?'复制选区像素':'移动选区像素',()=>apply(state.before,state.selection),()=>apply(after,next),(state.before?.pixels?.data.length??0)*2+state.selection.data.length*2);return true;
+ editor.pushHistory(state.outline?'移动选区轮廓':state.duplicate?'复制选区像素':'移动选区像素',()=>apply(state.before,state.selection),()=>apply(after,next),(state.before?.pixels?.data.byteLength??0)*2+state.selection.data.length*2);return true;
 }
 export function nudgeSelectionPixels(editor:EditorApi,dx:number,dy:number):boolean {
  const selection=editor.doc.selection;if(!selection)return false;

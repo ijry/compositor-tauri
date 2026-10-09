@@ -27,6 +27,7 @@ export default defineConfig(async () => {
 
   return {
     plugins: [vue(), UnoCSS()],
+    optimizeDeps: { include: ['pako'] },
     define: {
       __OTOOLS_PLUGIN_UUID__: JSON.stringify('otools-compositor'),
     },

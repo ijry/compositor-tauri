@@ -1,0 +1,365 @@
+src\types\editor.ts:62:  status(message: string): void;
+src\types\editor.ts:69:  pushHistory(label: string, undo: () => void, redo: () => void, bytes?: number, mergeKey?: string): void;
+src\types\editor.ts:71:  beginInteraction(label: string): void;
+src\App.vue:25:const menus: { label: string; items: { label?: string; key?: string; divider?: boolean; run?: () => void | Promise<void> }[] }[] = [
+src\App.vue:27:    label: '文件',
+src\App.vue:29:      { label: '新建画布', key: '1', run: () => commands.run('newCanvas') },
+src\App.vue:30:      { label: '打开图片…', key: '2', run: () => commands.run('openImage') },
+src\App.vue:31:      { label: '导入 Photoshop 文档…', run: () => commands.run('openPsd') },
+src\App.vue:32:      { label: '导入相机 RAW…', run: () => commands.run('openRaw') },
+src\App.vue:33:      { label: '打开 .comp 工程包…', key: '3', run: () => commands.run('openComp') },
+src\App.vue:34:      { label: '最近工程', run: () => commands.run('recentList') },
+src\App.vue:36:      { label: '示例 · 渐变与文字', run: () => commands.run('sample', 'gradient') },
+src\App.vue:37:      { label: '示例 · 图层组与蒙版', run: () => commands.run('sample', 'mask') },
+src\App.vue:38:      { label: '示例 · 调整层', run: () => commands.run('sample', 'adjustment') },
+src\App.vue:40:      { label: '保存工程', key: '4', run: () => commands.run('saveComp') },
+src\App.vue:41:      { label: '另存为…', run: () => commands.run('saveCompAs') },
+src\App.vue:42:      { label: '监视工程变化（热重载）', run: () => commands.run('watchComp') },
+src\App.vue:44:      { label: '导出 PNG…', run: () => commands.run('exportImage', { format: 'png', quality: 1, scale: 1, background: [255, 255, 255] }) },
+src\App.vue:45:      { label: '导出 JPEG…', run: () => commands.run('exportImage', { format: 'jpeg', quality: 0.92, scale: 1, background: [255, 255, 255] }) },
+src\App.vue:46:      { label: '导出 WebP…', run: () => commands.run('exportImage', { format: 'webp', quality: 0.9, scale: 1, background: [255, 255, 255] }) },
+src\App.vue:47:      { label: '导出 PSD…', run: () => commands.run('exportPsd') },
+src\App.vue:49:      { label: '关闭文档', run: () => commands.run('closeDocument') },
+src\App.vue:53:    label: '编辑',
+src\App.vue:55:      { label: '撤销', run: () => commands.run('undo') },
+src\App.vue:56:      { label: '重做', run: () => commands.run('redo') },
+src\App.vue:58:      { label: '剪切', run: () => commands.run('cut') },
+src\App.vue:59:      { label: '复制', run: () => commands.run('copy') },
+src\App.vue:60:      { label: '复制合并', run: () => commands.run('copyMerged') },
+src\App.vue:61:      { label: '粘贴', run: () => commands.run('paste') },
+src\App.vue:63:      { label: '填充前景色', run: () => commands.run('fillForeground') },
+src\App.vue:64:      { label: '填充背景色', run: () => commands.run('fillBackground') },
+src\App.vue:65:      { label: '清除', run: () => commands.run('clearSelection') },
+src\App.vue:66:      { label: '内容识别填充', run: () => commands.run('openFilter','contentAwareFill') },
+src\App.vue:70:    label: '图像',
+src\App.vue:72:      { label: '画布大小…', run: () => api.openDialog('canvasSize') },
+src\App.vue:73:      { label: '图像大小…', run: () => api.openDialog('imageSize') },
+src\App.vue:74:      { label: '修边', run: () => commands.run('trim') },
+src\App.vue:76:      { label: '旋转画布 90°', run: () => commands.run('rotateCanvasAll', 90) },
+src\App.vue:77:      { label: '旋转画布 180°', run: () => commands.run('rotateCanvasAll', 180) },
+src\App.vue:78:      { label: '水平翻转画布', run: () => commands.run('flipCanvasH') },
+src\App.vue:79:      { label: '垂直翻转画布', run: () => commands.run('flipCanvasV') },
+src\App.vue:83:    label: '图层',
+src\App.vue:85:      { label: '新建图层', run: () => commands.run('newLayer') },
+src\App.vue:86:      { label: '新建组', run: () => commands.run('newGroup') },
+src\App.vue:87:      { label: '复制图层', run: () => commands.run('duplicateLayer') },
+src\App.vue:88:      { label: '删除图层', run: () => commands.run('deleteLayer') },
+src\App.vue:90:      { label: '上移一层', run: () => commands.run('moveLayerUp') },
+src\App.vue:91:      { label: '下移一层', run: () => commands.run('moveLayerDown') },
+src\App.vue:92:      { label: '向下合并', run: () => commands.run('mergeDown') },
+src\App.vue:93:      { label: '合并所有图层', run: () => commands.run('flatten') },
+src\App.vue:95:      { label: '添加图层蒙版', run: () => commands.run('addMask') },
+src\App.vue:96:      { label: '从选区生成蒙版', run: () => commands.run('maskFromSelection') },
+src\App.vue:97:      { label: '应用蒙版', run: () => commands.run('applyMask') },
+src\App.vue:98:      { label: '反相蒙版', run: () => commands.run('invertMask') },
+src\App.vue:102:    label: '调整层',
+src\App.vue:106:    ].map((name) => ({ label: ADJUSTMENT_LABELS[name as keyof typeof ADJUSTMENT_LABELS]??name, run: () => commands.run('addAdjustment', name) })),
+src\App.vue:109:    label: '滤镜',
+src\App.vue:111:      {label:'相机RAW滤镜…',run:()=>commands.run('openFilter','cameraRaw')},
+src\App.vue:112:      ...['Hue/Saturation','Levels','Curves','Exposure','Gradient Map','Grain','Black & White','Color Balance','Invert','Gaussian Blur','Motion Blur'].map(kind=>({label:(ADJUSTMENT_LABELS[kind as keyof typeof ADJUSTMENT_LABELS]??kind)+'…',run:()=>commands.run('openFilter',kind)})),
+src\App.vue:113:      { label: '添加杂色', run: () => commands.run('openFilter', 'filterAddNoise') },
+src\App.vue:114:      { label: '渐晕', run: () => commands.run('openFilter', 'filterVignette') },
+src\App.vue:115:      { label: '辉光', run: () => commands.run('openFilter', 'filterBloom') },
+src\App.vue:116:      { label: '色调反差', run: () => commands.run('openFilter', 'filterTonalContrast') },
+src\App.vue:117:      { label: '镜头校正', run: () => commands.run('openFilter', 'filterLensCorrection') },
+src\App.vue:118:      { label: '移除背景', run: () => commands.run('openFilter', 'filterRemoveBackground') },
+src\App.vue:119:      { label: 'USM 锐化', run: () => commands.run('openFilter', 'filterSharpen') },
+src\App.vue:120:      { label: '降噪', run: () => commands.run('openFilter', 'filterDenoise') },
+src\App.vue:121:      { label: '抖动', run: () => commands.run('openFilter', 'filterDither') },
+src\App.vue:125:    label: '选择',
+src\App.vue:127:      { label: '全选', run: () => commands.run('selectAll') },
+src\App.vue:128:      { label: '取消选择', run: () => commands.run('deselect') },
+src\App.vue:129:      { label: '反选', run: () => commands.run('inverseSelection') },
+src\App.vue:131:      { label: '选择主体', run: () => commands.run('selectSubject') },
+src\App.vue:132:      { label: '色彩范围…', run: () => api.openDialog('colorRange') },
+src\App.vue:134:      { label: '扩展 8px', run: () => commands.run('selectionExpand', 8) },
+src\App.vue:135:      { label: '收缩 8px', run: () => commands.run('selectionContract', 8) },
+src\App.vue:136:      { label: '羽化 8px', run: () => commands.run('selectionFeather', { radius: 8 }) },
+src\App.vue:137:      { label: '选区边界', run: () => commands.run('selectionBoundary') },
+src\App.vue:139:      { label: '由图层像素建立选区', run: () => commands.run('loadLayerPixelsAsSelection') },
+src\App.vue:140:      { label: '由蒙版建立选区', run: () => commands.run('loadMaskAsSelection') },
+src\App.vue:144:    label: '视图',
+src\App.vue:146:      { label: '放大', run: () => commands.run('zoomIn') },
+src\App.vue:147:      { label: '缩小', run: () => commands.run('zoomOut') },
+src\App.vue:148:      { label: '恢复默认面板布局', run: () => resetPanels() },
+src\App.vue:149:      { label: '适配画布', run: () => commands.run('fitCanvas') },
+src\App.vue:150:      { label: '实际像素', run: () => commands.run('actualPixels') },
+src\App.vue:152:      { label: '显示标尺', run: () => commands.run('toggleRulers') },
+src\App.vue:153:      { label: '显示网格', run: () => commands.run('toggleGrid') },
+src\App.vue:154:      { label: '网格设置…', run: () => commands.run('gridSettings') },
+src\App.vue:155:      { label: '显示参考线', run: () => commands.run('toggleGuides') },
+src\App.vue:156:      { label: '吸附设置…', run: () => commands.run('snapSettings') },
+src\App.vue:157:      { label:'清除参考线',run:()=>commands.run('clearGuides') },
+src\App.vue:158:      { label:'锁定参考线',run:()=>{api.doc.guidesLocked=!api.doc.guidesLocked;} },
+src\App.vue:159:      { label:'显示像素网格',run:()=>{api.ui.pixelGrid=!api.ui.pixelGrid;api.invalidate();} },
+src\App.vue:160:      { label:'仅画布',run:()=>{api.ui.canvasOnly=!api.ui.canvasOnly;} },
+src\App.vue:161:      { label:'搜索命令…',run:()=>api.openDialog('commandPalette') },
+src\App.vue:162:      { label: '显示变换控件', run: () => commands.run('toggleTransformControls') },
+src\App.vue:164:      { label: '主题：暗色', run: () => commands.run('setTheme', 'dark') },
+src\App.vue:165:      { label: '主题：亮色', run: () => commands.run('setTheme', 'light') },
+src\App.vue:166:      { label: '主题：跟随系统', run: () => commands.run('setTheme', 'system') },
+src\App.vue:170:    label: '帮助',
+src\App.vue:172:      { label: '键盘快捷键（可自定义）…', run: () => commands.run('shortcuts') },
+src\App.vue:173:      { label: '关于合成器', run: () => commands.run('about') },
+src\App.vue:257:      <button class="add-tab" title="新建画布" @click="commands.run('newCanvas')">＋</button>
+src\App.vue:274:      <span class="swatch fg" :title="`前景色 ${foregroundHex()}`">●</span>
+src\App.vue:275:      <span class="swatch bg" title="背景色">●</span>
+src\platform\host.ts:109:export async function showMessage(text: string, kind: 'info' | 'warning' | 'error' = 'info', title = '合成器'): Promise<void> {
+src\platform\host.ts:187:  if (!invoke) throw new Error('当前宿主不支持安全工程保存，请升级宿主');
+src\io\tiff.ts:54:  if(width*height>100_000_000 || ![8,16].includes(bits) || planarConfig!==1)throw new Error('TIFF尺寸、位深或分平面布局暂不支持');
+src\io\tiff.ts:55:  if(![1,5,8,32946,32773].includes(compression))throw new Error(`不支持的TIFF压缩方式：${compression}`);
+src\io\tiff.ts:59:  if(tileWidth<1||tileHeight<1||tileWidth*tileHeight*samples*bytesPerSample>512_000_000)throw new Error('TIFF分块尺寸无效');
+src\io\tiff.ts:62:  if(stripOffsets.length<units||stripCounts.length<units)throw new Error('TIFF条带/分块数据缺失');
+src\io\tiff.ts:67:    if(start<0||count<1||start+count>data.length)throw new Error('TIFF数据范围无效');
+src\io\tiff.ts:70:    if(decoded.length<expected)throw new Error('TIFF像素数据不完整');
+src\io\tiff.ts:73:    else if(predictor!==1)throw new Error('TIFF预测器暂不支持');
+src\components\ToolBar.vue:20:  api.status(`${getTool(tool)?.name??tool}工具`);
+src\components\ToolBar.vue:37:        :title="`${tool!.name}（${tool!.shortcut}）`"
+src\tools\index.ts:13:export const TOOL_GROUPS: { id: string; label: string; tools: string[] }[] = [
+src\tools\index.ts:14:  { id: 'move', label: '移动 / 变换', tools: ['move','select'] },
+src\tools\index.ts:15:  { id: 'marquee', label: '框选', tools: ['marquee'] },
+src\tools\index.ts:16:  { id: 'lasso', label: '套索', tools: ['lasso'] },
+src\tools\index.ts:17:  { id: 'magic', label: '魔棒 / 对象选择', tools: ['wand', 'objectSelect'] },
+src\tools\index.ts:18:  { id: 'crop', label: '裁剪', tools: ['crop'] },
+src\tools\index.ts:19:  { id: 'paint', label: '画笔 / 渐变', tools: ['brush', 'gradient'] },
+src\tools\index.ts:20:  { id: 'erase', label: '橡皮擦', tools: ['eraser'] },
+src\tools\index.ts:21:  { id: 'retouch', label: '修复 / 仿制 / 滤镜工具', tools: ['healing', 'clone', 'blur', 'smudge', 'liquify'] },
+src\tools\index.ts:22:  { id: 'draw', label: '形状 / 文字', tools: ['shape', 'type'] },
+src\tools\index.ts:23:  { id: 'sample', label: '吸管', tools: ['eyedropper'] },
+src\tools\index.ts:24:  { id: 'view', label: '抓手 / 缩放', tools: ['hand', 'zoom'] },
+src\tools\types.ts:43:  label: string;
+src\tools\types.ts:49:  options?: { value: string | number; label: string }[];
+src\tools\helpers.ts:29:export function endInteraction(editor: EditorApi, label: string, snapshot: InteractionSnapshot, bytes: number): void {
+src\composables\useEditor.ts:342:    if (!document) throw new Error('没有打开的文档');
+src\io\psdChannel.ts:34:    throw new Error('PSD通道尺寸或解码区域无效');
+src\io\psdChannel.ts:36:  if (bitDepth !== 8 && bitDepth !== 16) throw new Error('PSD通道位深暂不支持');
+src\io\psdChannel.ts:44:    if (data.byteLength !== expected) throw new Error('PSD未压缩通道长度不符');
+src\io\psdChannel.ts:54:    if (tableBytes>data.byteLength) throw new Error('PSD RLE行长度表不完整');
+src\io\psdChannel.ts:59:      if (end>data.byteLength) throw new Error('PSD RLE行超出通道边界');
+src\io\psdChannel.ts:63:        if(output>=rowBytes)throw new Error('PSD RLE行解压长度超限');
+src\io\psdChannel.ts:73:          if(position+count>end)throw new Error('PSD RLE字面量不完整');
+src\io\psdChannel.ts:76:          if(position>=end)throw new Error('PSD RLE重复值缺失');
+src\io\psdChannel.ts:81:      if(output!==rowBytes)throw new Error('PSD RLE行解压长度不足');
+src\io\psdChannel.ts:83:    if(position!==data.byteLength)throw new Error('PSD RLE通道包含多余数据');
+src\io\psdChannel.ts:86:  if (compression !== 2 && compression !== 3) throw new Error(`不支持的PSD压缩方式：${compression}`);
+src\io\psdChannel.ts:88:  if (expected > 1024 * 1024 * 1024) throw new Error('PSD ZIP通道解码工作量超限，请缩小原图或改用RLE文件');
+src\io\psdChannel.ts:93:    if(position+bytes.length>expected)throw new Error('PSD ZIP通道解压长度超限');
+src\io\psdChannel.ts:107:    if(!ok||inflater.err||endCode)throw new Error('PSD ZIP压缩流损坏');
+src\io\psdChannel.ts:108:    if(ended&&end!==data.length)throw new Error('PSD ZIP压缩流提前结束');
+src\io\psdChannel.ts:110:  if(!ended||endCode||position!==expected)throw new Error('PSD ZIP通道不完整');
+src\core\document.ts:687:  if (![90,180,270].includes(rotation)) throw new Error('画布旋转只支持 90 度的倍数');
+src\io\projectCodecs.ts:10:  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('工程元数据格式无效');
+src\io\projectCodecs.ts:15:  if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error('工程元数据包含无效数字');
+src\io\projectCodecs.ts:21:  if (values.length !== 3) throw new Error('工程颜色格式无效');
+src\io\projectCodecs.ts:24:    if (n < 0 || n > max) throw new Error('工程颜色超出范围');
+src\io\projectCodecs.ts:65:  if (box !== null && (!Array.isArray(box) || box.length !== 2 || box.some(n => typeof n !== 'number' || !Number.isFinite(n) || n <= 0))) throw new Error('文字框尺寸无效');
+src\io\projectCodecs.ts:72:  if (meta.content.length > 100_000 || meta.fontSize < 1 || meta.fontSize > 2000) throw new Error('文字内容或字号超出范围');
+src\io\projectCodecs.ts:98:  if (placement.width <= 0 || placement.height <= 0) throw new Error('独立蒙版尺寸无效');
+src\io\compProject.ts:177:    if (!canRenameHostEntry()) throw new Error('当前宿主缺少安全重命名接口，已拒绝覆盖工程');
+src\io\compProject.ts:179:    if (!target || target==='/' || target==='.' || target==='..' || target.split(/[/\\]/).includes('..') || /^[A-Za-z]:$/.test(target)) throw new Error('不能将根目录作为工程目录');
+src\io\compProject.ts:181:    if (!entries) throw new Error('无法检查保存目录，已取消安全保存');
+src\io\compProject.ts:183:      if (!entries.some(entry => entry.name === 'manifest.json')) throw new Error('只能保存到空文件夹或已有 .comp 工程目录');
+src\io\compProject.ts:185:      if (!previous || JSON.parse(new TextDecoder().decode(previous)).format !== 'com.compositor.project') throw new Error('目标目录不是有效工程，已取消替换');
+src\io\compProject.ts:193:      catch { throw new Error('目标目录无法备份，保存已取消；请检查目录权限'); }
+src\io\compProject.ts:198:          catch { throw new Error('工程提交与回滚失败，旧工程完整保留于：'+backup); }
+src\io\compProject.ts:221:  if (!manifestBuffer) throw new Error('manifest.json 读取失败');
+src\io\compProject.ts:223:  if (manifest.format !== 'com.compositor.project') throw new Error('不是有效的 .comp 工程');
+src\io\compProject.ts:225:    throw new Error(`工程版本 ${manifest.version} 高于当前支持的 ${PROJECT_VERSION}`);
+src\io\compProject.ts:246:  if(typeof id!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(id))throw new Error('工程图层 ID 无效，不能包含路径字符');
+src\io\compProject.ts:250:  if(t.origin&&!pair(t.origin,false))throw new Error('图层位置无效');
+src\io\compProject.ts:251:  if(t.size&&(!pair(t.size,true)||t.size[0]*t.size[1]>100_000_000))throw new Error('图层变换尺寸超出安全范围');
+src\io\compProject.ts:252:  if(t.rotation!==undefined&&!Number.isFinite(t.rotation))throw new Error('图层旋转无效');
+src\io\compProject.ts:253:  if(t.warp && (t.warp.length!==4||t.warp.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>1024||Math.abs(p.y)>1024)))throw new Error('图层扭曲坐标无效');
+src\io\compProject.ts:257:  if (!Number.isInteger(manifest.width) || !Number.isInteger(manifest.height) || manifest.width<1 || manifest.height<1 || manifest.width*manifest.height>100_000_000 || !Array.isArray(manifest.layers)) throw new Error('工程尺寸或图层列表无效');
+src\io\compProject.ts:262:    if (!entry.id || ids.has(entry.id)) throw new Error('工程图层 ID 重复或缺失');
+src\io\compProject.ts:264:    for (const name of [entry.imageFile,entry.maskFile,entry.gradient?.baseFile,entry.gradient?.selectionFile]) if (name && (!/^[a-zA-Z0-9_.-]+\.png$/i.test(name) || name.includes('..'))) throw new Error('工程资源路径无效');
+src\io\compProject.ts:267:    if(entry.maskSourceID && (!ids.has(entry.maskSourceID)||entry.maskSourceID===entry.id))throw new Error('剪贴源引用无效');
+src\io\compProject.ts:269:    while(parent){if(seen.has(parent)||!ids.get(parent)?.isGroup)throw new Error('工程图层层级无效');seen.add(parent);parent=ids.get(parent)!.parentID;}
+src\io\compProject.ts:287:    if (!entry.imageFile) throw new Error('图层缺少图片资源：' + entry.name);
+src\io\compProject.ts:294:    if (!buffer) throw new Error('工程图片读取失败，未载入不完整工程：' + entry.imageFile);
+src\io\compProject.ts:313:  if(entry.gradient){const bytes=await readFile(joinPath(joinPath(directory,'images'),entry.gradient.baseFile));if(!bytes)throw new Error('渐变底图缺失');layer.gradient={...entry.gradient,base:await decodeImageBytes(bytes),selection:null};if(entry.gradient.selectionFile){const encoded=await readFile(joinPath(joinPath(directory,'images'),entry.gradient.selectionFile));if(!encoded)throw new Error('渐变选区缺失');const image=await decodeImageBytes(encoded),mask=createMask(image.width,image.height,0);for(let i=0;i<mask.data.length;i++)mask.data[i]=image.data[i*4]!;layer.gradient.selection={...mask,outline:null};}}
+src\io\compProject.ts:317:    if (!maskBuffer) throw new Error('工程蒙版读取失败：' + entry.maskFile);
+src\io\compProject.ts:358:    if (!bytes) throw new Error('工程清单暂不可读');
+src\composables\commands.ts:77:  const pushStructureHistory = (label: string, before: Structure, after: Structure): void => {
+src\composables\commands.ts:93:  function recordLayerProperty<T>(label:string,layer:Layer,before:T,after:T,write:(target:Layer,value:T)=>void):void {
+src\composables\commands.ts:100:  const applyToActiveLayer = (label:string,apply:(pixels:PixelBuffer,layer:Layer)=>PixelBuffer|void):void => {
+src\composables\commands.ts:115:    api.status(message);
+src\composables\commands.ts:131:      case 'openFilter':{const session=createFilterSession(api,String(payload));if(session)api.openDialog('filterDialog',session);else api.status('请选择未锁定的像素图层');break;}
+src\composables\commands.ts:414:        if(!target){api.status('当前目标不可反相，请检查图层锁定和蒙版状态');break;}
+src\composables\commands.ts:528:        if(!target){api.status('当前目标不可编辑，请检查锁定状态和蒙版是否启用');break;}
+src\composables\commands.ts:710:  function recordCanvasHistory(label: string, before: ReturnType<typeof captureCanvas>): void {
+src\composables\commands.ts:723:    label: string,
+src\tools\selection.ts:47:    { key: 'shape', label: '形状', type: 'select', options: [{ value: 'rect', label: '矩形' }, { value: 'ellipse', label: '椭圆' }] },
+src\tools\selection.ts:48:    { key: 'feather', label: '羽化', type: 'number', min: 0, max: 250, step: 0.5, unit: 'px' },
+src\tools\selection.ts:49:    { key: 'antialias', label: '消除锯齿', type: 'boolean' },
+src\tools\selection.ts:142:    { key: 'mode', label: '模式', type: 'select', options: [{ value: 'free', label: '自由' }, { value: 'polygon', label: '多边形' }] },
+src\tools\selection.ts:143:    { key: 'feather', label: '羽化', type: 'number', min: 0, max: 250, step: 0.5, unit: 'px' },
+src\tools\selection.ts:196:    { key: 'tolerance', label: '容差', type: 'number', min: 0, max: 100, step: 1 },
+src\tools\selection.ts:197:    { key: 'contiguous', label: '连续', type: 'boolean' },
+src\tools\selection.ts:198:    { key: 'sampleAllLayers', label: '所有图层取样', type: 'boolean' },
+src\tools\selection.ts:199:    { key: 'feather', label: '羽化', type: 'number', min: 0, max: 250, step: 0.5, unit: 'px' },
+src\tools\selection.ts:200:    { key: 'antialias', label: '消除锯齿', type: 'boolean' },
+src\tools\selection.ts:228:    { key: 'sensitivity', label: '灵敏度', type: 'number', min: 0, max: 100, step: 1 },
+src\tools\selection.ts:229:    { key: 'feather', label: '羽化', type: 'number', min: 0, max: 20, step: 0.5, unit: 'px' },
+src\tools\selection.ts:232:    editor.status('正在分析主体区域…');
+src\tools\selection.ts:252:    editor.status('已建立对象选区');
+src\components\dialogs\ShortcutDialog.vue:47:    if (conflict) ElMessage.warning(`与「${conflict}」冲突，未保存本次设置`);
+src\components\dialogs\ShortcutDialog.vue:48:    else ElMessage.success('快捷键已更新');
+src\components\dialogs\ShortcutDialog.vue:60:  ElMessage.success(`已恢复「${title}」的默认快捷键`);
+src\components\dialogs\ShortcutDialog.vue:66:  ElMessage.success('已恢复全部默认快捷键');
+src\tools\transform.ts:101:    { key: 'snap', label: '自动对齐', type: 'boolean' },
+src\tools\transform.ts:102:    { key: 'transformAll', label: '变换所有图层', type: 'boolean' },
+src\tools\transform.ts:103:    { key: 'showControls', label: '显示变换控件', type: 'boolean' },
+src\tools\transform.ts:329:export function restoreAndRecord(editor: EditorApi, snapshot: DocumentSnapshot, label: string, bytes = 1024): void {
+src\tools\transform.ts:357:      label: '比例',
+src\tools\transform.ts:360:        { value: 'free', label: '自由' },
+src\tools\transform.ts:361:        { value: '1:1', label: '1:1' },
+src\tools\transform.ts:362:        { value: '4:3', label: '4:3' },
+src\tools\transform.ts:363:        { value: '3:4', label: '3:4' },
+src\tools\transform.ts:364:        { value: '16:9', label: '16:9' },
+src\tools\transform.ts:365:        { value: '9:16', label: '9:16' },
+src\tools\transform.ts:366:        { value: '3:2', label: '3:2' },
+src\tools\transform.ts:367:        { value: '2:3', label: '2:3' },
+src\tools\transform.ts:507:      label: '类型',
+src\tools\transform.ts:510:        { value: 'linear', label: '线性' }, { value: 'radial', label: '径向' },
+src\tools\transform.ts:511:        { value: 'angle', label: '角度' }, { value: 'reflected', label: '对称' }, { value: 'diamond', label: '菱形' },
+src\tools\transform.ts:514:    { key: 'opacity', label: '不透明度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\transform.ts:515:    { key: 'reverse', label: '反向', type: 'boolean' },
+src\tools\transform.ts:516:    { key: 'dither', label: '抖动', type: 'boolean' },
+src\tools\transform.ts:657:      label: '形状',
+src\tools\transform.ts:660:        { value: 'rectangle', label: '矩形' },
+src\tools\transform.ts:661:        { value: 'roundedRectangle', label: '圆角矩形' },
+src\tools\transform.ts:662:        { value: 'ellipse', label: '椭圆' },
+src\tools\transform.ts:663:        { value: 'line', label: '直线' },
+src\tools\transform.ts:666:    { key: 'fill', label: '填充', type: 'boolean' },
+src\tools\transform.ts:667:    { key: 'cornerRadius', label: '圆角', type: 'number', min: 0, max: 500, step: 1, unit: 'px' },
+src\tools\transform.ts:668:    { key: 'strokeWidth', label: '描边宽度', type: 'number', min: 0, max: 100, step: 1, unit: 'px' },
+src\tools\transform.ts:831:    { key: 'content', label: '内容', type: 'select', options: [] },
+src\tools\transform.ts:832:    { key: 'fontName', label: '字体', type: 'select', options: [] },
+src\tools\transform.ts:833:    { key: 'fontSize', label: '字号', type: 'number', min: 6, max: 800, step: 1, unit: 'px' },
+src\tools\transform.ts:834:    { key: 'color', label: '颜色', type: 'color' },
+src\tools\transform.ts:835:    { key: 'align', label: '对齐', type: 'select', options: [{ value: 'left', label: '左' }, { value: 'center', label: '中' }, { value: 'right', label: '右' }] },
+src\tools\transform.ts:836:    { key: 'tracking', label: '字距', type: 'number', min: -100, max: 500, step: 1 },
+src\tools\transform.ts:837:    { key: 'lineSpacing', label: '行距', type: 'number', min: 0, max: 800, step: 1, unit: 'px' },
+src\tools\transform.ts:838:    { key: 'bold', label: '加粗', type: 'boolean' },
+src\tools\transform.ts:839:    { key: 'italic', label: '倾斜', type: 'boolean' },
+src\tools\transform.ts:1003:    { key: 'sample', label: '取样', type: 'select', options: [{ value: 'composite', label: '所有图层' }, { value: 'layer', label: '当前图层' }] },
+src\tools\transform.ts:1004:    { key: 'size', label: '取样大小', type: 'number', min: 1, max: 51, step: 2, unit: 'px' },
+src\tools\transform.ts:1042:  editor.status(`前景色 rgb(${color.join(', ')})`);
+src\composables\shortcuts.ts:197:  api.status(`画笔大小：${Math.max(1, current + step)} px`);
+src\composables\shortcuts.ts:206:  api.status(`画笔硬度：${Math.round(Math.max(0,Math.min(1,current+delta/100))*100)}%`);
+src\components\dialogs\FilterDialog.vue:14:<template><el-dialog :model-value="true" :title="session.title" width="720px" @close="closeDialog"><div class="filter-editor">
+src\io\psdBudget.ts:24:  if(![x,y,width,height].every(Number.isSafeInteger)||width<0||height<0||width>300000||height>300000)throw new Error('PSD图层或蒙版范围无效');
+src\io\psdBudget.ts:38:  if(!Number.isSafeInteger(budget)||budget<=0)throw new Error('PSD内存预算无效');
+src\io\psdBudget.ts:39:  if(data.byteLength+PSD_DECODE_WORKSPACE_BYTES>budget)throw new Error('PSD文件与解码暂存超出内存预算');
+src\io\psdBudget.ts:40:  if(data.byteLength<26)throw new Error('PSD文件头不完整');
+src\io\psdBudget.ts:42:  if(bitDepth!==8)throw new Error('当前PSD编辑器仅支持8位文档，请先转换位深；没有静默丢弃16位精度');
+src\io\psdBudget.ts:43:  if(mode!==3&&mode!==1)throw new Error('当前PSD编辑器仅支持RGB或灰度文档，不支持此颜色模式');
+src\io\psdBudget.ts:45:  if(!width||!height||width*height>100_000_000)throw new Error('PSD画布尺寸超出安全范围');
+src\io\psdBudget.ts:50:    if(depth>64)throw new Error('PSD图层嵌套过深');
+src\io\psdBudget.ts:51:    for(const layer of nodes){layers.push(layer);if(layers.length>10000)throw new Error('PSD图层数量超限');if(layer.children)visit(layer.children,depth+1);}
+src\io\psdBudget.ts:67:  if(estimated>budget)throw new Error('PSD图层裁剪到画布后仍超出内存预算，请减少图层或画布大小');
+src\io\psdBudget.ts:89:      if(!channel?.data)throw new Error('PSD蒙版通道数据缺失');
+src\io\psdBudget.ts:109:    if(required>budget)throw new Error('PSD合并图像超出内存预算');
+src\composables\commands-io.ts:92:  function recordImport(target:CompDocument,before:ImportState,label:string){const after=captureImport(target);api.pushHistory(label,()=>restoreImport(target,before),()=>restoreImport(target,after));}
+src\composables\commands-io.ts:162:          await showMessage(`无法解码该 RAW 文件：${(error as Error).message}`, 'warning');
+src\composables\commands-io.ts:187:          if(result){await watchers.get(target.id)?.acknowledge();if(deps.documentRevision(target)===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
+src\composables\commands-io.ts:188:          else api.status('保存失败：旧工程未替换，请检查宿主目录权限');
+src\composables\commands-io.ts:189:        } catch(error){api.status(`保存失败：${(error as Error).message}`);}
+src\composables\commands-io.ts:199:          if(result){if(target.packagePath!==result)stopWatchingDocument(target.id);else await watchers.get(target.id)?.acknowledge();target.packagePath=result;target.name=fileName(result);if(deps.documentRevision(target)===stamp)target.dirty=false;await rememberRecent(result);api.status(`已保存到 ${result}`);}
+src\composables\commands-io.ts:200:          else api.status('另存失败，原工程路径保持不变');
+src\composables\commands-io.ts:201:        }catch(error){api.status(`保存失败：${(error as Error).message}`);}
+src\composables\commands-io.ts:221:            if (result === 'reloaded') api.status('工程已从磁盘重新载入');
+src\composables\commands-io.ts:222:            else if (result === 'kept') api.status('已保留本地内容，未重新载入');
+src\composables\commands-io.ts:225:            api.status('检测到工程变化，但文件尚不可用（可能仍在写入）');
+src\composables\commands-io.ts:247:          api.status(ok ? `已导出 ${path}` : '导出失败');
+src\composables\commands-io.ts:250:          api.status(`已导出 ${defaultName}`);
+src\composables\commands-io.ts:260:          api.status(ok ? `已导出 ${path}` : '导出失败');
+src\composables\commands-io.ts:263:          api.status(`已导出 ${defaultName}`);
+src\composables\commands-io.ts:274:        api.status(`已打开示例：${sample.name}`);
+src\composables\commands-io.ts:282:        api.status(`主题已切换为：${themeLabel[mode]}`);
+src\composables\commands-io.ts:289:        api.status(label ? `撤销：${label}` : '没有可撤销的操作');
+src\composables\commands-io.ts:296:        api.status(label ? `重做：${label}` : '没有可重做的操作');
+src\composables\commands-io.ts:339:      api.status(`已打开工程 ${document.name}`);
+src\composables\commands-io.ts:341:      await showMessage(`打开工程失败：${(error as Error).message}`, 'warning');
+src\composables\commands-io.ts:360:          await showMessage(`无法解码 ${name}：${(error as Error).message}`, 'warning');
+src\composables\commands-io.ts:375:        await showMessage(`无法导入 ${name}：${(error as Error).message}`, 'warning');
+src\components\panels\PropertiesPanel.vue:18:const samplingOptions = (Object.keys(SAMPLING_LABELS) as (keyof typeof SAMPLING_LABELS)[]).map((value) => ({ value, label: SAMPLING_LABELS[value] }));
+src\components\panels\PropertiesPanel.vue:21:function update(label: string, apply: (target: Layer) => void): void {
+src\components\panels\PropertiesPanel.vue:34:  { key: 'stroke', label: '描边' },
+src\components\panels\PropertiesPanel.vue:35:  { key: 'shadow', label: '投影' },
+src\components\panels\PropertiesPanel.vue:36:  { key: 'innerShadow', label: '内阴影' },
+src\components\panels\PropertiesPanel.vue:37:  { key: 'colorOverlay', label: '颜色叠加' },
+src\components\panels\PropertiesPanel.vue:38:  { key: 'outerGlow', label: '外发光' },
+src\components\panels\PropertiesPanel.vue:39:  { key: 'innerGlow', label: '内发光' },
+src\components\panels\PropertiesPanel.vue:64:function setAdjustment(label: string, apply: (record: NonNullable<Extract<Layer, { kind: 'adjustment' }>['adjustment']>) => void): void {
+src\components\panels\PropertiesPanel.vue:136:          <el-select size="small" placeholder="添加效果" @change="addEffect">
+src\core\engine\editTarget.ts:57:  if(result.width!==buffer.width || result.height!==buffer.height)throw new Error('滤镜输出尺寸与目标图层不一致');
+src\components\DockLayout.vue:161:            <button class="hbtn" title="在左侧 / 右侧 / 底部之间切换" @click="cycleDock(panel.id)">⇄</button>
+src\components\DockLayout.vue:162:            <button class="hbtn" title="浮动" @click="toggleFloat(panel.id)">▣</button>
+src\components\DockLayout.vue:185:            <button class="hbtn" title="在左侧 / 右侧 / 底部之间切换" @click="cycleDock(panel.id)">⇄</button>
+src\components\DockLayout.vue:186:            <button class="hbtn" title="浮动" @click="toggleFloat(panel.id)">▣</button>
+src\components\DockLayout.vue:204:            <button class="hbtn" title="在左侧 / 右侧 / 底部之间切换" @click="cycleDock(panel.id)">⇄</button>
+src\components\DockLayout.vue:205:            <button class="hbtn" title="浮动" @click="toggleFloat(panel.id)">▣</button>
+src\components\DockLayout.vue:227:          <button class="hbtn" title="停靠到左侧" @mousedown.stop @click="dock(panel.id, 'left')">◧</button>
+src\components\DockLayout.vue:228:          <button class="hbtn" title="停靠到右侧" @mousedown.stop @click="dock(panel.id, 'right')">◨</button>
+src\components\DockLayout.vue:229:          <button class="hbtn" title="停靠到底部" @mousedown.stop @click="dock(panel.id, 'bottom')">▤</button>
+src\tools\paint.ts:67:    editor.status('此修复工具暂不支持蒙版，请使用画笔或模糊工具；原图未修改');return;
+src\tools\paint.ts:71:    editor.status('当前绘制目标不可用，请检查图层锁定及蒙版是否启用');
+src\tools\paint.ts:83:function finishPaint(editor: EditorApi, label: string): void {
+src\tools\paint.ts:125:    { key: 'size', label: '大小', type: 'number', min: 1, max: 2500, step: 1, unit: 'px' },
+src\tools\paint.ts:126:    { key: 'hardness', label: '硬度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:127:    { key: 'opacity', label: '不透明度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:128:    { key: 'smoothing', label: '平滑', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:129:    { key: 'mode', label: '模式', type: 'select', options: [{ value: 'paint', label: '绘制' }, { value: 'erase', label: '擦除' }] },
+src\tools\paint.ts:179:    { key: 'size', label: '大小', type: 'number', min: 1, max: 2500, step: 1, unit: 'px' },
+src\tools\paint.ts:180:    { key: 'hardness', label: '硬度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:181:    { key: 'opacity', label: '不透明度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:182:    { key: 'smoothing', label: '平滑', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:216:    { key: 'size', label: '大小', type: 'number', min: 1, max: 500, step: 1, unit: 'px' },
+src\tools\paint.ts:217:    { key: 'spacing', label: '采样范围', type: 'number', min: 5, max: 200, step: 1, unit: 'px' },
+src\tools\paint.ts:261:    { key: 'size', label: '大小', type: 'number', min: 1, max: 1000, step: 1, unit: 'px' },
+src\tools\paint.ts:262:    { key: 'hardness', label: '硬度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:263:    { key: 'opacity', label: '不透明度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:264:    { key: 'aligned', label: '对齐', type: 'boolean' },
+src\tools\paint.ts:265:    { key: 'sampleAllLayers', label: '所有图层取样', type: 'boolean' },
+src\tools\paint.ts:268:    if(event.alt){state.cloneSource={...event.doc};cloneOffset=null;editor.status('已设置仿制源');return;}
+src\tools\paint.ts:269:    if(!state.cloneSource){editor.status('请先按Alt点击设置仿制源');return;}
+src\tools\paint.ts:316:    { key: 'size', label: '大小', type: 'number', min: 1, max: 1000, step: 1, unit: 'px' },
+src\tools\paint.ts:317:    { key: 'hardness', label: '硬度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:318:    { key: 'strength', label: '强度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:319:    { key: 'target', label: '目标', type: 'select', options: [{ value: 'pixels', label: '像素' }, { value: 'mask', label: '蒙版' }] },
+src\tools\paint.ts:379:    { key: 'size', label: '大小', type: 'number', min: 1, max: 1000, step: 1, unit: 'px' },
+src\tools\paint.ts:380:    { key: 'strength', label: '强度', type: 'number', min: 0, max: 100, step: 1, unit: '%' },
+src\tools\paint.ts:414:    { key: 'mode', label: '模式', type: 'select', options: [{ value: 'push', label: '向前变形' }, { value: 'twirl', label: '旋转' }, { value: 'bloat', label: '膨胀' }] },
+src\tools\paint.ts:415:    { key: 'size', label: '大小', type: 'number', min: 5, max: 500, step: 1, unit: 'px' },
+src\tools\paint.ts:416:    { key: 'strength', label: '强度', type: 'number', min: 1, max: 100, step: 1, unit: '%' },
+src\core\engine\history.ts:8:  label: string;
+src\io\raw.ts:40:  if (magic === 43) throw new Error('暂不支持 BigTIFF 格式的 RAW 文件');
+src\io\raw.ts:41:  if (magic !== 42) throw new Error('不是 TIFF 容器的 RAW 文件（CR3 / RAF 请先转换为 DNG 或 TIFF）');
+src\io\raw.ts:150:    throw new Error('未在文件中找到原始像素数据');
+src\io\raw.ts:153:    throw new Error(`暂不支持的 RAW 压缩方式（${compression}），请使用未压缩或 LZW 的 DNG`);
+src\io\raw.ts:460:  label: string;
+src\io\raw.ts:465:  { id: 'light', label: '光效' },
+src\io\raw.ts:466:  { id: 'color', label: '颜色' },
+src\io\raw.ts:467:  { id: 'curve', label: '曲线' },
+src\io\raw.ts:468:  { id: 'mixer', label: '颜色混合' },
+src\io\raw.ts:469:  { id: 'grading', label: '颜色分级' },
+src\io\raw.ts:470:  { id: 'detail', label: '细节' },
+src\io\raw.ts:471:  { id: 'optics', label: '光学' },
+src\io\raw.ts:472:  { id: 'geometry', label: '几何' },
+src\io\raw.ts:477:  { key: 'red', label: '红色', hue: 0 },
+src\io\raw.ts:478:  { key: 'orange', label: '橙色', hue: 30 },
+src\io\raw.ts:479:  { key: 'yellow', label: '黄色', hue: 60 },
+src\io\raw.ts:480:  { key: 'green', label: '绿色', hue: 120 },
+src\io\raw.ts:481:  { key: 'aqua', label: '青色', hue: 180 },
+src\io\raw.ts:482:  { key: 'blue', label: '蓝色', hue: 240 },
+src\io\raw.ts:483:  { key: 'purple', label: '紫色', hue: 280 },
+src\io\raw.ts:484:  { key: 'magenta', label: '洋红', hue: 320 },
+src\components\panels\LayersPanel.vue:93:function changeProperty<K extends 'name' | 'isVisible'>(layer: Layer, key: K, next: Layer[K], label: string): void {
+src\components\panels\LayersPanel.vue:270:        <button class="icon-btn" :title="row.layer.locked?'解锁':'锁定'" @click.stop="runOnRow(row.layer,'toggleLock')">{{row.layer.locked?'🔒':'○'}}</button>
+src\components\panels\LayersPanel.vue:285:        <span v-if="row.layer.mask" class="badge" title="含图层蒙版" />
+src\core\engine\maskGeometry.ts:10:  if (!pixels) throw new Error('当前图层没有蒙版');
+src\components\dialogs\DialogHost.vue:87:  <el-dialog v-model="visible" :title="name === 'newCanvas' ? '新建画布' : name === 'canvasSize' ? '画布大小' : name === 'imageSize' ? '图像大小' : name === 'rawDevelop' ? '相机 RAW 显影' : name === 'psdReport' ? 'Photoshop 转换报告' : name === 'colorRange' ? '色彩范围' : name === 'gridSettings' ? '网格设置' : name === 'snapSettings' ? '吸附设置' : name === 'shortcuts' ? '键盘快捷键' : name === 'recent' ? '最近工程' : name === 'exportDialog' ? '导出图片' : '关于合成器'"
+src\components\dialogs\CommandPalette.vue:6:const props=defineProps<{menus:{label:string;items:{label?:string;run?:()=>unknown}[]}[]}>();
+src\components\dialogs\CommandPalette.vue:13:<template><el-dialog :model-value="true" title="搜索命令" width="600px" @close="closeDialog"><div class="command-palette"><input ref="input" v-model="query" type="search" aria-label="搜索菜单命令和工具" placeholder="搜索菜单命令或工具…" @input="selected=0" @keydown.down.prevent="selected=Math.min(results.length-1,selected+1)" @keydown.up.prevent="selected=Math.max(0,selected-1)" @keydown.enter.prevent="run(selected)"/><ul role="listbox"><li v-for="(item,i) in results" :key="item.title"><button :class="{selected:i===selected}" @click="run(i)">{{item.title}}</button></li></ul></div></el-dialog></template>

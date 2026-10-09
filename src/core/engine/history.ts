@@ -131,7 +131,7 @@ export class History {
 
 /** 依据设备可用内存推荐历史预算（默认 512MB，下限 128MB） */
 export function recommendedBudget(): number {
-  const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory;
+  const memory = typeof navigator==='undefined'?undefined:(navigator as unknown as { deviceMemory?: number }).deviceMemory;
   if (!memory) return 512 * 1024 * 1024;
   if (memory <= 2) return 128 * 1024 * 1024;
   if (memory <= 4) return 256 * 1024 * 1024;

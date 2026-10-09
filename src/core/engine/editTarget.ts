@@ -34,7 +34,8 @@ export function fillEditTarget(document: CompDocument, target: EditTarget, color
     changed=true;
     if(target.onMask) {
       const i=y*buffer.width+x,value=target.layer.mask?.inverted?255-gray:gray;
-      target.buffer.data[i]=Math.round(target.buffer.data[i]*(1-coverage)+value*coverage);
+      const next=target.buffer.data[i]*(1-coverage)+value*coverage;
+      target.buffer.data[i]=target.buffer.data instanceof Float32Array?next:Math.round(next);
     } else {
       const i=(y*buffer.width+x)*4;
       if(clear)target.buffer.data[i+3]=target.buffer.data[i+3]*(1-coverage);
@@ -74,7 +75,8 @@ export function invertEditTarget(document: CompDocument, target: EditTarget): bo
     const k=editSelectionCoverage(document,target,x,y);if(k<=0)continue;
     for(let c=0;c<channels;c++) {
       const i=(y*buffer.width+x)*stride+c,before=buffer.data[i];
-      buffer.data[i]=Math.round(before*(1-k)+(255-before)*k);
+      const value=before*(1-k)+(255-before)*k;
+      buffer.data[i]=buffer.data instanceof Float32Array?value:Math.round(value);
       if(buffer.data[i]!==before)changed=true;
     }
   }

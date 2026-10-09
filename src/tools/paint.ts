@@ -356,7 +356,7 @@ function applyBlur(editor: EditorApi, point: Point): void {
     const k=taper*editSelectionCoverage(editor.doc,target,x,y);if(k<=0)continue;
     const i=(y*work.width+x)*4;
     if(target.onMask) {
-      const j=y*work.width+x;target.buffer.data[j]=Math.round(target.buffer.data[j]*(1-k)+work.data[i]*k);
+      const j=y*work.width+x;const next=target.buffer.data[j]*(1-k)+work.data[i]*k;target.buffer.data[j]=target.buffer.data instanceof Float32Array?next:Math.round(next);
     } else {
       const data=target.buffer.data,ab=data[i+3]/255,af=work.data[i+3]/255,alpha=ab*(1-k)+af*k;
       for(let c=0;c<3;c++)data[i+c]=alpha>0?(data[i+c]*ab*(1-k)+work.data[i+c]*af*k)/alpha:0;

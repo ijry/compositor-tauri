@@ -1,3 +1,5 @@
+import { userErrorMessage } from '@/core/userMessage';
+import { clampPixels } from '@/core/pixelFormat';
 /**
  * 编辑器状态中枢
  * ---------------------------------------------------------------
@@ -13,7 +15,7 @@ import { CanvasRenderer, nextZoom, type Viewport } from '@/core/engine/renderer'
 import { setPaintDocument } from '@/core/engine/paint';
 import { compositeDocument } from '@/core/engine/compositor';
 import {
-  activeLayer as pickActiveLayer, createDocument, duplicateLayer, findLayer, mergeDown, mergeGroup, mergeLayers,
+  activeLayer as pickActiveLayer, adoptDocumentDepth, createDocument, duplicateLayer, findLayer, mergeDown, mergeGroup, mergeLayers,
   createGroupLayer, insertLayer, nudgeLayerOrder, removeLayers, flattenVisible, groupLayers, ungroupLayers,
 } from '@/core/document';
 import { createSelection, combineSelection, invertSelection, isSelectionEmpty } from '@/core/selection';
@@ -117,6 +119,7 @@ export const currentTool = computed<ToolDefinition | undefined>(() => getTool(cu
 
 /** 打开文档（新建或导入后调用） */
 export function openDocument(document: CompDocument): void {
+  adoptDocumentDepth(document);
   documents.value.push(document);
   activeIndex.value = documents.value.length - 1;
   viewportOf(document);
@@ -459,6 +462,7 @@ export const api: EditorApi = {
   markLayerDirty(id: string): void {
     const layer = this.findLayer(id);
     if (!layer) return;
+    if(layer.pixels)clampPixels(layer.pixels);
     layer.contentKey += 1;
     thumbnailVersion.value += 1;
     renderer.value?.invalidate();
@@ -576,7 +580,12 @@ export async function closeCurrent(): Promise<boolean> {
 }
 
 /** 命令对象（延迟创建，避免循环初始化） */
-export const commands = { run: (name: string, payload?: unknown) => commandsImpl.run(name, payload) };
+export const commands = {
+  async run(name:string,payload?:unknown):Promise<void> {
+    try{await commandsImpl.run(name,payload);}
+    catch(error){setStatus('操作失败：'+userErrorMessage(error));}
+  },
+};
 
 /** 命令实现 */
 export const commandsImpl = createCommands(api);

@@ -1,3 +1,4 @@
+import { pixelDepth } from '@/core/pixelFormat';
 /**
  * 模糊与采样类滤镜内核
  * ---------------------------------------------------------------
@@ -21,7 +22,7 @@ export function gaussianBlurBuffer(buffer: PixelBuffer, radius: number): PixelBu
     boxBlurRgbaH(current, next, width, height, boxRadius);
     boxBlurRgbaV(next, current, width, height, boxRadius);
   }
-  const out = createBuffer(width, height);
+  const out = createBuffer(width, height,undefined,pixelDepth(buffer));
   out.data.set(current);
   return out;
 }
@@ -77,7 +78,7 @@ function boxBlurRgbaV(src: Float32Array, dst: Float32Array, width: number, heigh
 export function motionBlurBuffer(buffer: PixelBuffer, angleDegrees: number, distance: number): PixelBuffer {
   if (distance <= 0.05) return buffer;
   const { width, height } = buffer;
-  const out = createBuffer(width, height);
+  const out = createBuffer(width, height,undefined,pixelDepth(buffer));
   const angle = (angleDegrees * Math.PI) / 180;
   const dx = Math.cos(angle);
   const dy = Math.sin(angle);
@@ -117,7 +118,7 @@ export function motionBlurBuffer(buffer: PixelBuffer, angleDegrees: number, dist
 export function lensBlurBuffer(buffer: PixelBuffer, amount: number): PixelBuffer {
   if (amount <= 0.05) return buffer;
   const { width, height } = buffer;
-  const out = createBuffer(width, height);
+  const out = createBuffer(width, height,undefined,pixelDepth(buffer));
   const maxRadius = Math.min(40, Math.max(1, Math.round(amount)));
   const cx = width / 2;
   const cy = height / 2;

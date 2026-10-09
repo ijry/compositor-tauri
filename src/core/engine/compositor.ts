@@ -1,3 +1,4 @@
+import { pixelDepth, documentDepth, clampPixels } from '@/core/pixelFormat';
 /**
  * 图层合成器
  * ---------------------------------------------------------------
@@ -91,6 +92,7 @@ export function buildLayerSurface(layer: Layer, scale = 1): Surface | null {
   const buffer = createBuffer(
     Math.max(1, Math.round(rect.width * scale)),
     Math.max(1, Math.round(rect.height * scale)),
+    undefined,pixelDepth(pixels),
   );
   // 图层局部像素 -> 文档 -> 表面原点 -> 缩放后的缓冲；平移也必须随合成比例缩放。
   const local = multiplyMatrix(scaling(scale, scale), multiplyMatrix(translation(-rect.x, -rect.y), matrix));
@@ -162,9 +164,9 @@ export function compositeDocument(document: CompDocument, width?: number, height
   const scale = options.scale ?? 1;
   const outWidth = width ?? Math.max(1, Math.round(document.width * scale));
   const outHeight = height ?? Math.max(1, Math.round(document.height * scale));
-  const target = createBuffer(outWidth, outHeight);
+  const target = createBuffer(outWidth, outHeight,undefined,documentDepth(document));
   compositeInto(target, document, scale, options);
-  return { buffer: target, scale };
+  return { buffer: clampPixels(target), scale };
 }
 
 /** 把文档合成到已有缓冲（画布渲染、导出都走这里） */
@@ -248,16 +250,16 @@ export function compositeInto(
   }
   const drawStack = (base:Layer,children:Layer[],context:ReturnType<typeof contextFor>): void => {
     const surface=buildLayerSurface(base,scale);if(!surface)return;
-    const group=createBuffer(width,height);
+    const group=createBuffer(width,height,undefined,pixelDepth(target));
     blitSurface(group,surface,[],base.opacity*context.opacity,'Normal',scale);
-    const alpha=new Uint8Array(width*height);
+    const alpha=target.data instanceof Float32Array?new Float32Array(width*height):new Uint8Array(width*height);
     for(let i=0;i<alpha.length;i++){alpha[i]=group.data[i*4+3];group.data[i*4+3]=255;}
     for(const child of children) {
       if(!child.isVisible || child.opacity<=0)continue;
       const opacity=child.opacity*context.opacity;
       if(child.kind==='adjustment' && child.adjustment) {
         const mask=child.mask?.enabled?createMaskSampler(child):null;
-        group.data.set(applyAdjustment(group,child.adjustment,buildCoverage(width,height,[mask,selectionSample],opacity)).data);
+        group.data.set(applyAdjustment(group,child.adjustment,buildCoverage(width,height,[mask,selectionSample],opacity,pixelDepth(target)===16)).data);
       } else {
         const drawn=buildLayerSurface(child,scale);
         if(drawn)blitSurface(group,drawn,[],opacity,child.blendMode,scale);
@@ -287,7 +289,7 @@ export function compositeInto(
 
     if (layer.kind === 'adjustment' && layer.adjustment) {
       // 调整层：作用于当前 target（其下方已合成的内容）
-      const coverage = buildCoverage(width, height, [...context.masks, maskSample, clipSample, selectionSample], alpha);
+      const coverage = buildCoverage(width, height, [...context.masks, maskSample, clipSample, selectionSample], alpha,pixelDepth(target)===16);
       target.data.set(applyAdjustment(target, layer.adjustment, coverage).data);
       continue;
     }
@@ -317,14 +319,14 @@ function buildCoverage(
   width: number,
   height: number,
   samplers: (CoverageSampler | null)[],
-  alpha: number,
-): Uint8Array | null {
+  alpha: number,precise=false,
+): Uint8Array | Float32Array | null {
   const list = samplers.filter((item): item is CoverageSampler => Boolean(item));
-  const coverage = new Uint8Array(width * height);
+  const coverage = precise?new Float32Array(width*height):new Uint8Array(width * height);
   const factor = Math.max(0, Math.min(1, alpha));
   if (list.length === 0) {
     if (factor >= 1) return null;
-    for (let i = 0; i < coverage.length; i += 1) coverage[i] = Math.round(factor * 255);
+    for (let i = 0; i < coverage.length; i += 1) coverage[i] = precise?factor*255:Math.round(factor * 255);
     return coverage;
   }
   for (let y = 0; y < height; y += 1) {
@@ -334,7 +336,8 @@ function buildCoverage(
         value *= sampler(x + 0.5, y + 0.5);
         if (value <= 0) break;
       }
-      coverage[y * width + x] = Math.round(Math.max(0, Math.min(1, value * factor)) * 255);
+      const next=Math.max(0, Math.min(1, value * factor)) * 255;
+      coverage[y * width + x] = precise?next:Math.round(next);
     }
   }
   return coverage;
@@ -354,7 +357,7 @@ export function blitSurface(
 ): void {
   const { buffer, rect } = surface;
   const list = samplers.filter((item): item is CoverageSampler => Boolean(item));
-  const blend = blendFunction(blendMode);
+  const blend = blendFunction(blendMode,pixelDepth(target)===16);
   const opacity = Math.max(0, Math.min(1, alpha));
   // 目标像素范围
   const x0 = Math.max(0, Math.floor(rect.x * scale));
@@ -388,7 +391,7 @@ export function blitSurface(
 
 /** 合成单个图层的像素（用于图层面板缩略图） */
 export function renderLayerThumbnail(layer: Layer, size = 48): PixelBuffer {
-  const buffer = createBuffer(size, size);
+  const buffer = createBuffer(size, size,undefined,layer.pixels?pixelDepth(layer.pixels):8);
   if (layer.kind !== 'pixel' || !layer.pixels) return buffer;
   const matrix = layerLocalMatrix(layer);
   void matrix;

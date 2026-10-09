@@ -1,3 +1,4 @@
+import { copyPixels, pixelDepth, clampPixels } from '@/core/pixelFormat';
 /**
  * 创意滤镜
  * ---------------------------------------------------------------
@@ -64,6 +65,7 @@ export function applyVignette(buffer: PixelBuffer, options: VignetteOptions, cov
       data[i + 2] = b * (1 - kk) + mixed[2] * kk;
     }
   }
+  clampPixels(buffer);
 }
 
 export interface BloomOptions {
@@ -77,7 +79,7 @@ export interface BloomOptions {
 /** 辉光/泛光：先按阈值取高光，做模糊后再按颜色叠回 */
 export function applyBloom(buffer: PixelBuffer, options: BloomOptions, coverage: Coverage = null): void {
   const { width, height, data } = buffer;
-  const highlights = gaussianBlurBuffer({ width, height, data: new Uint8ClampedArray(data) }, Math.max(1, options.radius));
+  const highlights = gaussianBlurBuffer({ width, height, data: copyPixels(data),bitDepth:pixelDepth(buffer) }, Math.max(1, options.radius));
   const threshold = options.threshold / 100;
   for (let i = 0; i < data.length; i += 4) {
     const kk = coverage ? (coverage[i / 4] / 255) : 1;
@@ -113,6 +115,7 @@ export function applyBloom(buffer: PixelBuffer, options: BloomOptions, coverage:
     data[i + 1] = data[i + 1] * (1 - kk) + g * kk;
     data[i + 2] = data[i + 2] * (1 - kk) + b * kk;
   }
+  clampPixels(buffer);
 }
 
 export interface TonalContrastOptions {
@@ -162,6 +165,7 @@ export function applyTonalContrast(buffer: PixelBuffer, options: TonalContrastOp
     data[i + 1] = (data[i + 1] * (1 - kk) + g * 255 * kk);
     data[i + 2] = (data[i + 2] * (1 - kk) + b * 255 * kk);
   }
+  clampPixels(buffer);
 }
 
 export interface LensCorrectionOptions {
@@ -175,7 +179,7 @@ export interface LensCorrectionOptions {
 /** 镜头校正：桶形/枕形畸变 + 横向色差 + 暗角 */
 export function applyLensCorrection(buffer: PixelBuffer, options: LensCorrectionOptions): void {
   const { width, height } = buffer;
-  const source = new Uint8ClampedArray(buffer.data);
+  const source = copyPixels(buffer.data);
   const cx = width / 2;
   const cy = height / 2;
   const k = (options.distortion / 100) * 0.6 * (options.correction ? -1 : 1);
@@ -214,6 +218,7 @@ export function applyLensCorrection(buffer: PixelBuffer, options: LensCorrection
       }
     }
   }
+  clampPixels(buffer);
 }
 
 export interface SharpenOptions {
@@ -237,6 +242,7 @@ export function applySharpen(buffer: PixelBuffer, options: SharpenOptions, cover
       data[i + c] = data[i + c] + detail * amount * kk;
     }
   }
+  clampPixels(buffer);
 }
 
 export interface DenoiseOptions {
@@ -268,6 +274,7 @@ export function applyDenoise(buffer: PixelBuffer, options: DenoiseOptions, cover
     data[i + 1] = data[i + 1] * (1 - kk) + cg * kk;
     data[i + 2] = data[i + 2] * (1 - kk) + cb * kk;
   }
+  clampPixels(buffer);
 }
 
 /**
@@ -332,7 +339,7 @@ export function removeBackground(buffer: PixelBuffer, sensitivity = 50): PixelBu
     }
     return src;
   })();
-  const out = { width, height, data: new Uint8ClampedArray(buffer.data) };
+  const out = { width, height, data: copyPixels(buffer.data) };
   for (let i = 0; i < total; i += 1) {
     const p = i * 4;
     out.data[p + 3] = Math.max(0, Math.min(255, blurred[i]));
@@ -351,4 +358,5 @@ export function applyDither(buffer: PixelBuffer, levels: number, seed: number): 
       data[i + c] = Math.round(value / step) * step;
     }
   }
+  clampPixels(buffer);
 }

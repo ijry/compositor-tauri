@@ -99,18 +99,24 @@ export interface LayerTransform {
   warp?: [Point, Point, Point, Point] | null;
 }
 
-/** 像素缓冲：始终为 8 位 RGBA，非预乘 */
+export type BitDepth = 8 | 16;
+/** 16位图像在运算期间保留浮点精度；两个数组都采用0–255非预乘值。 */
+export type PixelArray = Uint8ClampedArray<ArrayBuffer> | Float32Array<ArrayBuffer>;
+/** 像素缓冲：8位整数/16位浮点工作精度RGBA，非预乘。 */
 export interface PixelBuffer {
   width: number;
   height: number;
-  data: Uint8ClampedArray<ArrayBuffer>;
+  data: PixelArray;
+  bitDepth?:BitDepth;
 }
 
-/** 灰度蒙版：8 位，白=显示，黑=隐藏 */
+export type MaskArray = Uint8Array<ArrayBuffer> | Float32Array<ArrayBuffer>;
+/** 灰度蒙版：白=显示，黑=隐藏；16位蒙版保留浮点覆盖率。 */
 export interface MaskBuffer {
   width: number;
   height: number;
-  data: Uint8Array<ArrayBuffer>;
+  data: MaskArray;
+  bitDepth?:BitDepth;
 }
 
 /** 图层蒙版信息 */
@@ -119,6 +125,8 @@ export interface LayerMask {
   enabled: boolean;
   /** 是否跟随图层变换；false 时使用自己的 maskPlacement */
   linked: boolean;
+  /** PSD蒙版矩形之外的默认覆盖率（0–255），缺省为黑。 */
+  outside?:number;
   /** 未链接蒙版在文档空间的矩形 */
   placement: (Rect & { rotation?: number; flipX?: boolean; flipY?: boolean; sampling?: SamplingMode }) | null;
   /** 会话内选择的目标：图像像素还是蒙版 */
@@ -412,6 +420,7 @@ export interface CameraRawSettings {
 export interface CompDocument {
   id: string;
   name: string;
+  bitDepth?:BitDepth;
   width: number;
   height: number;
   resolution: number;

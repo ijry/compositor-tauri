@@ -1502,13 +1502,13 @@
   {
     "id": "ISSUE-062",
     "title": "没有上游的大 PSD 按预算裁层降级",
-    "status": "未完成",
-    "note": "未完成：需要受预算约束的PSD通道解码/裁切路径，不能用解码后裁剪冒充内存降级。",
+    "status": "已修复",
+    "note": "分配前估算压缩源文件、像素与固定解码暂存；不足时在解码期间裁到画布，裁后仍超限明确拒绝。Raw/RLE/ZIP/ZIP预测器及PSB行表已验证，估计值不是浏览器进程RSS。",
     "evidence": [
       {
-        "id": "PARITY-psd-large-fallback",
-        "status": "未实现",
-        "file": "parity-results.json"
+        "id": "REMAINING-psd-budget",
+        "status": "通过",
+        "file": "remaining-completion.json"
       }
     ],
     "missing": []
@@ -1516,13 +1516,13 @@
   {
     "id": "ISSUE-063",
     "title": "内部像素缓冲不支持原计划承诺的 16 位处理",
-    "status": "未完成",
-    "note": "未完成：内部仍为8位缓冲。16位精度贯穿混合、滤镜、历史与导出的改造尚未完成。",
+    "status": "已修复",
+    "note": "16位文档采用0–255 Float32工作值，覆盖合成、调整、绘画底层、重采样、蒙版、历史、PNG/PSD/工程保存；JPEG/WebP与Canvas显示是明确的8位量化边界。独立样本、最低有效位及独立PSD读取器验证通过，不等于所有厂商格式均实测。",
     "evidence": [
       {
-        "id": "COLOR-buffer16",
-        "status": "失败",
-        "file": "kernels-results.json"
+        "id": "REMAINING-bit-depth",
+        "status": "通过",
+        "file": "remaining-completion.json"
       }
     ],
     "missing": []
@@ -1544,18 +1544,16 @@
   {
     "id": "ISSUE-065",
     "title": "全部中文化声明未成立",
-    "status": "部分修复",
-    "note": "本轮已本地化新增控件、菜单、锚点及Element Plus；全部业务异常/字体名/第三方信息尚未逐句验收。",
+    "status": "已修复",
+    "note": "修正滤镜历史名称和错误反馈，第三方英文异常统一转中文；格式缩写、字体名、文件名和用户内容保持原值，不冒称这些数据是待翻译的界面文案。",
     "evidence": [
       {
-        "id": "EDGE-chinese-anchor",
+        "id": "REMAINING-localization",
         "status": "通过",
-        "file": "edges-results.json"
+        "file": "remaining-completion.json"
       }
     ],
-    "missing": [
-      "UI-chinese"
-    ]
+    "missing": []
   },
   {
     "id": "ISSUE-066",

@@ -1,38 +1,42 @@
 /**
  * 像素缓冲工具
  * ---------------------------------------------------------------
- * 统一使用 8 位 RGBA（Uint8ClampedArray），不做预乘，
+ * 8位RGBA使用Uint8ClampedArray，16位文档使用0–255 Float32工作值，不做预乘，
  * 所有混合、蒙版、调整都在 unpremultiplied 空间进行，保证与 Photoshop 一致。
  */
-import type { MaskBuffer, PixelBuffer, Rect } from '@/types/document';
+import { allocatePixels, copyPixels, pixelDepth, toImageData } from './pixelFormat';
+import type { BitDepth, MaskBuffer, PixelBuffer, Rect } from '@/types/document';
 
 /** 创建一个全透明缓冲 */
-export function createBuffer(width: number, height: number, fill?: [number, number, number, number]): PixelBuffer {
-  const data = new Uint8ClampedArray(width * height * 4);
+export function createBuffer(width: number, height: number, fill?: [number, number, number, number], bitDepth:BitDepth=8): PixelBuffer {
+  const data = allocatePixels(width * height * 4,bitDepth);
   if (fill) {
     const [r, g, b, a] = fill;
     for (let i = 0; i < data.length; i += 4) {
       data[i] = r; data[i + 1] = g; data[i + 2] = b; data[i + 3] = a;
     }
   }
-  return { width, height, data };
+  return { width, height, data, bitDepth };
 }
 
 /** 深拷贝缓冲 */
 export function cloneBuffer(buffer: PixelBuffer): PixelBuffer {
-  return { width: buffer.width, height: buffer.height, data: new Uint8ClampedArray(buffer.data) };
+  return { width: buffer.width, height: buffer.height, data: copyPixels(buffer.data),bitDepth:pixelDepth(buffer) };
 }
 
 /** 深拷贝蒙版 */
 export function cloneMask(mask: MaskBuffer): MaskBuffer {
-  return { width: mask.width, height: mask.height, data: new Uint8Array(mask.data) };
+  return { width: mask.width, height: mask.height, data: mask.data instanceof Float32Array?new Float32Array(mask.data):new Uint8Array(mask.data),bitDepth:mask.data instanceof Float32Array?16:8 };
 }
 
 /** 由矩形创建全白蒙版 */
-export function createMask(width: number, height: number, value = 255): MaskBuffer {
-  const data = new Uint8Array(width * height);
+export function createMask(width:number,height:number,value?:number,depth?:8):MaskBuffer & {data:Uint8Array<ArrayBuffer>};
+export function createMask(width:number,height:number,value:number|undefined,depth:BitDepth):MaskBuffer;
+export function createMask(width: number, height: number, value = 255,depth:BitDepth=8): MaskBuffer {
+  if(!Number.isSafeInteger(width*height)||width<0||height<0||width*height*(depth===16?4:1)>1024*1024*1024)throw new Error('蒙版缓冲超出安全范围');
+  const data = depth===16?new Float32Array(width*height):new Uint8Array(width * height);
   if (value !== 0) data.fill(value);
-  return { width, height, data };
+  return { width, height, data,bitDepth:depth };
 }
 
 /** 布尔填充 */
@@ -60,7 +64,7 @@ export function setPixel(buffer: PixelBuffer, x: number, y: number, r: number, g
 /** 缓冲的估算内存占用（字节） */
 export function bufferBytes(buffer: PixelBuffer | MaskBuffer | null | undefined): number {
   if (!buffer) return 0;
-  return buffer.width * buffer.height * ('data' in buffer && buffer.data instanceof Uint8ClampedArray ? 4 : 1);
+  return buffer.data.byteLength;
 }
 
 /** 与画布互转 */
@@ -69,7 +73,7 @@ export function bufferToCanvas(buffer: PixelBuffer): HTMLCanvasElement {
   canvas.width = buffer.width;
   canvas.height = buffer.height;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-  ctx.putImageData(new ImageData(buffer.data as Uint8ClampedArray<ArrayBuffer>, buffer.width, buffer.height), 0, 0);
+  ctx.putImageData(toImageData(buffer), 0, 0);
   return canvas;
 }
 
@@ -94,7 +98,7 @@ export async function sourceToBuffer(source: CanvasImageSource, width?: number, 
 
 /** 提取子区域为新缓冲 */
 export function cropBuffer(buffer: PixelBuffer, rect: Rect): PixelBuffer {
-  const out = createBuffer(rect.width, rect.height);
+  const out = createBuffer(rect.width, rect.height,undefined,pixelDepth(buffer));
   for (let y = 0; y < rect.height; y += 1) {
     const sy = rect.y + y;
     if (sy < 0 || sy >= buffer.height) continue;
@@ -132,7 +136,7 @@ export function blitBuffer(dst: PixelBuffer, src: PixelBuffer, dx: number, dy: n
 
 /** 蒙版转 RGBA 缓冲（用于可视化与效果计算） */
 export function maskToBuffer(mask: MaskBuffer): PixelBuffer {
-  const out = createBuffer(mask.width, mask.height);
+  const out = createBuffer(mask.width, mask.height,undefined,mask.data instanceof Float32Array?16:8);
   for (let i = 0, p = 0; i < mask.data.length; i += 1, p += 4) {
     const v = mask.data[i];
     out.data[p] = v; out.data[p + 1] = v; out.data[p + 2] = v; out.data[p + 3] = 255;
@@ -142,7 +146,7 @@ export function maskToBuffer(mask: MaskBuffer): PixelBuffer {
 
 /** 缩放缓冲（双线性），用于导入时改变尺寸 */
 export function resizeBuffer(buffer: PixelBuffer, width: number, height: number): PixelBuffer {
-  const out = createBuffer(width, height);
+  const out = createBuffer(width, height,undefined,pixelDepth(buffer));
   const sx = buffer.width / width;
   const sy = buffer.height / height;
   for (let y = 0; y < height; y += 1) {
@@ -172,7 +176,7 @@ export function resizeBuffer(buffer: PixelBuffer, width: number, height: number)
 
 /** 缩放蒙版（双线性） */
 export function resizeMask(mask: MaskBuffer, width: number, height: number): MaskBuffer {
-  const out = createMask(width, height);
+  const out = createMask(width, height,255,mask.data instanceof Float32Array?16:8);
   const sx = mask.width / width;
   const sy = mask.height / height;
   for (let y = 0; y < height; y += 1) {
@@ -195,7 +199,7 @@ export function resizeMask(mask: MaskBuffer, width: number, height: number): Mas
 
 /** 镜像（水平/垂直） */
 export function flipBuffer(buffer: PixelBuffer, horizontal: boolean, vertical: boolean): PixelBuffer {
-  const out = createBuffer(buffer.width, buffer.height);
+  const out = createBuffer(buffer.width, buffer.height,undefined,pixelDepth(buffer));
   for (let y = 0; y < buffer.height; y += 1) {
     const sy = vertical ? buffer.height - 1 - y : y;
     for (let x = 0; x < buffer.width; x += 1) {
@@ -216,7 +220,7 @@ export function rotateBuffer(buffer: PixelBuffer, degrees: number): PixelBuffer 
   const turn = ((degrees % 360) + 360) % 360;
   if (turn === 0) return cloneBuffer(buffer);
   const swap = turn === 90 || turn === 270;
-  const out = createBuffer(swap ? buffer.height : buffer.width, swap ? buffer.width : buffer.height);
+  const out = createBuffer(swap ? buffer.height : buffer.width, swap ? buffer.width : buffer.height,undefined,pixelDepth(buffer));
   for (let y = 0; y < buffer.height; y += 1) {
     for (let x = 0; x < buffer.width; x += 1) {
       let tx = x; let ty = y;

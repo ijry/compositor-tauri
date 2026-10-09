@@ -1,3 +1,4 @@
+import { copyPixels, pixelDepth, clampPixels } from '@/core/pixelFormat';
 /**
  * 绘制引擎
  * ---------------------------------------------------------------
@@ -145,7 +146,8 @@ function paintIntoMask(mask: MaskBuffer, layer: Layer, document: CompDocument, c
       const index = y * mask.width + x;
       const gray = options.erase ? 0 : 0.299 * options.color[0] + 0.587 * options.color[1] + 0.114 * options.color[2];
       const value = layer.mask?.inverted ? 255 - gray : gray;
-      mask.data[index] = Math.round(mask.data[index] * (1 - strength) + value * strength);
+      const next=mask.data[index] * (1 - strength) + value * strength;
+      mask.data[index] = mask.data instanceof Float32Array?next:Math.round(next);
     }
   }
 }
@@ -213,7 +215,7 @@ export function smudgeDab(buffer: PixelBuffer, center: Point, radius: number, st
   const y0 = Math.max(1, Math.floor(center.y - radius));
   const y1 = Math.min(buffer.height - 2, Math.ceil(center.y + radius));
   const inner = Math.max(0, Math.min(1, (radius - 1) / Math.max(1, radius)));
-  const snapshot = new Uint8ClampedArray(buffer.data);
+  const snapshot = copyPixels(buffer.data);
   for (let y = y0; y <= y1; y += 1) {
     for (let x = x0; x <= x1; x += 1) {
       const dx = x - center.x;
@@ -236,7 +238,7 @@ export function warpRegion(buffer: PixelBuffer, center: Point, radius: number, d
   const x1 = Math.min(buffer.width - 1, Math.ceil(center.x + radius));
   const y0 = Math.max(0, Math.floor(center.y - radius));
   const y1 = Math.min(buffer.height - 1, Math.ceil(center.y + radius));
-  const snapshot = new Uint8ClampedArray(buffer.data);
+  const snapshot = copyPixels(buffer.data);
   for (let y = y0; y <= y1; y += 1) {
     for (let x = x0; x <= x1; x += 1) {
       const px = x - center.x;

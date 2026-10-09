@@ -1,10 +1,12 @@
+import { pixelDepth, displayBytes, toImageData } from '@/core/pixelFormat';
+import { is16BitPng, decode16BitPng, encode16BitPng } from './png16';
 /**
  * 位图导入导出
  * ---------------------------------------------------------------
  * 导入：JPEG / PNG / WebP / BMP / GIF 首帧 / SVG / TIFF（自带解码器）
  * 导出：PNG / JPEG（质量可调，带实时预览）/ WebP
  */
-import { canvasToBuffer, cloneBuffer, createBuffer } from '@/core/pixels';
+import { canvasToBuffer, cloneBuffer, createBuffer, resizeBuffer } from '@/core/pixels';
 import { decodeTiff, isTiff } from '@/io/tiff';
 import type { PixelBuffer } from '@/types/document';
 
@@ -34,6 +36,7 @@ function isSvg(bytes: Uint8Array): boolean {
  */
 export async function decodeImageBytes(data: ArrayBuffer): Promise<PixelBuffer> {
   const bytes = new Uint8Array(data);
+  if(is16BitPng(bytes))return decode16BitPng(bytes);
   if (isTiff(bytes)) {
     const decoded = await decodeTiff(bytes);
     if (decoded) return decoded;
@@ -111,6 +114,7 @@ export function scaleBuffer(buffer: PixelBuffer, width: number, height: number):
   const w = Math.max(1, Math.round(width));
   const h = Math.max(1, Math.round(height));
   if (w === buffer.width && h === buffer.height) return cloneBuffer(buffer);
+  if(pixelDepth(buffer)===16)return resizeBuffer(buffer,w,h);
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -121,7 +125,7 @@ export function scaleBuffer(buffer: PixelBuffer, width: number, height: number):
   source.width = buffer.width;
   source.height = buffer.height;
   source.getContext('2d', { willReadFrequently: true })!.putImageData(
-    new ImageData(buffer.data as Uint8ClampedArray<ArrayBuffer>, buffer.width, buffer.height), 0, 0,
+    toImageData(buffer), 0, 0,
   );
   ctx.drawImage(source, 0, 0, w, h);
   return canvasToBuffer(canvas);
@@ -143,6 +147,8 @@ export interface ExportOptions {
 export async function encodeImage(buffer: PixelBuffer, options: ExportOptions): Promise<Blob> {
   const width = Math.max(1, Math.round(buffer.width * options.scale));
   const height = Math.max(1, Math.round(buffer.height * options.scale));
+  const scaled=buffer.width===width&&buffer.height===height?buffer:scaleBuffer(buffer,width,height);
+  if(options.format==='png'&&pixelDepth(scaled)===16)return encode16BitPng(scaled);
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -153,7 +159,9 @@ export async function encodeImage(buffer: PixelBuffer, options: ExportOptions): 
     ctx.fillRect(0, 0, width, height);
   }
   ctx.imageSmoothingQuality = 'high';
-  ctx.putImageData(new ImageData(resizeIfNeeded(buffer, width, height) as Uint8ClampedArray<ArrayBuffer>, width, height), 0, 0);
+  const bytes=new Uint8ClampedArray(displayBytes(scaled));
+  if(options.format==='jpeg')for(let i=0;i<bytes.length;i+=4){const alpha=bytes[i+3]!/255;for(let c=0;c<3;c++)bytes[i+c]=bytes[i+c]!*alpha+options.background[c]!*(1-alpha);bytes[i+3]=255;}
+  ctx.putImageData(new ImageData(bytes,width,height),0,0);
   const mime = options.format === 'png' ? 'image/png' : options.format === 'jpeg' ? 'image/jpeg' : 'image/webp';
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
@@ -164,8 +172,8 @@ export async function encodeImage(buffer: PixelBuffer, options: ExportOptions): 
 }
 
 function resizeIfNeeded(buffer: PixelBuffer, width: number, height: number): Uint8ClampedArray {
-  if (buffer.width === width && buffer.height === height) return buffer.data;
-  return scaleBuffer(buffer, width, height).data;
+  if (buffer.width === width && buffer.height === height) return displayBytes(buffer);
+  return displayBytes(scaleBuffer(buffer, width, height));
 }
 
 /** 估算导出后的字节数（用于确认对话框） */
@@ -181,7 +189,7 @@ export function thumbnailDataUrl(buffer: PixelBuffer, size: number): string {
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
-  ctx.putImageData(new ImageData(scaled.data as Uint8ClampedArray<ArrayBuffer>, size, size), 0, 0);
+  ctx.putImageData(toImageData(scaled), 0, 0);
   return canvas.toDataURL('image/png');
 }
 

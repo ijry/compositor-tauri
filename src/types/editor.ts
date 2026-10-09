@@ -10,7 +10,7 @@ import type { PixelBuffer, Point, Rect } from '@/types/document';
 export interface LayerSnapshot {
   gradient?: import('@/types/document').GradientMeta | null;
   pixels: PixelBuffer | null;
-  mask: { width: number; height: number; data: Uint8Array<ArrayBuffer> } | null;
+  mask: import('@/types/document').MaskBuffer | null;
   maskState?: Omit<NonNullable<Layer['mask']>, 'pixels'> | null;
   clipping?: boolean;
   maskSourceId?:string|null;

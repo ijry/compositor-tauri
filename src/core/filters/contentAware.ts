@@ -1,3 +1,5 @@
+import { copyPixels, pixelDepth } from '@/core/pixelFormat';
+import { createBuffer } from '@/core/pixels';
 /**
  * 内容感知操作
  * ---------------------------------------------------------------
@@ -33,7 +35,7 @@ export function inpaint(buffer: PixelBuffer, hole: Uint8Array, options: InpaintO
   for (let i = 0; i < confidence.length; i += 1) confidence[i] = hole[i] ? 0 : 1;
 
   // 修补缓冲：从未知像素的最近已知邻居取值作为初值
-  const filled = new Uint8ClampedArray(data);
+  const filled = copyPixels(data);
   const seedQueue: number[] = [];
   const isHole = (x: number, y: number): boolean => (x < 0 || y < 0 || x >= width || y >= height) ? true : hole[y * width + x] === 1;
   for (let y = 0; y < height; y += 1) {
@@ -232,7 +234,7 @@ export function contentAwareExtend(buffer: PixelBuffer, margin: { top: number; r
   const newWidth = width + margin.left + margin.right;
   const newHeight = height + margin.top + margin.bottom;
   if (newWidth <= width && newHeight <= height) return buffer;
-  const out: PixelBuffer = { width: newWidth, height: newHeight, data: new Uint8ClampedArray(newWidth * newHeight * 4) };
+  const out = createBuffer(newWidth,newHeight,undefined,pixelDepth(buffer));
   for (let y = 0; y < newHeight; y += 1) {
     for (let x = 0; x < newWidth; x += 1) {
       const sx = Math.min(width - 1, Math.max(0, x - margin.left));

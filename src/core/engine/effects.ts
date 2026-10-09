@@ -1,3 +1,5 @@
+import { pixelDepth } from '@/core/pixelFormat';
+import type { BitDepth } from '@/types/document';
 /**
  * 画布表面（Surface）与图层效果
  * ---------------------------------------------------------------
@@ -110,8 +112,8 @@ function boxBlur1D(src: Float32Array, dst: Float32Array, width: number, height: 
 }
 
 /** 把 alpha 按颜色着色，返回新的 RGBA 缓冲（alpha 为 0 的位置保持 0） */
-export function tintAlpha(alpha: Float32Array, width: number, height: number, color: [number, number, number], opacity: number): PixelBuffer {
-  const out = createBuffer(width, height);
+export function tintAlpha(alpha: Float32Array, width: number, height: number, color: [number, number, number], opacity: number,bitDepth:BitDepth=8): PixelBuffer {
+  const out = createBuffer(width, height,undefined,bitDepth);
   for (let i = 0, p = 0; i < alpha.length; i += 1, p += 4) {
     const a = alpha[i] * opacity;
     if (a <= 0) continue;
@@ -196,6 +198,7 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
   const buffer = createBuffer(
     Math.max(1, Math.round(expanded.width * surface.scale)),
     Math.max(1, Math.round(expanded.height * surface.scale)),
+    undefined,pixelDepth(surface.buffer),
   );
   for (let y = 0; y < buffer.height; y += 1) {
     for (let x = 0; x < buffer.width; x += 1) {
@@ -221,7 +224,7 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
     const dy = Math.sin(angle) * shadow.distance * surface.scale;
     const shifted = shiftAlpha(alpha, width, height, Math.round(dx), Math.round(dy));
     const blurred = blurAlpha(shifted, width, height, Math.max(0, shadow.blur * surface.scale));
-    const tint = tintAlpha(blurred, width, height, shadow.color, shadow.opacity);
+    const tint = tintAlpha(blurred, width, height, shadow.color, shadow.opacity,pixelDepth(surface.buffer));
     compositeOutside(surface, tint, 0, 0);
   }
 
@@ -229,13 +232,13 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
     const glow = effects.outerGlow;
     const grown = dilateAlpha(alpha, width, height, Math.max(1, Math.round(glow.size * surface.scale)));
     const blurred = blurAlpha(grown, width, height, Math.max(1, Math.round(glow.size * surface.scale * 0.6)));
-    const tint = tintAlpha(blurred, width, height, glow.color, glow.opacity);
+    const tint = tintAlpha(blurred, width, height, glow.color, glow.opacity,pixelDepth(surface.buffer));
     compositeOutside(surface, tint, 0, 0);
   }
 
   if (effects.colorOverlay && effects.colorOverlay.enabled !== false) {
     const overlay = effects.colorOverlay;
-    const tint = tintAlpha(alpha, width, height, overlay.color, overlay.opacity);
+    const tint = tintAlpha(alpha, width, height, overlay.color, overlay.opacity,pixelDepth(surface.buffer));
     compositeInside(surface, tint);
   }
 
@@ -249,7 +252,7 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
     const eroded = erodeAlpha(alpha, width, height, 1);
     const insideMask = new Float32Array(width * height);
     for (let i = 0; i < insideMask.length; i += 1) insideMask[i] = Math.max(0, eroded[i] - blurred[i]) * (1 - alpha[i] * 0);
-    const tint = tintAlpha(insideMask, width, height, inner.color, inner.opacity);
+    const tint = tintAlpha(insideMask, width, height, inner.color, inner.opacity,pixelDepth(surface.buffer));
     compositeInside(surface, tint);
   }
 
@@ -259,7 +262,7 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
     const blurred = blurAlpha(eroded, width, height, Math.max(1, Math.round(glow.size * surface.scale * 0.6)));
     const insideMask = new Float32Array(width * height);
     for (let i = 0; i < insideMask.length; i += 1) insideMask[i] = Math.max(0, alpha[i] - blurred[i]);
-    const tint = tintAlpha(insideMask, width, height, glow.color, glow.opacity);
+    const tint = tintAlpha(insideMask, width, height, glow.color, glow.opacity,pixelDepth(surface.buffer));
     compositeInside(surface, tint);
   }
 
@@ -276,7 +279,7 @@ export function bakeEffects(surface: Surface, effects: LayerEffects): Surface {
       strokeAlpha = new Float32Array(width * height);
       for (let i = 0; i < strokeAlpha.length; i += 1) strokeAlpha[i] = Math.max(0, grown[i] - alpha[i]);
     }
-    const tint = tintAlpha(strokeAlpha, width, height, stroke.color, stroke.opacity);
+    const tint = tintAlpha(strokeAlpha, width, height, stroke.color, stroke.opacity,pixelDepth(surface.buffer));
     if (stroke.inside) compositeInside(surface, tint);
     else compositeOutside(surface, tint, 0, 0);
   }

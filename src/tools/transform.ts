@@ -1,3 +1,4 @@
+import { documentDepth, convertBufferDepth, pixelDepth } from '@/core/pixelFormat';
 /**
  * 变换与裁剪工具
  * ---------------------------------------------------------------
@@ -572,7 +573,7 @@ export function updateGradientLayer(editor:EditorApi,id:string,patch:Partial<Gra
 }
 export function updateShapeLayer(editor:EditorApi,id:string,patch:Partial<import('@/types/document').ShapeMeta>):void {
   const layer=editor.findLayer(id);if(layer?.kind!=='pixel'||!layer.shape)return;
-  const before=beginInteraction(editor,[id]);layer.shape={...layer.shape,...patch};layer.pixels=renderShape({x:0,y:0,width:layer.pixels.width,height:layer.pixels.height},layer.shape);
+  const before=beginInteraction(editor,[id]);layer.shape={...layer.shape,...patch};layer.pixels=convertBufferDepth(renderShape({x:0,y:0,width:layer.pixels.width,height:layer.pixels.height},layer.shape),pixelDepth(layer.pixels));
   editor.markLayerDirty(id);endInteraction(editor,'修改形状',before,snapshotBytes(before));editor.invalidate();
 }
 
@@ -695,7 +696,7 @@ export const shapeTool: ToolDefinition = {
       start: [0, 0] as [number, number],
       end: [1, 1] as [number, number],
     };
-    const buffer = renderShape(rect, shape);
+    const buffer = convertBufferDepth(renderShape(rect, shape),documentDepth(editor.doc));
     const layer = createShapeLayer(kind === 'line' ? '直线' : '形状', buffer, shape);
     layer.transform.origin = [rect.x, rect.y];
     const layerId = layer.id;
@@ -714,7 +715,7 @@ export const shapeTool: ToolDefinition = {
         editor.doc.activeLayerId = layerId;
         editor.invalidate();
       },
-      buffer.data.length * 2,
+      buffer.data.byteLength * 2,
     );
     editor.invalidate();
   },
@@ -916,7 +917,7 @@ export function commitText(editor: EditorApi, box: Rect): void {
   meta.italic = editor.option<boolean>('italic', false);
   const pointText = box.width <= 8 && box.height <= 8;
   meta.boxSize = pointText ? null : [Math.max(24, box.width), Math.max(24, box.height)];
-  const buffer = meta.boxSize ? renderText(meta, meta.boxSize[0], meta.boxSize[1]) : renderText(meta);
+  const buffer = convertBufferDepth(meta.boxSize ? renderText(meta, meta.boxSize[0], meta.boxSize[1]) : renderText(meta),documentDepth(editor.doc));
   const layer = {
     id: crypto.randomUUID(),
     kind: 'pixel' as const,
@@ -966,7 +967,7 @@ export function commitText(editor: EditorApi, box: Rect): void {
       document.activeLayerId = layerId;
       editor.invalidate();
     },
-    buffer.data.length * 2,
+    buffer.data.byteLength * 2,
   );
   editor.invalidate();
 }
@@ -979,7 +980,7 @@ export function updateTextLayer(editor: EditorApi, layerId: string, patch: Parti
   const meta = { ...layer.text, ...patch };
   layer.text = meta;
   const box = meta.boxSize;
-  layer.pixels = box ? renderText(meta, box[0], box[1]) : renderText(meta);
+  layer.pixels = convertBufferDepth(box ? renderText(meta, box[0], box[1]) : renderText(meta),documentDepth(editor.doc));
   layer.transform.size = [layer.pixels.width, layer.pixels.height];
   layer.contentKey += 1;
   editor.markLayerDirty(layerId);

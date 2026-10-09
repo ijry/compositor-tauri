@@ -25,7 +25,7 @@ const psdReportText = computed(() => {
 /** 最近工程列表 */
 const recentItems = computed<string[]>(() => (currentDialog.value?.payload as { items?: string[] } | undefined)?.items ?? []);
 /* 新建画布 */
-const newForm = ref({ width: 1920, height: 1080, name: '未命名', resolution: 72 });
+const newForm = ref({ width: 1920, height: 1080, name: '未命名', resolution: 72, bitDepth:8 });
 /* 画布大小 / 图像大小 */
 const canvasForm = ref({ width: 0, height: 0, anchor: 'center' });
 const imageForm = ref({ width: 0, height: 0, lock: true });
@@ -91,6 +91,7 @@ function submitExport(): void {
       <el-form-item label="名称"><el-input v-model="newForm.name" /></el-form-item>
       <el-form-item label="宽度"><el-input-number v-model="newForm.width" :min="1" :max="30000" /></el-form-item>
       <el-form-item label="高度"><el-input-number v-model="newForm.height" :min="1" :max="30000" /></el-form-item>
+      <el-form-item label="位深"><select v-model.number="newForm.bitDepth" aria-label="位深"><option :value="8">8 位 / 通道</option><option :value="16">16 位 / 通道</option></select></el-form-item>
       <el-form-item label="分辨率"><el-input-number v-model="newForm.resolution" :min="1" :max="9600" /></el-form-item>
     </el-form>
 

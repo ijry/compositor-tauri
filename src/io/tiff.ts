@@ -51,7 +51,7 @@ export async function decodeTiff(data: Uint8Array): Promise<PixelBuffer | null> 
   const bytesPerSample = Math.max(1, Math.ceil(bits / 8));
   const rowBytes = Math.ceil((width * samples * bits) / 8);
 
-  if(width*height>100_000_000 || ![8,16].includes(bits) || planarConfig!==1)throw new Error('TIFF尺寸、位深或分平面布局暂不支持');
+  if(width*height>100_000_000 || ![8,16].includes(bits) || planarConfig!==1 || sampleFormat!==1)throw new Error('TIFF尺寸、位深或分平面布局暂不支持');
   if(![1,5,8,32946,32773].includes(compression))throw new Error(`不支持的TIFF压缩方式：${compression}`);
   const raw = new Uint8Array(rowBytes * height);
   const tileWidth=tiles?(readScalar(view,tag(322),little)??0):width;
@@ -69,7 +69,7 @@ export async function decodeTiff(data: Uint8Array): Promise<PixelBuffer | null> 
     let decoded=compression===1?new Uint8Array(chunk):compression===5?decodeLzw(chunk,expected):compression===32773?decodePackBits(chunk,expected):await inflate(chunk,expected);
     if(decoded.length<expected)throw new Error('TIFF像素数据不完整');
     // 预测器在每块的每行重新开始，不能跨块继续累加。
-    if(predictor===2)applyHorizontalPredictor(decoded,tileWidth,samples,bytesPerSample,unitRowBytes,rows);
+    if(predictor===2)applyHorizontalPredictor(decoded,tileWidth,samples,bytesPerSample,unitRowBytes,rows,little);
     else if(predictor!==1)throw new Error('TIFF预测器暂不支持');
     for(let row=0;row<rows&&y+row<height;row++) {
       const length=Math.min(tileWidth,width-x)*samples*bytesPerSample;
@@ -77,7 +77,7 @@ export async function decodeTiff(data: Uint8Array): Promise<PixelBuffer | null> 
     }
   }
 
-  const out = createBuffer(width, height);
+  const out = createBuffer(width, height,undefined,bits===16?16:8);
   const maxValue = (1 << Math.min(16, bits)) - 1;
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
@@ -165,20 +165,16 @@ function readSample(raw: Uint8Array, offset: number, bytes: number, little: bool
   else value = raw[offset]!;
   if (sampleFormat === 2) value = 255 - value;
   if (maxValue === 255) return value;
-  return Math.round((value / maxValue) * 255);
+  return bytes===2?(value/maxValue)*255:Math.round((value / maxValue) * 255);
 }
 
-function applyHorizontalPredictor(raw: Uint8Array, width: number, samples: number, bytes: number, rowBytes: number, height: number): void {
-  for (let y = 0; y < height; y += 1) {
-    const rowStart = y * rowBytes;
-    for (let x = samples; x < width; x += 1) {
-      const current = rowStart + x * samples * bytes;
-      const previous = rowStart + (x - 1) * samples * bytes;
-      for (let s = 0; s < samples; s += 1) {
-        const index = current + s * bytes;
-        raw[index] = (raw[index]! + raw[previous + s * bytes]!) & 0xff;
-      }
-    }
+/** TIFF水平差分按像素的同一通道还原，16位进位与文件字节序必须一起处理。 */
+function applyHorizontalPredictor(raw:Uint8Array,width:number,samples:number,bytes:number,rowBytes:number,height:number,little:boolean):void {
+  const view=new DataView(raw.buffer,raw.byteOffset,raw.byteLength);
+  for(let y=0;y<height;y++)for(let x=1;x<width;x++)for(let channel=0;channel<samples;channel++) {
+    const current=y*rowBytes+(x*samples+channel)*bytes,previous=current-samples*bytes;
+    if(bytes===1)raw[current]=(raw[current]!+raw[previous]!)&255;
+    else view.setUint16(current,(view.getUint16(current,little)+view.getUint16(previous,little))&65535,little);
   }
 }
 

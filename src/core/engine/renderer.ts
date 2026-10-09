@@ -1,3 +1,4 @@
+import { toImageData } from '@/core/pixelFormat';
 /**
  * 画布渲染器
  * ---------------------------------------------------------------
@@ -135,7 +136,7 @@ export class CanvasRenderer {
     const compositeCanvas = document.createElement('canvas');
     compositeCanvas.width = composite.width;
     compositeCanvas.height = composite.height;
-    compositeCanvas.getContext('2d')!.putImageData(new ImageData(composite.data as Uint8ClampedArray<ArrayBuffer>, composite.width, composite.height), 0, 0);
+    compositeCanvas.getContext('2d')!.putImageData(toImageData(composite), 0, 0);
     ctx.imageSmoothingEnabled = zoom < 1;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(compositeCanvas, x, y, drawWidth, drawHeight);

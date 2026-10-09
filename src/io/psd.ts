@@ -1,12 +1,15 @@
+import { documentDepth, pixelDepth, toImageData, fromUint16Pixels, displayBytes } from '@/core/pixelFormat';
+import { raw16Layer, raw16Channel, write16BitPsd } from './psd16';
 /**
  * Photoshop PSD / PSB 读写
  * ---------------------------------------------------------------
  * 导入规则与上游一致：
- *  - 8 位 RGB 文档，图层、文件夹、蒙版、混合模式保持可编辑；
+ *  - 8/16位 RGB 文档，图层、文件夹、蒙版、混合模式保持可编辑；
  *  - 简单横排文字保留文字元数据，竖排文字与其它矢量对象栅格化；
  *  - 导入后给出转换报告，列出被栅格化与不支持的部分。
  */
-import { readPsd, writePsd, type Layer as PsdLayer, type Psd } from 'ag-psd';
+import { writePsd, type Layer as PsdLayer, type Psd } from 'ag-psd';
+import { readPsdWithinBudget, type PsdImportOptions, type PsdMemoryReport } from './psdBudget';
 import { createBuffer } from '@/core/pixels';
 import { createDocument, createGroupLayer, createPixelLayer, defaultTransform } from '@/core/document';
 import { createMaskSampler } from '@/core/engine/maskGeometry';
@@ -28,6 +31,7 @@ export interface PsdConversionReport {
   rasterized: number;
   unsupported: string[];
   notes: string[];
+  memory?:PsdMemoryReport;
 }
 
 /** ag-psd 混合模式 -> 内部名称 */
@@ -64,14 +68,8 @@ const INTERNAL_BLEND_NAMES = new Set<string>(Object.values(BLEND_MODE_MAP));
 /* ------------------------------ 导入 ------------------------------ */
 
 /** 导入 PSD/PSB */
-export function importPsd(data: ArrayBuffer, name = '导入'): PsdImportResult {
-  const psd = readPsd(data, {
-    useImageData: true,
-    skipLayerImageData: false,
-    skipCompositeImageData: true,
-    skipThumbnail: true,
-    throwForMissingFeatures: false,
-  });
+export function importPsd(data: ArrayBuffer, name = '导入', options:PsdImportOptions={}): PsdImportResult {
+  const {psd,memory}=readPsdWithinBudget(data,options);
   const report: PsdConversionReport = {
     totalLayers: 0,
     editableLayers: 0,
@@ -81,8 +79,10 @@ export function importPsd(data: ArrayBuffer, name = '导入'): PsdImportResult {
     rasterized: 0,
     unsupported: [],
     notes: [],
+    memory,
   };
-  const document = createDocument(Math.max(1, psd.width), Math.max(1, psd.height), name);
+  if(memory.mode==='canvas')report.notes.push(`受内存预算限制，${memory.croppedLayers}个图层和${memory.croppedMasks}个蒙版在解码时裁剪到画布；${memory.skippedLayers}个画布外空交集图层已跳过。原文件未修改。`);
+  const document = createDocument(Math.max(1, psd.width), Math.max(1, psd.height), name,psd.bitsPerChannel===16?16:8);
   if (psd.colorMode !== undefined && psd.colorMode !== 3) {
     report.notes.push(`文档颜色模式为 ${psd.colorMode}（3 = RGB），已按 sRGB 近似转换`);
   }
@@ -100,7 +100,7 @@ export function importPsd(data: ArrayBuffer, name = '导入'): PsdImportResult {
 function convertLayer(psdLayer: PsdLayer, parentId: string | null, document: CompDocument, report: PsdConversionReport): Layer | null {
   report.totalLayers += 1;
   const children = psdLayer.children;
-  if (children && children.length > 0) {
+  if (children) {
     report.groups += 1;
     const group = createGroupLayer(psdLayer.name || '组', parentId);
     group.isVisible = !psdLayer.hidden;
@@ -123,7 +123,7 @@ function convertLayer(psdLayer: PsdLayer, parentId: string | null, document: Com
   const blendKey=rawBlend.replace(/ ([a-z])/g,(_,letter:string)=>letter.toUpperCase());
   const blendMode = BLEND_MODE_MAP[rawBlend] ?? BLEND_MODE_MAP[blendKey] ?? 'Normal';
   if (!BLEND_MODE_MAP[rawBlend]&&!BLEND_MODE_MAP[blendKey]) {
-    report.unsupported.push(`${name}：混合模式 ${rawBlend} 已按 Normal 处理`);
+    report.unsupported.push(`${name}：混合模式 ${rawBlend} 已按正常模式处理`);
   }
 
   // 文字图层：横排文字保留元数据
@@ -213,7 +213,7 @@ function attachPsdMask(layer:Layer,psdLayer:PsdLayer,report:PsdConversionReport)
   const pixels=extractMask(mask,w,h);if(!pixels)return;
   report.masks++;
   const relative=mask.positionRelativeToLayer;
-  layer.mask={pixels,enabled:!mask.disabled,linked:false,placement:{x:(mask.left??0)+(relative?psdLayer.left??0:0),y:(mask.top??0)+(relative?psdLayer.top??0:0),width:w,height:h},target:'image',inverted:false};
+  layer.mask={pixels,enabled:!mask.disabled,linked:false,placement:{x:(mask.left??0)+(relative?psdLayer.left??0:0),y:(mask.top??0)+(relative?psdLayer.top??0:0),width:w,height:h},target:'image',inverted:false,outside:mask.defaultColor??0};
 }
 
 /** PSD 里部分数值字段可能是带单位的对象，这里统一取出数值 */
@@ -242,7 +242,9 @@ function clamp01(value: number): number {
 function extractImageData(psdLayer: PsdLayer, width: number, height: number): PixelBuffer | null {
   if (psdLayer.imageData) {
     const source = psdLayer.imageData;
-    const data = new Uint8ClampedArray(source.data);
+    if(source.data instanceof Uint16Array)return fromUint16Pixels(source.width,source.height,source.data);
+    if(source.data instanceof Float32Array)return {width:source.width,height:source.height,data:source.data as Float32Array<ArrayBuffer>,bitDepth:16};
+    const data = source.data instanceof Uint8ClampedArray && source.data.buffer instanceof ArrayBuffer ? source.data as Uint8ClampedArray<ArrayBuffer> : new Uint8ClampedArray(source.data);
     if (source.width === width && source.height === height) return { width, height, data };
     return resample(data, source.width, source.height, width, height);
   }
@@ -278,11 +280,11 @@ function resample(data: Uint8ClampedArray, sourceWidth: number, sourceHeight: nu
 }
 
 function extractMask(mask: NonNullable<PsdLayer['mask']>, width: number, height: number): MaskBuffer | null {
-  let sourceData: Uint8Array | null = null;
+  let sourceData: Uint8Array | Uint8ClampedArray | Float32Array | Uint16Array | null = null;
   let sourceWidth = width;
   let sourceHeight = height;
   if (mask.imageData) {
-    sourceData = new Uint8Array(mask.imageData.data);
+    sourceData = mask.imageData.data;
     sourceWidth = mask.imageData.width;
     sourceHeight = mask.imageData.height;
   } else if (mask.canvas) {
@@ -303,15 +305,15 @@ function extractMask(mask: NonNullable<PsdLayer['mask']>, width: number, height:
     }
   }
   if (!sourceData) return null;
-  const out = new Uint8Array(width * height);
+  const out = sourceData instanceof Float32Array||sourceData instanceof Uint16Array?new Float32Array(width*height):new Uint8Array(width * height);
   for (let y = 0; y < height; y += 1) {
     const sy = Math.min(sourceHeight - 1, Math.floor((y * sourceHeight) / height));
     for (let x = 0; x < width; x += 1) {
       const sx = Math.min(sourceWidth - 1, Math.floor((x * sourceWidth) / width));
-      out[y * width + x] = sourceData[(sy * sourceWidth + sx)*(sourceData.length>=sourceWidth*sourceHeight*4?4:1)] ?? 0;
+      out[y * width + x] = (sourceData[(sy * sourceWidth + sx)*(sourceData.length>=sourceWidth*sourceHeight*4?4:1)] ?? 0)/(sourceData instanceof Uint16Array?257:1);
     }
   }
-  return { width, height, data: out };
+  return { width, height, data: out,bitDepth:out instanceof Float32Array?16:8 };
 }
 
 /** 取字体名 */
@@ -334,6 +336,7 @@ function isVerticalText(details: NonNullable<PsdLayer['text']>): boolean {
 
 /** 导出为 PSD 二进制（调整层与组会被栅格化为像素层） */
 export function exportPsd(document: CompDocument): ArrayBuffer {
+  const depth=documentDepth(document);
   const build=(layer:Layer):PsdLayer=>{
     const result:PsdLayer={name:layer.name,opacity:layer.opacity,hidden:!layer.isVisible,blendMode:toPsdBlendMode(layer.blendMode),clipping:layer.clipping} as PsdLayer;
     if(layer.kind==='group')result.children=document.layers.filter(l=>l.parentId===layer.id).map(build);
@@ -342,14 +345,15 @@ export function exportPsd(document: CompDocument): ArrayBuffer {
       // PSD普通像素层没有单独的仿射属性，导出文档空间的栅格保持当前外观。
       const buffer=transformed?compositeDocument({...document,selection:null,layers:[{...layer,parentId:null,opacity:1,blendMode:'Normal',mask:null,effects:null,clipping:false}]},document.width,document.height,{scale:1}).buffer:layer.pixels!;
       const left=transformed?0:Math.round(layer.transform.origin[0]),top=transformed?0:Math.round(layer.transform.origin[1]);
-      Object.assign(result,{left,top,right:left+buffer.width,bottom:top+buffer.height,imageData:new ImageData(buffer.data as Uint8ClampedArray<ArrayBuffer>,buffer.width,buffer.height)});
+      Object.assign(result,{left,top,right:left+buffer.width,bottom:top+buffer.height,...(depth===16?{rawData:raw16Layer(buffer)}:{imageData:toImageData(buffer)})});
       if(layer.text){const t=layer.text;result.text={text:t.content,transform:[1,0,0,1,left,top],orientation:'horizontal',style:{font:{name:t.fontName},fontSize:t.fontSize,fillColor:{r:t.color[0],g:t.color[1],b:t.color[2]},fauxBold:t.bold,fauxItalic:t.italic,tracking:t.tracking,leading:t.lineSpacing||t.fontSize*1.2},paragraphStyle:{justification:t.align},shapeType:t.boxSize?'box':'point',...(t.boxSize?{boxBounds:[0,0,...t.boxSize]}:{})};}
     }
     if(layer.mask){
       const sample=createMaskSampler({...layer,mask:{...layer.mask,enabled:true}})!;
-      const mask=createBuffer(document.width,document.height);
-      for(let y=0;y<mask.height;y++)for(let x=0;x<mask.width;x++){const i=(y*mask.width+x)*4,v=Math.round(sample(x+.5,y+.5)*255);mask.data.set([v,v,v,255],i);}
-      result.mask={imageData:new ImageData(mask.data as Uint8ClampedArray<ArrayBuffer>,mask.width,mask.height),left:0,top:0,right:mask.width,bottom:mask.height,defaultColor:0,disabled:!layer.mask.enabled};
+      const mask=createBuffer(document.width,document.height,undefined,depth);
+      for(let y=0;y<mask.height;y++)for(let x=0;x<mask.width;x++){const i=(y*mask.width+x)*4,v=depth===16?sample(x+.5,y+.5)*255:Math.round(sample(x+.5,y+.5)*255);mask.data.set([v,v,v,255],i);}
+      result.mask={...(depth===16?{}:{imageData:toImageData(mask)}),left:0,top:0,right:mask.width,bottom:mask.height,defaultColor:layer.mask.outside??0,disabled:!layer.mask.enabled};
+      if(depth===16){result.rawData??={bitsPerChannel:16,colorMode:3,large:false,channels:[]};result.rawData.channels.push({id:-2,compression:0,data:raw16Channel(mask,0)});}
     }
     if(layer.effects){const fx=layer.effects;result.effects={};
       const rgb=(color:[number,number,number])=>({r:color[0],g:color[1],b:color[2]});
@@ -361,7 +365,7 @@ export function exportPsd(document: CompDocument): ArrayBuffer {
     return result;
   };
   const psd:Psd={width:document.width,height:document.height,children:document.layers.filter(l=>l.parentId===null).map(build)};
-  return writePsd(psd,{generateThumbnail:false,noBackground:true});
+  return depth===16?write16BitPsd(psd,compositeDocument(document,document.width,document.height,{scale:1,limitAdjustmentsBySelection:false}).buffer):writePsd(psd,{generateThumbnail:false,noBackground:true});
 }
 
 /** ag-psd的公开枚举使用空格分词，不能把内部camelCase映射直接交给写入器。 */

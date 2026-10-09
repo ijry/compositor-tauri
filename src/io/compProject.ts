@@ -1,3 +1,4 @@
+import { documentDepth } from '@/core/pixelFormat';
 /**
  * .comp 工程包读写（manifest v11）
  * ---------------------------------------------------------------
@@ -8,7 +9,7 @@
  * 任何能写文件的程序（含 AI 代理）都能生成或修改工程，打开中的工程会自动热重载。
  */
 import {
-  createDocument, createGroupLayer, createPixelLayer, defaultAdjustment, uuid,
+  adoptDocumentDepth, createDocument, createGroupLayer, createPixelLayer, defaultAdjustment, uuid,
 } from '@/core/document';
 import { createBuffer, createMask } from '@/core/pixels';
 import { decodeAdjustment, encodeAdjustment, decodeShape, encodeShape, decodeEffects, encodeEffects, decodeText, encodeText, decodeMaskPlacement, encodeMaskPlacement } from './projectCodecs';
@@ -30,6 +31,7 @@ interface ProjectManifest {
   width: number;
   height: number;
   resolution: number;
+  bitDepth?:8|16;
   activeLayerID: string | null;
   guides?: { id: string; axis: 'horizontal' | 'vertical'; position: number }[];
   layers: ManifestLayer[];
@@ -56,6 +58,7 @@ interface ManifestLayer {
   clipping?: boolean;
   maskSourceID?: string | null;
   maskInverted?: boolean;
+  maskOutside?:number;
   maskFile?: string;
   maskEnabled?: boolean;
   maskPlacement?: unknown;
@@ -75,8 +78,8 @@ async function bufferToPngBytes(buffer: PixelBuffer): Promise<Uint8Array> {
   return new Uint8Array(await blob.arrayBuffer());
 }
 
-function maskToPngBytes(mask: { width: number; height: number; data: Uint8Array<ArrayBuffer> }): PixelBuffer {
-  const buffer = createBuffer(mask.width, mask.height);
+function maskToPngBytes(mask: import('@/types/document').MaskBuffer): PixelBuffer {
+  const buffer = createBuffer(mask.width, mask.height,undefined,mask.data instanceof Float32Array?16:8);
   for (let i = 0; i < mask.data.length; i += 1) {
     const value = mask.data[i] ?? 0;
     buffer.data[i * 4] = value;
@@ -135,6 +138,7 @@ async function writeProjectFiles(document: CompDocument, directory: string, onPr
       entry.maskFile = maskName;
       entry.maskEnabled = layer.mask.enabled;
       entry.maskInverted = layer.mask.inverted;
+      entry.maskOutside = layer.mask.outside;
       entry.maskLinked = layer.mask.linked;
       if (!layer.mask.linked && layer.mask.placement) {
         entry.maskLinked = false;
@@ -157,6 +161,7 @@ async function writeProjectFiles(document: CompDocument, directory: string, onPr
     width: document.width,
     height: document.height,
     resolution: document.resolution,
+    bitDepth:documentDepth(document),
     activeLayerID: document.activeLayerId,
     guides: document.guides.map((guide) => ({ id: guide.id, axis: guide.axis, position: guide.position })),
     layers,
@@ -204,6 +209,7 @@ export function saveCompProject(document: CompDocument, directory: string, onPro
   const result=saveQueue.then(save);saveQueue=result.catch(()=>undefined);return result;
 }
 function cloneProjectValue<T>(value: T): T {
+  if (value instanceof Float32Array) return new Float32Array(value) as T;
   if (value instanceof Uint8ClampedArray) return new Uint8ClampedArray(value) as T;
   if (value instanceof Uint8Array) return new Uint8Array(value) as T;
   if (Array.isArray(value)) return value.map(cloneProjectValue) as T;
@@ -226,6 +232,7 @@ export async function loadCompProject(directory: string): Promise<CompDocument> 
   const document = createDocument(manifest.width, manifest.height, directory.split(/[/\\]/).pop() ?? '未命名');
   document.id = manifest.documentID || document.id;
   document.resolution = manifest.resolution ?? 72;
+  document.bitDepth=manifest.bitDepth===16?16:8;
   document.packagePath = directory;
   document.guides = (manifest.guides ?? []).map((guide) => ({ ...guide }));
 
@@ -233,6 +240,7 @@ export async function loadCompProject(directory: string): Promise<CompDocument> 
     const layer = await buildLayer(entry, directory, manifest);
     if (layer) document.layers.push(layer);
   }
+  adoptDocumentDepth(document);
   document.activeLayerId = manifest.activeLayerID && document.layers.some((item) => item.id === manifest.activeLayerID)
     ? manifest.activeLayerID
     : document.layers[document.layers.length - 1]?.id ?? null;
@@ -252,6 +260,7 @@ function validateTransform(t: Partial<Omit<Layer['transform'],'sampling'>>): voi
 }
 
 function validateManifest(manifest: ProjectManifest): void {
+  if(manifest.bitDepth!==undefined&&manifest.bitDepth!==8&&manifest.bitDepth!==16)throw new Error('工程位深不支持');
   if (!Number.isInteger(manifest.width) || !Number.isInteger(manifest.height) || manifest.width<1 || manifest.height<1 || manifest.width*manifest.height>100_000_000 || !Array.isArray(manifest.layers)) throw new Error('工程尺寸或图层列表无效');
   const ids=new Map<string,ManifestLayer>();
   for (const entry of manifest.layers) {
@@ -315,7 +324,7 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
     if (!maskBuffer) throw new Error('工程蒙版读取失败：' + entry.maskFile);
     {
       const decoded = await decodeImageBytes(maskBuffer);
-      const mask = createMask(decoded.width, decoded.height, 0);
+      const mask = createMask(decoded.width, decoded.height, 0,decoded.bitDepth===16?16:8);
       for (let i = 0; i < mask.data.length; i += 1) mask.data[i] = decoded.data[i * 4] ?? 0;
       layer.mask = {
         pixels: mask,
@@ -324,6 +333,7 @@ async function buildLayer(entry: ManifestLayer, directory: string, manifest: Pro
         placement: decodeMaskPlacement(entry.maskPlacement),
         target: 'image',
         inverted: entry.maskInverted === true,
+        outside: typeof entry.maskOutside==='number'?Math.max(0,Math.min(255,entry.maskOutside)):0,
       };
     }
   }

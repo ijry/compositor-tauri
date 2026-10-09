@@ -1,3 +1,4 @@
+import { clampPixels } from '@/core/pixelFormat';
 /** 破坏性滤镜会话：预览只使用克隆缓冲，确认后一次性提交与记录历史。 */
 import { cloneBuffer } from '@/core/pixels';
 import { defaultAdjustment, ADJUSTMENT_LABELS } from '@/core/document';
@@ -22,7 +23,7 @@ export function createFilterSession(api:EditorApi,kind:string):FilterSession|nul
  const layer=target.layer,before=api.snapshotLayer(layer.id);if(!before)return null;
  const source=cloneBuffer(target.buffer),doc=api.doc;
  return{kind,title:FILTER_LABELS[kind]??ADJUSTMENT_LABELS[kind as AdjustmentKind]??kind,source,coverage:projectEditSelection(doc,target),adjustment:ADJUSTMENT_KINDS.includes(kind as AdjustmentKind)?defaultAdjustment(kind as AdjustmentKind):kind==='filterAddNoise'?defaultAdjustment('Add Noise'):null,raw:defaultRawSettings(),values:{amount:kind==='filterVignette'?-40:80,midpoint:50,roundness:0,feather:60,radius:kind==='filterBloom'?12:1.2,intensity:40,threshold:kind==='filterBloom'?65:0,shadows:40,highlights:-30,color:40,protectMidtones:true,distortion:20,chromaticAberration:30,vignette:0,correction:true,sensitivity:50,luminance:30,levels:6,seed:11},apply:output=>{
-   if(!doc.layers.includes(layer))return;layer.pixels=cloneBuffer(output);layer.shape=null;layer.gradient=null;api.markLayerDirty(layer.id);const after=api.snapshotLayer(layer.id);api.pushHistory('应用滤镜：'+(FILTER_LABELS[kind]??kind),()=>api.restoreLayer(layer.id,before),()=>{if(after)api.restoreLayer(layer.id,after);},source.data.length*2);
+   if(!doc.layers.includes(layer))return;layer.pixels=cloneBuffer(output);layer.shape=null;layer.gradient=null;api.markLayerDirty(layer.id);const after=api.snapshotLayer(layer.id);api.pushHistory('应用滤镜：'+(FILTER_LABELS[kind]??ADJUSTMENT_LABELS[kind as AdjustmentKind]??kind),()=>api.restoreLayer(layer.id,before),()=>{if(after)api.restoreLayer(layer.id,after);},source.data.byteLength*2);
  }};
 }
 export function filterPreview(session:FilterSession):PixelBuffer {
@@ -41,5 +42,5 @@ export function filterPreview(session:FilterSession):PixelBuffer {
   case 'contentAwareFill':if(session.coverage)contentAwareFill(result,session.coverage);break;
  }
  const coverage=session.coverage;if(coverage&&result.width===session.source.width&&result.height===session.source.height)for(let i=0;i<coverage.length;i++){const k=coverage[i]!/255;for(let c=0;c<4;c++)result.data[i*4+c]=session.source.data[i*4+c]!*(1-k)+result.data[i*4+c]!*k;}
- return result;
+ return clampPixels(result);
 }

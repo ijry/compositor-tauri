@@ -2,6 +2,7 @@
 /** 历史 / 颜色 / 信息面板 */
 import { computed, ref, watch } from 'vue';
 import { api, commands, currentDocument, currentHistory, historyTick } from '@/composables/useEditor';
+import { documentDepth } from '@/core/pixelFormat';
 import { toHex } from '@/core/color';
 
 const tick = computed(() => historyTick());
@@ -35,10 +36,10 @@ const stats = computed(() => {
   if (!document) return '';
   let bytes = 0;
   for (const layer of document.layers) {
-    if (layer.pixels) bytes += layer.pixels.data.length;
-    if (layer.mask) bytes += layer.mask.pixels.data.length;
+    if (layer.pixels) bytes += layer.pixels.data.byteLength;
+    if (layer.mask) bytes += layer.mask.pixels.data.byteLength;
   }
-  return `${document.width} × ${document.height} 像素 · ${document.layers.length} 个图层 · 约 ${(bytes / 1048576).toFixed(1)} MB`;
+  return `${document.width} × ${document.height} 像素 · ${documentDepth(document)}位/通道 · ${document.layers.length} 个图层 · 约 ${(bytes / 1048576).toFixed(1)} MB`;
 });
 </script>
 
