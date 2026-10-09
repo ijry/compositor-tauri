@@ -76,13 +76,107 @@
     "sha256": "c0dca301cdd7348146df6abc39d4c7f346ef6e5e77b5dd20c249363c04024f76"
   },
   "publication": {
-    "status": "awaiting_push",
-    "authentication": "release environment XYCLOUD_PAT (existing secret; value not read)"
+    "status": "published",
+    "releaseCommit": "431e5630a1192adbb5a7e71bc23bbe8af9b00cba",
+    "tagObject": "0eb693595deff09235d4a84933187cdaa4355547",
+    "pushedBranches": [
+      "main",
+      "fix/psd-adjustments-raw-crop"
+    ],
+    "ciRunId": 37926724238,
+    "ciUrl": "https://github.com/ijry/compositor-tauri/actions/runs/37926724238",
+    "authentication": "existing release environment XYCLOUD_PAT; value not read locally",
+    "tagOverwritten": false,
+    "ciConclusion": "success",
+    "githubReleaseUrl": "https://github.com/ijry/compositor-tauri/releases/tag/v0.0.1",
+    "githubReleasePublishedAt": "2026-10-09T11:59:34Z",
+    "isPrerelease": false,
+    "marketStatus": "API confirmed success",
+    "evidence": [
+      "build\t发布脚本回归测试\t2026-10-09T11:55:37.1673950Z # pass 14",
+      "build\t浏览器布局与面板停靠回归\t2026-10-09T11:59:19.9530584Z   306 passed (3.0m)",
+      "build\t独立验证插件包\t2026-10-09T11:59:20.9762733Z 插件包验证通过：otools-compositor v0.0.1",
+      "publish\t发布前重新验证产物\t2026-10-09T11:59:33.1766671Z 插件包验证通过：otools-compositor v0.0.1",
+      "publish\t授权并提交市场\t2026-10-09T11:59:37.8061016Z 插件市场已确认发布成功"
+    ],
+    "jobs": [
+      {
+        "name": "build",
+        "id": 113807318723,
+        "conclusion": "success",
+        "startedAt": "2026-10-09T11:55:26Z",
+        "completedAt": "2026-10-09T11:59:25Z"
+      },
+      {
+        "name": "publish",
+        "id": 113808678202,
+        "conclusion": "success",
+        "startedAt": "2026-10-09T11:59:28Z",
+        "completedAt": "2026-10-09T11:59:40Z"
+      }
+    ],
+    "releaseNotesVerified": true,
+    "releaseNotesNormalization": "GitHub converts line endings to CRLF; logical content matches local notes"
   },
   "limitations": [
     "PSD含调整层仅支持用户明确确认后的可见合成输出，不支持原生可编辑PSD调整层导出",
     "真实OTools原生确认/文件对话框、Photoshop和厂商RAW样本未实测",
     "本次关闭两项复现错误，不等于全功能生产验收通过"
   ],
-  "fixCommit": "5bb72fe40e4d4b7c0eca8aa40093fa6c036d36c5"
+  "fixCommit": "5bb72fe40e4d4b7c0eca8aa40093fa6c036d36c5",
+  "publishedAssets": [
+    {
+      "name": "logo.svg",
+      "bytes": 313,
+      "sha256": "5388952ccc1b027f40739f4439c84c49198de4d4e86a8d3f85d95260beb30846",
+      "url": "https://github.com/ijry/compositor-tauri/releases/download/v0.0.1/logo.svg",
+      "githubDigest": "sha256:5388952ccc1b027f40739f4439c84c49198de4d4e86a8d3f85d95260beb30846"
+    },
+    {
+      "name": "otools-compositor-0.0.1.oplg",
+      "bytes": 610912,
+      "sha256": "0ed357dc98dd84d45de81bd028d933e3a4375ca20f2d17dd781d14a7f3be78a2",
+      "url": "https://github.com/ijry/compositor-tauri/releases/download/v0.0.1/otools-compositor-0.0.1.oplg",
+      "githubDigest": "sha256:0ed357dc98dd84d45de81bd028d933e3a4375ca20f2d17dd781d14a7f3be78a2"
+    },
+    {
+      "name": "plugin.json",
+      "bytes": 679,
+      "sha256": "db61b2645044b320fe194a4f620569c47672dd4d6d0eed2b78f6402909e44053",
+      "url": "https://github.com/ijry/compositor-tauri/releases/download/v0.0.1/plugin.json",
+      "githubDigest": "sha256:db61b2645044b320fe194a4f620569c47672dd4d6d0eed2b78f6402909e44053"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 248,
+      "sha256": "5e438ae057bcdc06be0c92b10353794458c678ba66353c2e607ec33fc5e4f8f6",
+      "url": "https://github.com/ijry/compositor-tauri/releases/download/v0.0.1/SHA256SUMS",
+      "githubDigest": "sha256:5e438ae057bcdc06be0c92b10353794458c678ba66353c2e607ec33fc5e4f8f6"
+    }
+  ],
+  "publishedPackageVerification": {
+    "command": "python scripts/verify-plugin.py dist-pack/v0.0.1-github --packid otools-compositor --version 0.0.1",
+    "status": "passed",
+    "githubDigestMatched": true
+  },
+  "workflowWarnings": [
+    "Actions Node.js 20运行时弃用提示；当前任务已成功，下次维护时升级Actions版本。",
+    "ubuntu-latest预计于2026-10-19起迁移Ubuntu26；当前任务已成功，未来应复核运行环境。"
+  ],
+  "localVsPublishedPackage": {
+    "byteIdentical": false,
+    "verifiedDifferencesOnly": [
+      "CRLF/LF line endings",
+      "Vue scoped-style IDs (consistent bijection in JavaScript and CSS)",
+      "generated asset filenames and matching HTML references"
+    ],
+    "normalizedContentEquivalent": true,
+    "scopeIdPairs": 18,
+    "generatedAssetNames": {
+      "dist/assets/index-CkclW4XG.js": "dist/assets/index-BZ3a6Cik.js",
+      "dist/assets/index-C_XBN2GP.css": "dist/assets/index-C7ISQF6i.css"
+    },
+    "cause": "@vitejs/plugin-vue production scope ID hashes filename plus source text; Windows CRLF and Linux LF produce different IDs",
+    "downloadRecommendation": "Use the GitHub Release asset; its SHA256 is recorded in publishedAssets"
+  }
 }
